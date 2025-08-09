@@ -3,6 +3,8 @@ package com.market.tradingbit.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -24,6 +26,9 @@ public class User {
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "creation_date")
+    private Date createdAt;
 
     @Override
     public String toString() {
