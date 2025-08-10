@@ -15,18 +15,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/profile/**").hasRole("USER")
-                        .requestMatchers("/register").permitAll()
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/logout").hasRole("USER")
-                        .anyRequest().authenticated()
-                )
+//                .authorizeHttpRequests(auth -> auth //causing error: not displaying CSS anymore (did not happen previously)
+//                        .requestMatchers("/").permitAll()
+//                        .requestMatchers("/profile/**").hasRole("USER")
+//                        .requestMatchers("/register").permitAll()
+//                        .requestMatchers("/login").permitAll()
+//                        .requestMatchers("/logout").hasRole("USER")
+//                        .anyRequest().authenticated()
+//                )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/profile")
+                        .defaultSuccessUrl("/profile", true)
                 )
                 .logout(config -> config.logoutSuccessUrl("/login"))
                 .build();
