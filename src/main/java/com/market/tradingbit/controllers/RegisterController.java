@@ -41,10 +41,11 @@ public class RegisterController {
         if(bindingResult.hasErrors())
             return "signup";
         try {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             User user = User.builder()
                     .name(registerDto.getName())
                     .email(registerDto.getEmail())
-                    .password(new BCryptPasswordEncoder().encode(registerDto.getPassword()))
+                    .password(encoder.encode(registerDto.getPassword()))
                     .role(Role.USER)
                     .createdAt(new Date())
                     .build();
