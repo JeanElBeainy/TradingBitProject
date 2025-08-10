@@ -19,21 +19,33 @@
         <div class="form-group">
             <label for="name">Username</label>
             <input th:field="*{name}" type="name" id="name" name="name" placeholder="Enter your username" required>
+            <p th:if="${#fields.hasErrors('name')}"
+               th:errorclass="text-danger"
+               th:errors="${registerDto.name}"></p>
         </div>
 
         <div class="form-group">
             <label for="email">Email Address</label>
             <input th:field="*{email}" type="email" id="email" name="email" placeholder="Enter your email" required>
+            <p th:if="${#fields.hasErrors('email')}"
+               th:errorclass="text-danger"
+               th:errors="${registerDto.email}"></p>
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
             <input th:field="*{password}" type="password" id="password" name="password" placeholder="Create a password" required>
+            <p th:if="${#fields.hasErrors('password')}"
+               th:errorclass="text-danger"
+               th:errors="${registerDto.password}"></p>
         </div>
 
         <div class="form-group">
             <label for="confirmPassword">Confirm Password</label>
             <input th:field="*{confirmPassword}" type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+            <p th:if="${#fields.hasErrors('confirmPassword')}"
+               th:errorclass="text-danger"
+               th:errors="${registerDto.confirmPassword}"></p>
         </div>
 
         <div class="note">
