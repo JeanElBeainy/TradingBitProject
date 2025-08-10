@@ -1,6 +1,7 @@
 package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.RegisterDto;
+import com.market.tradingbit.entities.Role;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.util.Date;
 
 @Controller
@@ -44,6 +44,7 @@ public class RegisterController {
                     .name(registerDto.getName())
                     .email(registerDto.getEmail())
                     .password(registerDto.getPassword())
+                    .role(Role.USER)
                     .createdAt(new Date())
                     .build();
             System.out.println(user.toString());

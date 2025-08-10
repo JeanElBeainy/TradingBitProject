@@ -30,6 +30,10 @@ public class User {
     @Column(name = "creation_date")
     private Date createdAt;
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING) // telling spring to store this as a string
+    private Role role;
+
     @Override
     public String toString() {
         return "User{" +
