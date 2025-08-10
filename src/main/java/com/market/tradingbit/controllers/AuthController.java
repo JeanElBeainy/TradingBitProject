@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AuthController {
 
     @GetMapping
-    public String login(Model model) {
-        model.addAttribute("loginDto", new LoginDto());
+    public String login() {
         return "signin";
     }
 }
