@@ -6,6 +6,7 @@ import com.market.tradingbit.entities.User;
 import com.market.tradingbit.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,7 +44,7 @@ public class RegisterController {
             User user = User.builder()
                     .name(registerDto.getName())
                     .email(registerDto.getEmail())
-                    .password(registerDto.getPassword())
+                    .password(new BCryptPasswordEncoder().encode(registerDto.getPassword()))
                     .role(Role.USER)
                     .createdAt(new Date())
                     .build();
