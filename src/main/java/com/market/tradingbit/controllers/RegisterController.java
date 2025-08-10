@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +30,15 @@ public class RegisterController {
     }
 
     @PostMapping
-    public String register(@Valid @ModelAttribute RegisterDto registerDto) {
+    public String register(@Valid @ModelAttribute RegisterDto registerDto, BindingResult bindingResult) {
+        if(!registerDto.getPassword().equals(registerDto.getConfirmPassword()))
+            bindingResult.addError(new FieldError("registerDto", "confirmPassword", "Passwords do not match"));
 
+        if(userRepository.findByEmail(registerDto.getEmail()) != null)
+            bindingResult.addError(new FieldError("registerDto", "email", "Email already exists"));
+
+        if(bindingResult.hasErrors())
+            return "signup";
         try {
             User user = User.builder()
                     .name(registerDto.getName())

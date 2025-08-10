@@ -18,7 +18,7 @@
 
         <div class="form-group">
             <label for="name">Username</label>
-            <input th:field="*{name}" type="name" id="name" name="name" placeholder="Enter your username" required>
+            <input th:field="*{name}" type="name" id="name" name="name" placeholder="Enter your username">
             <p th:if="${#fields.hasErrors('name')}"
                th:errorclass="text-danger"
                th:errors="${registerDto.name}"></p>
