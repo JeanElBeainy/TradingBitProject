@@ -17,6 +17,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> auth //causing error: not displaying CSS anymore (did not happen previously)
                         .requestMatchers( "/commonFiles/normalize.css","/main/main.css", "/main/main.js" , "images/**").permitAll()
+                        .requestMatchers("/signup/signup.css", "signin/signin.css").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/profile/**").hasRole("USER")
                         .requestMatchers("/register").permitAll()
@@ -28,6 +29,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/profile", true)
+                        .permitAll()
                 )
                 .logout(config -> config.logoutSuccessUrl("/login"))
                 .build();
