@@ -19,6 +19,7 @@ public class SecurityConfig {
                         .requestMatchers( "/commonFiles/normalize.css","/main/main.css", "/main/main.js" , "images/**").permitAll()
                         .requestMatchers("/signup/signup.css", "signin/signin.css").permitAll()
                         .requestMatchers("/").permitAll()
+                        .requestMatchers("/dashboard/**").hasRole("USER")
                         .requestMatchers("/profile/**").hasRole("USER")
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
