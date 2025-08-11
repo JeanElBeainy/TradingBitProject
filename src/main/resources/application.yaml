@@ -7,3 +7,5 @@ spring:
     password: MyNewPass123!
   jpa:
     show-sql: true
+coinmarketcap:
+  api-key: ${CMC_API_KEY}
