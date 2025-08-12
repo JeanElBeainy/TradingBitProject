@@ -226,7 +226,6 @@ section {
     left: 0;
     background-color: black; /* match table bg */
     z-index: 3; /* stay above other cells */
-    width: 100%;
     text-align: center;
 }
 
@@ -234,12 +233,12 @@ section {
     position: sticky;
     left: 50px;
     z-index: 2;
-    width: 100%;
+    width: 200px;
     background-color: black;
     text-align: center;
 }
 
-@media screen and (max-width: 1300px) {
+@media screen and (max-width: 1482px) {
     .table__section tr td {
         font-size: 1.6rem;
     }
