@@ -2,7 +2,6 @@ package com.market.tradingbit.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.Date;
 
 @Setter
