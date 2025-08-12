@@ -9,3 +9,5 @@ spring:
     show-sql: true
 coinmarketcap:
   api-key: ${CMC_API_KEY}
+coingecko:
+  api-key: ${COIN_GECKO_API}
