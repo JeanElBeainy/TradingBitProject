@@ -4,6 +4,7 @@ import com.market.tradingbit.dtos.RegisterDto;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Role;
 import com.market.tradingbit.entities.User;
+import com.market.tradingbit.mappers.UserMapper;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ public class RegisterController {
 
     private final UserRepository userRepository;
     private final PortfolioRepository portfolioRepository;
+    private final UserMapper userMapper;
 
     @GetMapping
     public String register(Model model) {
@@ -47,13 +49,10 @@ public class RegisterController {
             return "signup";
         try {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            User user = User.builder()
-                    .name(registerDto.getName())
-                    .email(registerDto.getEmail())
-                    .password(encoder.encode(registerDto.getPassword()))
-                    .role(Role.USER)
-                    .createdAt(new Date())
-                    .build();
+            User user = userMapper.toEntity(registerDto);
+            user.setPassword(encoder.encode(user.getPassword()));
+            user.setRole(Role.USER);
+            user.setCreatedAt(new Date());
 
             User savedUser = userRepository.save(user);
 
