@@ -16,8 +16,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth //causing error: not displaying CSS anymore (did not happen previously)
-                        .requestMatchers( "/commonFiles/normalize.css","/main/main.css", "/main/main.js" , "images/**").permitAll()
-                        .requestMatchers("/signup/signup.css", "signin/signin.css").permitAll()
+                        .requestMatchers( "/commonFiles/**","/main/**", "images/**").permitAll()
+                        .requestMatchers("/signup/**", "signin/**").permitAll()
+                        .requestMatchers("/dashboard/**").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/dashboard/**").hasRole("USER")
                         .requestMatchers("/profile/**").hasRole("USER")
@@ -29,7 +30,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/profile", true)
+                        .defaultSuccessUrl("/dashboard", true)
                         .permitAll()
                 )
                 .logout(config -> config.logoutSuccessUrl("/login"))
