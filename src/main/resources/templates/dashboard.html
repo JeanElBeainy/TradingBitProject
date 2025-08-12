@@ -62,116 +62,36 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1.png" alt="Bitcoin logo" class="me-2"></td>
-                    <td>Bitcoin</td>
-                    <td>BTC</td>
-                    <td>$29,845.23</td>
-                    <td>$580,452,000,000</td>
-                    <td>$18,452,000,000</td>
-                    <td class="text-success">+2.34%</td>
-                    <td>19,452,000</td>
-                    <td>21,000,000</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1027.png" alt="Ethereum logo" class="me-2"></td>
-                    <td>Ethereum</td>
-                    <td>ETH</td>
-                    <td>$1,845.56</td>
-                    <td>$221,452,000,000</td>
-                    <td>$9,452,000,000</td>
-                    <td class="text-danger">-0.85%</td>
-                    <td>120,452,000</td>
-                    <td>∞</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/825.png" alt="Tether logo" class="me-2"></td>
-                    <td>Tether</td>
-                    <td>USDT</td>
-                    <td>$1.00000000</td>
-                    <td>$83,452,000,000</td>
-                    <td>$35,452,000,000</td>
-                    <td class="text-success">+0.01%</td>
-                    <td>83,452,000,000,0000</td>
-                    <td>∞</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1839.png" alt="BNB logo" class="me-2"></td>
-                    <td>BNB</td>
-                    <td>BNB</td>
-                    <td>$245.67</td>
-                    <td>$37,452,000,000</td>
-                    <td>$1,452,000,000</td>
-                    <td class="text-danger">-1.12%</td>
-                    <td>152,452,000</td>
-                    <td>200,000,000</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/52.png" alt="XRP logo" class="me-2"></td>
-                    <td>XRP</td>
-                    <td>XRP</td>
-                    <td>$0.64</td>
-                    <td>$34,452,000,000</td>
-                    <td>$1,052,000,000</td>
-                    <td class="text-success">+0.75%</td>
-                    <td>53,452,000,000</td>
-                    <td>100,000,000,000</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/2010.png" alt="Cardano logo" class="me-2"></td>
-                    <td>Cardano</td>
-                    <td>ADA</td>
-                    <td>$0.29</td>
-                    <td>$10,152,000,000</td>
-                    <td>$452,000,000</td>
-                    <td class="text-danger">-0.42%</td>
-                    <td>35,452,000,000</td>
-                    <td>45,000,000,000</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/74.png" alt="Dogecoin logo" class="me-2"></td>
-                    <td>Dogecoin</td>
-                    <td>DOGE</td>
-                    <td>$0.075</td>
-                    <td>$10,452,000,000</td>
-                    <td>$352,000,000</td>
-                    <td class="text-success">+1.05%</td>
-                    <td>139,452,000,000</td>
-                    <td>∞</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/5426.png" alt="Solana logo" class="me-2"></td>
-                    <td>Solana</td>
-                    <td>SOL</td>
-                    <td>$22.54</td>
-                    <td>$9,152,000,000</td>
-                    <td>$452,000,000</td>
-                    <td class="text-success">+3.25%</td>
-                    <td>405,452,000</td>
-                    <td>∞</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/6636.png" alt="Polkadot logo" class="me-2"></td>
-                    <td>Polkadot</td>
-                    <td>DOT</td>
-                    <td>$5.45</td>
-                    <td>$6,452,000,000</td>
-                    <td>$202,000,000</td>
-                    <td class="text-danger">-0.58%</td>
-                    <td>1,182,452,000</td>
-                    <td>∞</td>
-                </tr>
-                <tr>
-                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1975.png" alt="Chainlink logo" class="me-2"></td>
-                    <td>Chainlink</td>
-                    <td>LINK</td>
-                    <td>$7.82</td>
-                    <td>$4,452,000,000</td>
-                    <td>$152,000,000</td>
-                    <td class="text-success">+1.92%</td>
-                    <td>570,452,000</td>
-                    <td>1,000,000,000</td>
-                </tr>
+                    <tr th:each="crypto : ${cryptos}">
+                    <td><img th:src="'https://s2.coinmarketcap.com/static/img/coins/32x32/' + ${crypto.id} + '.png'"
+                             th:alt="${crypto.name + ' logo'}"
+                             width="24" height="24"
+                             class="me-2"></td>
+                    <td th:text="${crypto.name}"></td>
+                    <td th:text="${crypto.symbol}"></td>
+                    <td>
+                     <span th:if="${crypto.price >= 1}"
+                           th:text="'$' + ${#numbers.formatDecimal(crypto.price, 1, 'COMMA', 2, 'POINT')}"></span>
+                        <span th:if="${crypto.price < 1 and crypto.price >= 0.001}"
+                              th:text="'$' + ${#numbers.formatDecimal(crypto.price, 1, 3)}"></span>
+                        <span th:if="${crypto.price < 0.001}"
+                              th:text="'$' + ${#numbers.formatDecimal(crypto.price, 1, 8)}"></span>
+                    </td>
+                    <td th:text="'$' + ${#numbers.formatDecimal(crypto.marketCap, 1, 'COMMA', 0, 'POINT')}"></td>
+                    <td th:text="'$' + ${#numbers.formatDecimal(crypto.volume24h, 1, 'COMMA', 0, 'POINT')}"></td>
+                    <td th:class="${crypto.percentChange24h >= 0} ? 'text-success' : 'text-danger'">
+                        <span th:if="${crypto.percentChange24h >= 0}"
+                              th:text="'+' + ${#numbers.formatDecimal(crypto.percentChange24h, 1, 2)} + '%'"></span>
+                        <span th:unless="${crypto.percentChange24h >= 0}"
+                              th:text="${#numbers.formatDecimal(crypto.percentChange24h, 1, 2)} + '%'"></span>
+                    </td>
+                    <td th:text="${#numbers.formatDecimal(crypto.circulatingSupply, 1, 'COMMA', 0, 'POINT')}"></td>
+                    <td>
+                        <span th:if="${crypto.maxSupply != null}"
+                              th:text="${#numbers.formatDecimal(crypto.maxSupply, 1, 'COMMA', 0, 'POINT')}"></span>
+                        <span th:unless="${crypto.maxSupply != null}">∞</span>
+                    </td>
+                    </tr>
                 </tbody>
 
             </table>
