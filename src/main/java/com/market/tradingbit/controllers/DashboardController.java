@@ -34,6 +34,10 @@ public class DashboardController {
 
         Portfolio portfolio = portfolioRepository.findById(user.getId()).orElseThrow();
         System.out.println(portfolio);
+        userDashboardDto.setUsdBalance(portfolio.getUsdBalance());
+        userDashboardDto.setCryptoBalance(portfolio.getCryptoBalance());
+        userDashboardDto.setStockBalance(portfolio.getStockBalance());
+        userDashboardDto.setTotalBalance(portfolio.getTotalBalance());
 
         model.addAttribute("userDashboardDto", userDashboardDto);
         return "dashboard";
