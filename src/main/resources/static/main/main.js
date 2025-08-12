@@ -1,14 +1,3 @@
-// Collapsible Header Script
-const collapsibles = document.querySelectorAll(".collapsible");
-collapsibles.forEach((item) => {
-    const toggler = item.querySelector('.nav__toggler');
-    if(toggler) {
-        toggler.addEventListener("click", function () {
-            this.parentElement.classList.toggle("collapsible--expanded");
-        });
-    }
-});
-
 // Animation on Scroll Script
 function animateNumber(element, target, duration = 2000) {
     const isDecimal = element.dataset.decimal === 'true';
