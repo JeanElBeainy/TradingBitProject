@@ -62,7 +62,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="crypto : ${cryptos}">
+                    <tr th:each="crypto : ${cryptos}"
+                        th:onclick="'window.location.href=\'' + @{/crypto/{symbol}(symbol=${crypto.symbol})} + '\';'"
+                    >
                     <td><img th:src="'https://s2.coinmarketcap.com/static/img/coins/32x32/' + ${crypto.id} + '.png'"
                              th:alt="${crypto.name + ' logo'}"
                              width="24" height="24"

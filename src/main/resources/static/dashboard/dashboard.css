@@ -220,6 +220,10 @@ section {
     align-items: center;
 }
 
+tbody tr td {
+    cursor: pointer;
+}
+
 .table__section th:first-child,
 .table__section td:first-child {
     position: sticky;
