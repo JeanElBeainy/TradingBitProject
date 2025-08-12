@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.sound.sampled.Port;
 import java.security.Principal;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class DashboardController {
 
         System.out.println(user.getId());
 
-        Optional<Portfolio> portfolio = portfolioRepository.findById(user.getId());
+        Portfolio portfolio = portfolioRepository.findById(user.getId()).orElseThrow();
         System.out.println(portfolio);
 
         model.addAttribute("userDashboardDto", userDashboardDto);
