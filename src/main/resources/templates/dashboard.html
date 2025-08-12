@@ -29,10 +29,10 @@
             <div class="top__container">
                 <div class="user__info" th:object="${userDashboardDto}">
                     <h1>Welcome, <span th:text="*{name}"></span></h1>
-                    <p>USD balance: <span>$103,011.34</span></p>
-                    <p>Crypto balance: <span>$32,034.43</span></p>
-                    <p>Stock balance: <span>$213,012.54</span></p>
-                    <p>Total balance: <span>$000,000</span></p>
+                    <p>USD balance: <span th:text="*{usdBalance}">null</span></p>
+                    <p>Crypto balance: <span th:text="*{cryptoBalance}">null</span></p>
+                    <p>Stock balance: <span th:text="*{stockBalance}">null</span></p>
+                    <p>Total balance: <span th:text="*{totalBalance}">null</span></p>
                 </div>
             </div>
         </div>
