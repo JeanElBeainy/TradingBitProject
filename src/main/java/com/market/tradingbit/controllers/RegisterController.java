@@ -62,9 +62,8 @@ public class RegisterController {
                     .cryptoBalance(0.0)
                     .stockBalance(0.0)
                     .usdBalance(100_000)
-                    .totalBalance(100_000)
                     .build();
-
+            portfolio.setTotalBalance(portfolio.getCryptoBalance() + portfolio.getStockBalance() + portfolio.getUsdBalance());
             portfolioRepository.save(portfolio);
 
         } catch (Exception e) {
