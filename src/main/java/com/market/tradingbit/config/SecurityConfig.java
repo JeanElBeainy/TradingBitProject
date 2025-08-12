@@ -21,6 +21,7 @@ public class SecurityConfig {
                         .requestMatchers("/dashboard/**").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/dashboard/**").hasRole("USER")
+                        .requestMatchers("/crypto/**").hasRole("USER")
                         .requestMatchers("/profile/**").hasRole("USER")
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
