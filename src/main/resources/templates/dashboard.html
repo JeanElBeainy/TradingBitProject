@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dashboard.css">
+    <title>Dashboard</title>
+</head>
+<body>
+<header class="header">
+    <nav class="nav collapsible">
+        <a class="nav__brand" href="">
+            <img src="/Main/Images/TradingBitLogo.webp" alt="TradingBit Logo">
+        </a>
+        <svg class="nav__toggler" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+        </svg>
+        <ul class="collapsible__content nav__list">
+            <li class="nav__item"><a href="#">Account Overview</a></li>
+            <li class="nav__item"><a href="#">Sign Out</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section class="top__section">
+        <div class="top__div">
+            <div class="top__container">
+                <div class="user__info">
+                    <h1>Welcome, <span>Name here!</span></h1>
+                    <p>USD balance: <span>$103,011.34</span></p>
+                    <p>Crypto balance: <span>$32,034.43</span></p>
+                    <p>Stock balance: <span>$213,012.54</span></p>
+                    <p>Total balance: <span>$000,000</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <!-- Search Bar -->
+        <div class="search__container">
+            <input type="text" id="cryptoSearch" placeholder="Search crypto..." onkeyup="filterTable()">
+        </div>
+    </section>
+
+    <section class="table__section">
+        <div class="top__div">
+            <table>
+                <thead>
+                <tr>
+                    <th>Icon</th>
+                    <th>Name</th>
+                    <th>Symbol</th>
+                    <th>Price</th>
+                    <th>Market Cap</th>
+                    <th>Volume (24h)</th>
+                    <th>Change (24h)</th>
+                    <th>Circulating Supply</th>
+                    <th>Max Supply</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1.png" alt="Bitcoin logo" class="me-2"></td>
+                    <td>Bitcoin</td>
+                    <td>BTC</td>
+                    <td>$29,845.23</td>
+                    <td>$580,452,000,000</td>
+                    <td>$18,452,000,000</td>
+                    <td class="text-success">+2.34%</td>
+                    <td>19,452,000</td>
+                    <td>21,000,000</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1027.png" alt="Ethereum logo" class="me-2"></td>
+                    <td>Ethereum</td>
+                    <td>ETH</td>
+                    <td>$1,845.56</td>
+                    <td>$221,452,000,000</td>
+                    <td>$9,452,000,000</td>
+                    <td class="text-danger">-0.85%</td>
+                    <td>120,452,000</td>
+                    <td>∞</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/825.png" alt="Tether logo" class="me-2"></td>
+                    <td>Tether</td>
+                    <td>USDT</td>
+                    <td>$1.00000000</td>
+                    <td>$83,452,000,000</td>
+                    <td>$35,452,000,000</td>
+                    <td class="text-success">+0.01%</td>
+                    <td>83,452,000,000,0000</td>
+                    <td>∞</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1839.png" alt="BNB logo" class="me-2"></td>
+                    <td>BNB</td>
+                    <td>BNB</td>
+                    <td>$245.67</td>
+                    <td>$37,452,000,000</td>
+                    <td>$1,452,000,000</td>
+                    <td class="text-danger">-1.12%</td>
+                    <td>152,452,000</td>
+                    <td>200,000,000</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/52.png" alt="XRP logo" class="me-2"></td>
+                    <td>XRP</td>
+                    <td>XRP</td>
+                    <td>$0.64</td>
+                    <td>$34,452,000,000</td>
+                    <td>$1,052,000,000</td>
+                    <td class="text-success">+0.75%</td>
+                    <td>53,452,000,000</td>
+                    <td>100,000,000,000</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/2010.png" alt="Cardano logo" class="me-2"></td>
+                    <td>Cardano</td>
+                    <td>ADA</td>
+                    <td>$0.29</td>
+                    <td>$10,152,000,000</td>
+                    <td>$452,000,000</td>
+                    <td class="text-danger">-0.42%</td>
+                    <td>35,452,000,000</td>
+                    <td>45,000,000,000</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/74.png" alt="Dogecoin logo" class="me-2"></td>
+                    <td>Dogecoin</td>
+                    <td>DOGE</td>
+                    <td>$0.075</td>
+                    <td>$10,452,000,000</td>
+                    <td>$352,000,000</td>
+                    <td class="text-success">+1.05%</td>
+                    <td>139,452,000,000</td>
+                    <td>∞</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/5426.png" alt="Solana logo" class="me-2"></td>
+                    <td>Solana</td>
+                    <td>SOL</td>
+                    <td>$22.54</td>
+                    <td>$9,152,000,000</td>
+                    <td>$452,000,000</td>
+                    <td class="text-success">+3.25%</td>
+                    <td>405,452,000</td>
+                    <td>∞</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/6636.png" alt="Polkadot logo" class="me-2"></td>
+                    <td>Polkadot</td>
+                    <td>DOT</td>
+                    <td>$5.45</td>
+                    <td>$6,452,000,000</td>
+                    <td>$202,000,000</td>
+                    <td class="text-danger">-0.58%</td>
+                    <td>1,182,452,000</td>
+                    <td>∞</td>
+                </tr>
+                <tr>
+                    <td><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1975.png" alt="Chainlink logo" class="me-2"></td>
+                    <td>Chainlink</td>
+                    <td>LINK</td>
+                    <td>$7.82</td>
+                    <td>$4,452,000,000</td>
+                    <td>$152,000,000</td>
+                    <td class="text-success">+1.92%</td>
+                    <td>570,452,000</td>
+                    <td>1,000,000,000</td>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer__top">
+            <a class="footer__brand footer__item" href="#"><img src="/Main/Images/TradingBitLogo.webp" alt="TradingBit Logo"></a>
+            <div class="footer__links footer__item">
+                <a href="#">FAQ</a>
+                <a href="#">Help</a>
+                <a href="#">Disclaimer</a>
+            </div>
+            <div class="footer__socials footer__item">
+                <a href="https://github.com" aria-label="GitHub" class="social-icon"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+                <a href="https://www.linkedin.com" aria-label="LinkedIn" class="social-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 1 1 8.25 6.5 1.75 1.75 0 0 1 6.5 8.25zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.64 1.64 0 0 0 13 14.19a1.65 1.65 0 0 0 .05 1.56V19h-3v-9h2.9v1.3a3.11 3.11 0 0 1 2.7-1.4c1.55 0 3.35 1 3.35 3.66z"/></svg></a>
+            </div>
+        </div>
+        <div class="footer__text">
+            <span>&copy; 2025 TradingBit. All Rights Reserved.</span>
+        </div>
+    </div>
+</footer>
+
+<script>
+    const collapsibles = document.querySelectorAll(".collapsible");
+    collapsibles.forEach((item) => {
+        const toggler = item.querySelector('.nav__toggler');
+        if(toggler) {
+            toggler.addEventListener("click", function () {
+                this.parentElement.classList.toggle("collapsible--expanded");
+            });
+        }
+    });
+</script>
+
+<script src="search.js"></script>
+</body>
+</html>
