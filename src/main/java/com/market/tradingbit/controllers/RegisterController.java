@@ -1,8 +1,10 @@
 package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.RegisterDto;
+import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Role;
 import com.market.tradingbit.entities.User;
+import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.sound.sampled.Port;
 import java.util.Date;
 
 @Controller
@@ -23,6 +27,7 @@ import java.util.Date;
 public class RegisterController {
 
     private final UserRepository userRepository;
+    private final PortfolioRepository portfolioRepository;
 
     @GetMapping
     public String register(Model model) {
@@ -49,8 +54,20 @@ public class RegisterController {
                     .role(Role.USER)
                     .createdAt(new Date())
                     .build();
-            System.out.println(user.toString());
-            userRepository.save(user);
+
+            User savedUser = userRepository.save(user);
+
+            Portfolio portfolio = Portfolio
+                    .builder()
+                    .id(savedUser.getId())
+                    .cryptoBalance(0.0)
+                    .stockBalance(0.0)
+                    .usdBalance(100_000)
+                    .totalBalance(100_000)
+                    .build();
+
+            portfolioRepository.save(portfolio);
+
         } catch (Exception e) {
             System.out.println("Exception with POST register: " + e.getMessage());
             return "signup";
