@@ -20,6 +20,7 @@ public class DashboardController {
 
     @GetMapping
     public String dashboard(Model model, Principal principal) {
+        if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
         UserDashboardDto userDashboardDto = new UserDashboardDto();
         userDashboardDto.setName(user.getName());
