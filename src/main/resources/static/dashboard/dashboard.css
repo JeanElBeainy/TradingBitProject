@@ -159,6 +159,11 @@ ul {
     }
 }
 
+.user__info h1 span {
+    font-size: 3rem;
+    color: var(--color-primary);
+}
+
 section {
     display: flex;
     align-items: center;

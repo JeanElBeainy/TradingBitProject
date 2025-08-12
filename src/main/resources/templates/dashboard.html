@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,8 +27,8 @@
     <section class="top__section">
         <div class="top__div">
             <div class="top__container">
-                <div class="user__info">
-                    <h1>Welcome, <span>Name here!</span></h1>
+                <div class="user__info" th:object="${userDashboardDto}">
+                    <h1>Welcome, <span th:text="*{name}"></span></h1>
                     <p>USD balance: <span>$103,011.34</span></p>
                     <p>Crypto balance: <span>$32,034.43</span></p>
                     <p>Stock balance: <span>$213,012.54</span></p>
