@@ -13,7 +13,7 @@ import java.util.List;
 public class CoinMarketCapService {
     private final WebClient webClient;
 
-    public CoinMarketCapService(@Value("${coinmarketcap.api-keyy}") String apiKey) {
+    public CoinMarketCapService(@Value("${coinmarketcap.api-key}") String apiKey) {
         this.webClient = WebClient.builder()
                 .baseUrl("https://pro-api.coinmarketcap.com/v1")
                 .defaultHeader("X-CMC_PRO_API_KEY", apiKey)
