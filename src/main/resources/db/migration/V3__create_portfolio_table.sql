@@ -1,4 +1,4 @@
-create table portfolio
+create table balance
 (
     id             bigint auto_increment
         primary key,
