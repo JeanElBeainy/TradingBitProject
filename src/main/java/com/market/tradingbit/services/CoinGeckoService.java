@@ -13,9 +13,9 @@ public class CoinGeckoService {
     public CoinGeckoService(@Value("${coingecko.api-key}") String apiKey) {
         this.webClient = WebClient.builder()
                 .baseUrl("https://api.coingecko.com/api/v3")
-                .defaultHeader("x-cg-demo-api-key", apiKey) // CoinGecko's free tier header
+                .defaultHeader("x-cg-demo-api-key", apiKey)
                 .defaultHeader("Accept", "application/json")
-                .defaultHeader("User-Agent", "Your-App-Name") // Required for free tier
+                .defaultHeader("User-Agent", "TradingBit")
                 .build();
     }
 

@@ -12,8 +12,8 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "portfolio")
-public class Portfolio {
+@Table(name = "balance")
+public class Balance {
 
     @Id
     @Column(name = "id")

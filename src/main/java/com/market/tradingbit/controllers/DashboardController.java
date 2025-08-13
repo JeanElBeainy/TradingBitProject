@@ -1,9 +1,9 @@
 package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.UserDashboardDto;
-import com.market.tradingbit.entities.Portfolio;
+import com.market.tradingbit.entities.Balance;
 import com.market.tradingbit.entities.User;
-import com.market.tradingbit.repositories.PortfolioRepository;
+import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinMarketCapService;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,7 @@ import java.security.Principal;
 public class DashboardController {
 
     private final UserRepository userRepository;
-    private final PortfolioRepository portfolioRepository;
+    private final BalanceRepository balanceRepository;
     private final CoinMarketCapService service;
 
     @GetMapping
@@ -31,12 +31,12 @@ public class DashboardController {
 
         System.out.println(user.getId());
 
-        Portfolio portfolio = portfolioRepository.findById(user.getId()).orElseThrow();
-        System.out.println(portfolio);
-        userDashboardDto.setUsdBalance(portfolio.getUsdBalance());
-        userDashboardDto.setCryptoBalance(portfolio.getCryptoBalance());
-        userDashboardDto.setStockBalance(portfolio.getStockBalance());
-        userDashboardDto.setTotalBalance(portfolio.getTotalBalance());
+        Balance balance = balanceRepository.findById(user.getId()).orElseThrow();
+        System.out.println(balance);
+        userDashboardDto.setUsdBalance(balance.getUsdBalance());
+        userDashboardDto.setCryptoBalance(balance.getCryptoBalance());
+        userDashboardDto.setStockBalance(balance.getStockBalance());
+        userDashboardDto.setTotalBalance(balance.getTotalBalance());
 
         model.addAttribute("userDashboardDto", userDashboardDto);
         model.addAttribute("cryptos", service.getLatestListings());

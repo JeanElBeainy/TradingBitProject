@@ -1,11 +1,11 @@
 package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.RegisterDto;
-import com.market.tradingbit.entities.Portfolio;
+import com.market.tradingbit.entities.Balance;
 import com.market.tradingbit.entities.Role;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.mappers.UserMapper;
-import com.market.tradingbit.repositories.PortfolioRepository;
+import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.sound.sampled.Port;
 import java.util.Date;
 
 @Controller
@@ -28,7 +27,7 @@ import java.util.Date;
 public class RegisterController {
 
     private final UserRepository userRepository;
-    private final PortfolioRepository portfolioRepository;
+    private final BalanceRepository balanceRepository;
     private final UserMapper userMapper;
 
     @GetMapping
@@ -56,15 +55,15 @@ public class RegisterController {
 
             User savedUser = userRepository.save(user);
 
-            Portfolio portfolio = Portfolio
+            Balance balance = Balance
                     .builder()
                     .id(savedUser.getId())
                     .cryptoBalance(0.0)
                     .stockBalance(0.0)
                     .usdBalance(100_000)
                     .build();
-            portfolio.setTotalBalance(portfolio.getCryptoBalance() + portfolio.getStockBalance() + portfolio.getUsdBalance());
-            portfolioRepository.save(portfolio);
+            balance.setTotalBalance(balance.getCryptoBalance() + balance.getStockBalance() + balance.getUsdBalance());
+            balanceRepository.save(balance);
 
         } catch (Exception e) {
             System.out.println("Exception with POST register: " + e.getMessage());
