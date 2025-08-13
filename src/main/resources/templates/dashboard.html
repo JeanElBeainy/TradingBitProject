@@ -63,7 +63,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="crypto : ${cryptos}"
-                        th:onclick="'window.location.href=\'' + @{/crypto/{name}(name=${crypto.name})} + '\';'"
+                        th:onclick="'window.location.href=\'' + @{/swap/{name}(name=${crypto.symbol})} + '\';'"
                     >
                     <td><img th:src="'https://s2.coinmarketcap.com/static/img/coins/32x32/' + ${crypto.id} + '.png'"
                              th:alt="${crypto.name + ' logo'}"
