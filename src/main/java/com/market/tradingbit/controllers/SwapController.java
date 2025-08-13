@@ -16,12 +16,12 @@ import java.util.List;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping("/crypto")
-public class CryptoController {
+@RequestMapping("/swap")
+public class SwapController {
 
     private final CoinGeckoService service;
 
-    @GetMapping("{symbol}")
+    @GetMapping("{/symbol}")
     public String crypto(@PathVariable("symbol") String symbol, @RequestParam(defaultValue = "30") int days, Model model) {
         ChartData data = service.getCryptoChartData(symbol, days);
         List<PricePoint> pricePoints = data.getPrices().stream()
