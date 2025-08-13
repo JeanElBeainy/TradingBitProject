@@ -2,15 +2,18 @@ package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.ChartData;
 import com.market.tradingbit.dtos.PricePoint;
+import com.market.tradingbit.entities.Portfolio;
+import com.market.tradingbit.entities.User;
+import com.market.tradingbit.repositories.PortfolioRepository;
+import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinGeckoService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 
@@ -19,22 +22,24 @@ import java.util.List;
 @RequestMapping("/swap")
 public class SwapController {
 
-    private final CoinGeckoService service;
+    //private final CoinGeckoService service;
+    private final PortfolioRepository portfolioRepository;
+    private final UserRepository userRepository;
 
-    @GetMapping("{/symbol}")
-    public String crypto(@PathVariable("symbol") String symbol, @RequestParam(defaultValue = "30") int days, Model model) {
-        ChartData data = service.getCryptoChartData(symbol, days);
-        List<PricePoint> pricePoints = data.getPrices().stream()
-                .map(list -> {
-                    PricePoint pp = new PricePoint();
-                    pp.setDate(new Date(list.get(0).longValue())); // timestamp → Date
-                    pp.setPrice(list.get(1));
-                    return pp;
-                })
-                .toList();
-        model.addAttribute("chart", pricePoints);
-        model.addAttribute("symbol", symbol);
-        model.addAttribute("days", days);
-        return "cryptoPage";
+    @GetMapping
+    public String swap(Principal principal) {
+        if(principal == null) return "redirect:/login";
+        return "swap";
+    }
+
+    @GetMapping("{symbol}")
+    public String crypto(@PathVariable("symbol") String symbol, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName());
+        List<Portfolio> portfolioList = portfolioRepository.getPortfolioById(user.getId());
+        System.out.println(portfolioList.getFirst().getSymbol());
+        System.out.println(portfolioList.getFirst().getQuantity());
+        System.out.println(portfolioList.getFirst().getId());
+        System.out.println(portfolioList.getFirst().getPurchaseType());
+        return "swap";
     }
 }
