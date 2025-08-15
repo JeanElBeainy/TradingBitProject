@@ -28,14 +28,6 @@ public class SwapController {
         User user;
         try {
             user = userRepository.findByEmail(principal.getName());
-//            Portfolio portfolio = Portfolio.builder()
-//                    .symbol("ETH")
-//                    .name("Ethereum")
-//                    .purchaseType(Type.CRYPTO)
-//                    .quantity(2.0032F)
-//                    .userId(user.getId())
-//                    .build();
-//            portfolioRepository.save(portfolio);
         } catch (Exception e) {
             System.out.println("Exception with swap: " + e.getMessage());
             return "swap";
