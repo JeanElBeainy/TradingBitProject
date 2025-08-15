@@ -1,15 +1,15 @@
 package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.entities.Portfolio;
-import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.entities.User;
+import com.market.tradingbit.models.CryptoNameSymbol;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
+import com.market.tradingbit.services.CoinMarketCapService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
 import java.util.List;
@@ -19,6 +19,7 @@ import java.util.List;
 @RequestMapping("/swap")
 public class SwapController {
 
+    private final CoinMarketCapService service;
     private final PortfolioRepository portfolioRepository;
     private final UserRepository userRepository;
 
@@ -41,6 +42,9 @@ public class SwapController {
         }
         List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(user.getId());
         model.addAttribute("userItems", portfolioList);
+
+        List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
+        model.addAttribute("swapItems", latestListings);
         return "swap";
     }
 
