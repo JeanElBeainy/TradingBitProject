@@ -17,6 +17,9 @@ public class Portfolio {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "user_id")
     private Long userId;
 
