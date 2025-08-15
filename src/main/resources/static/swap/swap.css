@@ -189,13 +189,10 @@ ul {
 }
 
 .swap__from, .swap__to {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 90%;
-}
-
-.swap__from {
-    position: relative;
 }
 
 .swap__to {
