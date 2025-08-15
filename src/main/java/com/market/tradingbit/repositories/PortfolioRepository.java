@@ -18,6 +18,9 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     @Query("SELECT p.symbol FROM Portfolio p WHERE p.userId = :userId")
     List<String> getPortfolioSymbolsByUserId(Long userId);
 
+    @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND p.purchaseType = 'STOCK'")
+    List<String> getStockPortfolioByUserId(Long userId);
+
     @Modifying
     @Transactional
     @Query("UPDATE Portfolio p SET p.quantity = (p.quantity + :quantity) WHERE p.symbol = :symbol AND p.userId = :userId")
