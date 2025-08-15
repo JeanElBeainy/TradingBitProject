@@ -47,12 +47,12 @@ public class SwapController {
     }
 
     @PostMapping("/crypto")
-    public String cryptoSwap(Model model, @Valid @ModelAttribute SwapDto swap, Principal principal, BindingResult bindingResult) {
-        if(swap.getFrom() == null)
+    public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
+        if(swap.getFrom().isBlank())
             bindingResult.addError(new FieldError(
                     "swap", "from", "Please select a valid currency that you own."
             ));
-        if(swap.getTo() == null)
+        if(swap.getTo().isBlank())
             bindingResult.addError(new FieldError(
                     "swap", "to", "Please select a valid currency to swap."
             ));
