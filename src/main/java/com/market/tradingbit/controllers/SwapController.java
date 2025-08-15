@@ -19,19 +19,11 @@ import java.util.List;
 @RequestMapping("/swap")
 public class SwapController {
 
-    //private final CoinGeckoService service;
     private final PortfolioRepository portfolioRepository;
     private final UserRepository userRepository;
 
     @GetMapping
-    public String swap(Principal principal) {
-        if(principal == null) return "redirect:/login";
-        return "swap";
-    }
-
-    //ISSUE: Function looping 3 times
-    @GetMapping("/{symbol}")
-    public String swap(@PathVariable("symbol") String symbol, Model model, Principal principal) {
+    public String swap(Model model, Principal principal) {
         User user;
         try {
             user = userRepository.findByEmail(principal.getName());
