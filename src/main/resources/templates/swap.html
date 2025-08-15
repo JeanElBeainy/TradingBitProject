@@ -39,7 +39,7 @@
                          class="dropdown-item"
                          th:data-symbol="${item.symbol}"
                          th:data-name="${item.name}"
-                         onclick="selectCrypto(this.dataset.symbol)">
+                         onclick="selectCrypto(this.dataset.name, this.dataset.symbol)">
                         <div class="item-info">
                             <span class="item-name" th:text="${item.name}"></span>
                             <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
@@ -49,16 +49,6 @@
                             <span class="type" th:text="${item.purchaseType}"></span>
                         </div>
                     </div>
-<!--                    <div class="dropdown-item" onclick="selectCrypto('BTC')">Bitcoin (BTC)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto('ETH')">Ethereum (ETH)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto('ADA')">Cardano (ADA)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto('XRP')">XRP (XRP)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto('DOGE')">Dogecoin (DOGE)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto('SOL')">Solana (SOL)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto()">Polkadot (DOT)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto()">Polygon (MATIC)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto()">Litecoin (LTC)</div>-->
-<!--                    <div class="dropdown-item" onclick="selectCrypto()">Binance Coin (BNB)</div>-->
                 </div>
             </div>
 
@@ -147,8 +137,8 @@
         }
     });
 
-    function selectCrypto() {
-        searchInput.value = event.target.innerText;
+    function selectCrypto(name, symbol) {
+        searchInput.value = name + ' (' + symbol + ')';
         dropdownList.style.display = 'none';
     }
 </script>
