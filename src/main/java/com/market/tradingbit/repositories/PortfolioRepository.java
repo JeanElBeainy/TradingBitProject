@@ -6,20 +6,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.util.List;
 
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
-    //@EntityGraph(attributePaths = {"user_id"})
-    //@Query("SELECT p FROM Portfolio p WHERE p.userId = :user_id")
     List<Portfolio> getPortfolioByUserId(Long userId);
 
     @Query("SELECT p.symbol FROM Portfolio p WHERE p.userId = :userId")
     List<String> getPortfolioSymbolsByUserId(Long userId);
 
+    @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND p.purchaseType = 'CRYPTO'")
+    List<Portfolio> getCryptoPortfolioByUserId(Long userId);
+
     @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND p.purchaseType = 'STOCK'")
-    List<String> getStockPortfolioByUserId(Long userId);
+    List<Portfolio> getStockPortfolioByUserId(Long userId);
 
     @Modifying
     @Transactional
