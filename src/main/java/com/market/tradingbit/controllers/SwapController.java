@@ -50,7 +50,11 @@ public class SwapController {
     public String cryptoSwap(Model model, @Valid @ModelAttribute SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(swap.getFrom() == null)
             bindingResult.addError(new FieldError(
-                    "swap", "from", "Please select a valid currency that you own"
+                    "swap", "from", "Please select a valid currency that you own."
+            ));
+        if(swap.getTo() == null)
+            bindingResult.addError(new FieldError(
+                    "swap", "to", "Please select a valid currency to swap."
             ));
         if(bindingResult.hasErrors()) return "swap";
         return "swap";
