@@ -27,72 +27,85 @@
 
 <main>
     <section class="swap__section">
-        <div class="swap__box">
-            <div class="from__text">
-                <p>From</p>
-            </div>
-
-            <div class="swap__from">
-                <input type="text" id="cryptoSearch" class="swap__input" placeholder="Search your portfolio">
-                <div id="dropdownList" class="dropdown-list">
-                    <div th:each="item : ${userItems}"
-                         class="dropdown-item"
-                         th:data-symbol="${item.symbol}"
-                         th:data-name="${item.name}"
-                         onclick="selectCrypto(this.dataset.name, this.dataset.symbol)">
-                        <div class="item-info">
-                            <span class="item-name" th:text="${item.name}"></span>
-                            <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
-                        </div>
-                        <div class="item-details">
-                            <span class="quantity" th:text="'Qty: ' + ${#numbers.formatDecimal(item.quantity, 0, 'COMMA', 8, 'POINT')}"></span>
-                            <span class="type" th:text="${item.purchaseType}"></span>
-                        </div>
-                    </div>
+        <form th:action="@{/swap/crypto}" method="post" th:object="${swap}">
+            <div class="swap__box">
+                <div class="from__text">
+                    <p>From</p>
                 </div>
-            </div>
 
-            <div class="swap__arrow__line">
-                <div class="line">
-                    <img src="/images/down-arrow.svg" alt="down-arrow">
-                </div>
-            </div>
-
-            <div class="to__text">
-                <p>To</p>
-            </div>
-
-            <div class="swap__to">
-                <input type="text" id="cryptoSearchTo" class="swap__input" placeholder="Swap to ...">
-                <div id="dropdownListTo" class="dropdown-list">
-                    <div th:each="swapTo : ${swapItems}"
-                         class="dropdown-item"
-                         th:data-symbol="${swapTo.symbol}"
-                         th:data-name="${swapTo.name}"
-                         onclick="selectCryptoTo(this.dataset.name, this.dataset.symbol)">
-                        <div class="item-info">
-                            <span class="item-name" th:text="${swapTo.name}"></span>
-                            <span class="item-symbol" th:text="'(' + ${swapTo.symbol} + ')'"></span>
+                <div class="swap__from">
+                    <input th:field="*{from}" type="text" id="cryptoSearch" class="swap__input" placeholder="Search your portfolio">
+                    <p th:if="${#fields.hasErrors('from')}"
+                       th:errorclass="text-danger"
+                       th:errors="*{from}"></p>
+                    <div id="dropdownList" class="dropdown-list">
+                        <div th:each="item : ${userItems}"
+                             class="dropdown-item"
+                             th:data-symbol="${item.symbol}"
+                             th:data-name="${item.name}"
+                             onclick="selectCrypto(this.dataset.name, this.dataset.symbol)">
+                            <div class="item-info">
+                                <span class="item-name" th:text="${item.name}"></span>
+                                <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
+                            </div>
+                            <div class="item-details">
+                                <span class="quantity" th:text="'Qty: ' + ${#numbers.formatDecimal(item.quantity, 0, 'COMMA', 8, 'POINT')}"></span>
+                                <span class="type" th:text="${item.purchaseType}"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="info__container">
-                <div class="slippage__container">
-                    <div class="slippage__text"><p>Slippage:</p></div>
-                    <div class="slippage__box">
-                        <p>1%</p>
+                <div class="swap__arrow__line">
+                    <div class="line">
+                        <img src="/images/down-arrow.svg" alt="down-arrow">
                     </div>
                 </div>
-                <div class="fee__container">
-                    <div class="fee__text"><p>Platform fee:</p></div>
-                    <div class="fee__box">
-                        <p>0.1%</p>
+
+                <div class="to__text">
+                    <p>To</p>
+                </div>
+
+                <div class="swap__to">
+                    <input th:field="*{to}" type="text" id="cryptoSearchTo" class="swap__input" placeholder="Swap to ...">
+                    <p th:if="${#fields.hasErrors('to')}"
+                       th:errorclass="text-danger"
+                       th:errors="*{to}"></p>
+                    <div id="dropdownListTo" class="dropdown-list">
+                        <div th:each="swapTo : ${swapItems}"
+                             class="dropdown-item"
+                             th:data-symbol="${swapTo.symbol}"
+                             th:data-name="${swapTo.name}"
+                             onclick="selectCryptoTo(this.dataset.name, this.dataset.symbol)">
+                            <div class="item-info">
+                                <span class="item-name" th:text="${swapTo.name}"></span>
+                                <span class="item-symbol" th:text="'(' + ${swapTo.symbol} + ')'"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <div class="info__container">
+                    <div class="slippage__container">
+                        <div class="slippage__text"><p>Slippage:</p></div>
+                        <div class="slippage__box">
+                            <p>1%</p>
+                        </div>
+                    </div>
+                    <div class="fee__container">
+                        <div class="fee__text"><p>Platform fee:</p></div>
+                        <div class="fee__box">
+                            <p>0.1%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="swap__button">
+                    <img src="/images/swap-icon.svg" alt="" class="swap__icon">
+                    <p>Swap</p>
+                </button>
             </div>
-        </div>
+        </form>
     </section>
 </main>
 
