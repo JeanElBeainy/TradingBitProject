@@ -1,16 +1,20 @@
 package com.market.tradingbit.controllers;
 
+import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.models.CryptoNameSymbol;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinMarketCapService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.*;
+
 import java.security.Principal;
 import java.util.List;
 
@@ -38,6 +42,17 @@ public class SwapController {
 
         List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
         model.addAttribute("swapItems", latestListings);
+        model.addAttribute("swap", new SwapDto());
+        return "swap";
+    }
+
+    @PostMapping("/crypto")
+    public String cryptoSwap(Model model, @Valid @ModelAttribute SwapDto swap, Principal principal, BindingResult bindingResult) {
+        if(swap.getFrom() == null)
+            bindingResult.addError(new FieldError(
+                    "swap", "from", "Please select a valid currency that you own"
+            ));
+        if(bindingResult.hasErrors()) return "swap";
         return "swap";
     }
 
