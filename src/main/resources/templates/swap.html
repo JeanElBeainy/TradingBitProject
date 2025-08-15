@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/commonFiles/normalize.css">
     <link rel="stylesheet" href="/swap/swap.css">
-    <title>Crypto Swap</title>
+    <title>Swap</title>
 </head>
 <body>
 <header class="header">
     <nav class="nav collapsible">
         <a class="nav__brand" href="">
-            <img src="/Main/Images/TradingBitLogo.webp" alt="TradingBit Logo">
+            <img src="/images/TradingBitLogo.webp" alt="TradingBit Logo">
         </a>
         <svg class="nav__toggler" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
             <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
@@ -35,16 +35,30 @@
             <div class="swap__from">
                 <input type="text" id="cryptoSearch" class="swap__input" placeholder="Search your portfolio">
                 <div id="dropdownList" class="dropdown-list">
-                    <div class="dropdown-item" onclick="selectCrypto('BTC')">Bitcoin (BTC)</div>
-                    <div class="dropdown-item" onclick="selectCrypto('ETH')">Ethereum (ETH)</div>
-                    <div class="dropdown-item" onclick="selectCrypto('ADA')">Cardano (ADA)</div>
-                    <div class="dropdown-item" onclick="selectCrypto('XRP')">XRP (XRP)</div>
-                    <div class="dropdown-item" onclick="selectCrypto('DOGE')">Dogecoin (DOGE)</div>
-                    <div class="dropdown-item" onclick="selectCrypto('SOL')">Solana (SOL)</div>
-                    <div class="dropdown-item" onclick="selectCrypto()">Polkadot (DOT)</div>
-                    <div class="dropdown-item" onclick="selectCrypto()">Polygon (MATIC)</div>
-                    <div class="dropdown-item" onclick="selectCrypto()">Litecoin (LTC)</div>
-                    <div class="dropdown-item" onclick="selectCrypto()">Binance Coin (BNB)</div>
+                    <div th:each="item : ${userItems}"
+                         class="dropdown-item"
+                         th:data-symbol="${item.symbol}"
+                         th:data-name="${item.name}"
+                         onclick="selectCrypto(this.dataset.symbol)">
+                        <div class="item-info">
+                            <span class="item-name" th:text="${item.name}"></span>
+                            <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="quantity" th:text="'Qty: ' + ${#numbers.formatDecimal(item.quantity, 0, 'COMMA', 8, 'POINT')}"></span>
+                            <span class="type" th:text="${item.purchaseType}"></span>
+                        </div>
+                    </div>
+<!--                    <div class="dropdown-item" onclick="selectCrypto('BTC')">Bitcoin (BTC)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto('ETH')">Ethereum (ETH)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto('ADA')">Cardano (ADA)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto('XRP')">XRP (XRP)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto('DOGE')">Dogecoin (DOGE)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto('SOL')">Solana (SOL)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto()">Polkadot (DOT)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto()">Polygon (MATIC)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto()">Litecoin (LTC)</div>-->
+<!--                    <div class="dropdown-item" onclick="selectCrypto()">Binance Coin (BNB)</div>-->
                 </div>
             </div>
 
@@ -76,6 +90,7 @@
                     </div>
                 </div>
             </div>
+        </div>
     </section>
 </main>
 
@@ -84,7 +99,7 @@
 <footer class="footer">
     <div class="container">
         <div class="footer__top">
-            <a class="footer__brand footer__item" href="#"><img src="/Main/Images/TradingBitLogo.webp" alt="TradingBit Logo"></a>
+            <a class="footer__brand footer__item" href="#"><img src="/images/TradingBitLogo.webp" alt="TradingBit Logo"></a>
             <div class="footer__links footer__item">
                 <a href="#">FAQ</a>
                 <a href="#">Help</a>
