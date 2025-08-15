@@ -22,8 +22,8 @@ public class SwapController {
     private final PortfolioRepository portfolioRepository;
     private final UserRepository userRepository;
 
-    @GetMapping
-    public String swap(Model model, Principal principal) {
+    @GetMapping("/crypto")
+    public String cryptoSwap(Model model, Principal principal) {
         User user;
         try {
             user = userRepository.findByEmail(principal.getName());
@@ -41,6 +41,12 @@ public class SwapController {
         }
         List<Portfolio> portfolioList = portfolioRepository.getPortfolioByUserId(user.getId());
         model.addAttribute("userItems", portfolioList);
+        return "swap";
+    }
+
+    @GetMapping("/stock")
+    public String stockSwap(Model model, Principal principal) {
+
         return "swap";
     }
 }
