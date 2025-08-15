@@ -25,6 +25,7 @@ public class SwapController {
 
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
+        if(principal == null) return "redirect:/login";
         User user;
         try {
             user = userRepository.findByEmail(principal.getName());
@@ -42,6 +43,7 @@ public class SwapController {
 
     @GetMapping("/stock")
     public String stockSwap(Model model, Principal principal) {
+        if(principal == null) return "redirect:/login";
         List<Portfolio> portfolioList = portfolioRepository.getStockPortfolioByUserId(userRepository.findByEmail(principal.getName()).getId());
         model.addAttribute("userItems", portfolioList);
         return "swap";
