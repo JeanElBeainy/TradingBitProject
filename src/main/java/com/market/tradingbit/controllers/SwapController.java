@@ -39,14 +39,15 @@ public class SwapController {
             System.out.println("Exception with swap: " + e.getMessage());
             return "swap";
         }
-        List<Portfolio> portfolioList = portfolioRepository.getPortfolioByUserId(user.getId());
+        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(user.getId());
         model.addAttribute("userItems", portfolioList);
         return "swap";
     }
 
     @GetMapping("/stock")
     public String stockSwap(Model model, Principal principal) {
-
+        List<Portfolio> portfolioList = portfolioRepository.getStockPortfolioByUserId(userRepository.findByEmail(principal.getName()).getId());
+        model.addAttribute("userItems", portfolioList);
         return "swap";
     }
 }
