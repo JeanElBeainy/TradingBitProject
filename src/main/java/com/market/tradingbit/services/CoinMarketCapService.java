@@ -6,6 +6,8 @@ import com.market.tradingbit.models.CryptoNameSymbol;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,9 +37,13 @@ public class CoinMarketCapService {
     }
 
     public List<CryptoNameSymbol> getLatestNameAndSymbol() {
-        return getLatestListings().stream()
+        List<CryptoNameSymbol> list = getLatestListings().stream()
                 .map(c -> new CryptoNameSymbol(c.getName(), c.getSymbol()))
                 .toList();
+
+        List<CryptoNameSymbol> result = new ArrayList<>(list);
+        result.add(new CryptoNameSymbol("US Dollar Balance", "US Dollar"));
+        return result;
     }
 
 
