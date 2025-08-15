@@ -27,24 +27,20 @@ public class SwapController {
         User user;
         try {
             user = userRepository.findByEmail(principal.getName());
-            Portfolio portfolio = Portfolio.builder()
-                    .symbol("BTC")
-                    .name("Bitcoin")
-                    .purchaseType(Type.CRYPTO)
-                    .quantity(1)
-                    .userId(user.getId())
-                    .build();
-            System.out.println(portfolio);
-            portfolioRepository.save(portfolio);
+//            Portfolio portfolio = Portfolio.builder()
+//                    .symbol("ETH")
+//                    .name("Ethereum")
+//                    .purchaseType(Type.CRYPTO)
+//                    .quantity(2.0032F)
+//                    .userId(user.getId())
+//                    .build();
+//            portfolioRepository.save(portfolio);
         } catch (Exception e) {
             System.out.println("Exception with swap: " + e.getMessage());
             return "swap";
         }
-        System.out.println(portfolioRepository.getPortfolioSymbolsByUserId(user.getId()));
         List<Portfolio> portfolioList = portfolioRepository.getPortfolioByUserId(user.getId());
-        System.out.println(portfolioList.size());
         model.addAttribute("userItems", portfolioList);
-        portfolioRepository.updatePortfolioQuantity(0.5F, "BTC", user.getId());
         return "swap";
     }
 }
