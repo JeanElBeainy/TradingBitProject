@@ -62,7 +62,7 @@
 
                 <div id="quantitySection" style="display: none;">
                     <div class="from__text"><p>Amount</p></div>
-                    <input type="number" th:field="*{quantity}" id="quantityInput" class="swap__input" placeholder="0.0">
+                    <input type="number" th:field="*{quantity}" id="quantityInput" class="swap__input" placeholder="0.0" step="0.00000001" min="0">
                     <div class="quantity__buttons">
                         <button type="button" class="btn-percent" data-percent="0.25">25%</button>
                         <button type="button" class="btn-percent" data-percent="0.50">50%</button>
