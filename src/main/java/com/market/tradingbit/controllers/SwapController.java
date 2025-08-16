@@ -57,12 +57,12 @@ public class SwapController {
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
-        if(swap.getFrom().isBlank()) {
+        if(swap.getFrom() == null || swap.getFrom().isEmpty()) {
             bindingResult.addError(new FieldError(
                     "swap", "from", "Please select a valid currency that you own."
             ));
         }
-        if(swap.getTo().isBlank()) {
+        if(swap.getTo() == null || swap.getTo().isEmpty()) {
             bindingResult.addError(new FieldError(
                     "swap", "to", "Please select a valid currency to swap."
             ));
@@ -72,7 +72,7 @@ public class SwapController {
                     "swap", "quantity", "Quantity cannot be less than or equal to zero."
             ));
         }
-            List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
+        List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
         if(prices.size() < 2) {
             bindingResult.addError(new FieldError(
                     "swap", "quantity", "One or more of the currencies you selected are not valid."
