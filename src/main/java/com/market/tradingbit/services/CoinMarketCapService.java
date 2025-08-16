@@ -2,6 +2,7 @@ package com.market.tradingbit.services;
 
 import com.market.tradingbit.models.CmcResponse;
 import com.market.tradingbit.models.CryptoInfo;
+import com.market.tradingbit.models.CryptoNamePrice;
 import com.market.tradingbit.models.CryptoNameSymbol;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,5 +47,16 @@ public class CoinMarketCapService {
         return result;
     }
 
+    public List<CryptoNamePrice> getPricesBySymbols(String symbol1, String symbol2) {
+        List<CryptoInfo> allCryptos = getLatestListings();
+
+        return allCryptos.stream()
+                .filter(c -> c.getSymbol().equalsIgnoreCase(symbol1) || c.getSymbol().equalsIgnoreCase(symbol2))
+                .map(c -> new CryptoNamePrice(
+                        c.getName(),
+                        c.getQuote().get("USD").getPrice()
+                ))
+                .toList();
+    }
 
 }
