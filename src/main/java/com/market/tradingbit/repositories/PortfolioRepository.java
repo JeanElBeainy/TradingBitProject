@@ -18,6 +18,9 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND (p.purchaseType = 'CRYPTO' OR p.purchaseType = 'USD')")
     List<Portfolio> getCryptoPortfolioByUserId(Long userId);
 
+    @Query("SELECT p FROM Portfolio p WHERE p.symbol = :symbol AND p.userId = :userId")
+    Portfolio getItemBySymbolAndUserId(String symbol, Long userId);
+
     @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND (p.purchaseType = 'STOCK' OR p.purchaseType = 'USD')")
     List<Portfolio> getStockPortfolioByUserId(Long userId);
 
