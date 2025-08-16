@@ -28,7 +28,7 @@
 <main>
     <section class="swap__section">
         <form id="swappingForm" method="post" th:object="${swap}">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
             <div class="swap__box">
                 <div class="from__text">
@@ -36,16 +36,18 @@
                 </div>
 
                 <div class="swap__from">
-                    <input th:field="*{from}" type="text" id="cryptoSearch" class="swap__input" placeholder="Search your portfolio">
+                    <input type="hidden" th:field="*{from}">
+                    <input type="text" id="cryptoSearch" class="swap__input" placeholder="Search your portfolio">
                     <p th:if="${#fields.hasErrors('from')}"
                        th:errorclass="text-danger"
                        th:errors="*{from}"></p>
+
                     <div id="dropdownList" class="dropdown-list">
                         <div th:each="item : ${userItems}"
                              class="dropdown-item"
                              th:data-symbol="${item.symbol}"
                              th:data-name="${item.name}"
-                             onclick="selectCrypto(this.dataset.name, this.dataset.symbol)">
+                             th:data-quantity="${item.quantity}">
                             <div class="item-info">
                                 <span class="item-name" th:text="${item.name}"></span>
                                 <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
@@ -56,6 +58,20 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div id="quantitySection" style="display: none;">
+                    <div class="from__text"><p>Amount</p></div>
+                    <input type="number" th:field="*{quantity}" id="quantityInput" class="swap__input" placeholder="0.0">
+                    <div class="quantity__buttons">
+                        <button type="button" class="btn-percent" data-percent="0.25">25%</button>
+                        <button type="button" class="btn-percent" data-percent="0.50">50%</button>
+                        <button type="button" class="btn-percent" data-percent="0.75">75%</button>
+                        <button type="button" class="btn-percent" data-percent="1">100%</button>
+                    </div>
+                    <p th:if="${#fields.hasErrors('quantity')}"
+                       th:errorclass="text-danger"
+                       th:errors="*{quantity}"></p>
                 </div>
 
                 <div class="swap__arrow__line">
@@ -69,7 +85,8 @@
                 </div>
 
                 <div class="swap__to">
-                    <input th:field="*{to}" type="text" id="cryptoSearchTo" class="swap__input" placeholder="Swap to ...">
+                    <input type="hidden" th:field="*{to}">
+                    <input type="text" id="cryptoSearchTo" class="swap__input" placeholder="Swap to ...">
                     <p th:if="${#fields.hasErrors('to')}"
                        th:errorclass="text-danger"
                        th:errors="*{to}"></p>
@@ -77,8 +94,7 @@
                         <div th:each="swapTo : ${swapItems}"
                              class="dropdown-item"
                              th:data-symbol="${swapTo.symbol}"
-                             th:data-name="${swapTo.name}"
-                             onclick="selectCryptoTo(this.dataset.name, this.dataset.symbol)">
+                             th:data-name="${swapTo.name}">
                             <div class="item-info">
                                 <span class="item-name" th:text="${swapTo.name}"></span>
                                 <span class="item-symbol" th:text="'(' + ${swapTo.symbol} + ')'"></span>
@@ -88,18 +104,6 @@
                 </div>
 
                 <div class="info__container">
-                    <div class="slippage__container">
-                        <div class="slippage__text"><p>Slippage:</p></div>
-                        <div class="slippage__box">
-                            <p>1%</p>
-                        </div>
-                    </div>
-                    <div class="fee__container">
-                        <div class="fee__text"><p>Platform fee:</p></div>
-                        <div class="fee__box">
-                            <p>0.1%</p>
-                        </div>
-                    </div>
                 </div>
 
                 <button type="submit" class="swap__button">
