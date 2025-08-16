@@ -27,6 +27,15 @@ public class SwapController {
     private final PortfolioRepository portfolioRepository;
     private final UserRepository userRepository;
 
+    private void populateModel(Model model, User user) {
+        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(user.getId());
+        model.addAttribute("userItems", portfolioList);
+
+        List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
+        model.addAttribute("swapItems", latestListings);
+        model.addAttribute("swap", new SwapDto());
+    }
+
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
@@ -37,17 +46,13 @@ public class SwapController {
             System.out.println("Exception with swap: " + e.getMessage());
             return "swap";
         }
-        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(user.getId());
-        model.addAttribute("userItems", portfolioList);
-
-        List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
-        model.addAttribute("swapItems", latestListings);
-        model.addAttribute("swap", new SwapDto());
+        populateModel(model, user);
         return "swap";
     }
 
     @PostMapping("/crypto")
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
+        if(principal == null) return "redirect:/login";
         if(swap.getFrom().isBlank())
             bindingResult.addError(new FieldError(
                     "swap", "from", "Please select a valid currency that you own."
@@ -56,7 +61,14 @@ public class SwapController {
             bindingResult.addError(new FieldError(
                     "swap", "to", "Please select a valid currency to swap."
             ));
-        if(bindingResult.hasErrors()) return "swap";
+        User user = userRepository.findByEmail(principal.getName());
+        if(bindingResult.hasErrors()) {
+            populateModel(model, user);
+            return "swap";
+        }
+        portfolioRepository.updatePortfolioQuantity(swap.getQuantity()*-1, swap.getFrom(), user.getId());
+        portfolioRepository.updatePortfolioQuantity(swap.getQuantity(), swap.getTo(), user.getId());
+        populateModel(model, user);
         return "swap";
     }
 
