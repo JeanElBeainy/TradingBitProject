@@ -35,13 +35,31 @@ public class SwapController {
 
         List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
         model.addAttribute("swapItems", latestListings);
-        //model.addAttribute("swap", new SwapDto());
     }
 
     private String returnBindingResult(Model model, User user, SwapDto swap) {
         populateModel(model, user);
         model.addAttribute("swap", swap);
         return "swap";
+    }
+
+    private void appendToRepository(SwapDto swap, Long userId, String toName, float quantityPriceTo) {
+        if(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), userId) == null) {
+            portfolioRepository.save(Portfolio.builder()
+                    .symbol(swap.getTo())
+                    .purchaseType(Type.CRYPTO)
+                    .userId(userId)
+                    .name(toName)
+                    .quantity(quantityPriceTo)
+                    .build());
+        } else
+            portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), userId);
+
+        portfolioRepository.updatePortfolioQuantity(swap.getQuantity()*-1, swap.getFrom(), userId);
+
+        if(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getQuantity() == 0)
+            portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getId());
+
     }
 
     @GetMapping("/crypto")
@@ -63,9 +81,11 @@ public class SwapController {
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
+
         Double toPrice;
         String toName;
         float quantityPriceFrom = swap.getQuantity();
+        float feePercentage = 0.001f;
 
         if(swap.getFrom() == null || swap.getFrom().isEmpty())
             bindingResult.addError(new FieldError("swap", "from", "Please select a valid currency that you own."));
@@ -79,19 +99,17 @@ public class SwapController {
             bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
 
         if(swap.getFrom().equals("US Dollar")) {
-            CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
             if(swap.getQuantity() < 1) {
                 bindingResult.addError(new FieldError(
                         "swap", "quantity", "Minimum swap price must be at least 1 USD."
                 ));
-                populateModel(model, user);
-                model.addAttribute("swap", swap);
-                return "swap";
+                return returnBindingResult(model, user, swap);
             }
+            CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
             toPrice = price.getPrice();
             toName = price.getName();
             float quantityPriceTo = (float) (swap.getQuantity() / price.getPrice());
-            float fee = quantityPriceTo * 0.001f;
+            float fee = quantityPriceTo * feePercentage;
             quantityPriceTo -= fee;
         } else {
             List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
@@ -111,30 +129,12 @@ public class SwapController {
         if(bindingResult.hasErrors())
             return returnBindingResult(model, user, swap);
 
-        System.out.println("quantity price from: " + quantityPriceFrom);
         float quantityPriceTo = (float) (quantityPriceFrom / toPrice);
-        System.out.println("quantity price to: " + quantityPriceTo);
-        float fee = quantityPriceTo * 0.001f;
+        float fee = quantityPriceTo * feePercentage;
         quantityPriceTo -= fee;
-        System.out.println("fee in " + swap.getTo() + ": " + fee);
-        if(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), user.getId()) == null) {
-            portfolioRepository.save(Portfolio.builder()
-                            .symbol(swap.getTo())
-                            .purchaseType(Type.CRYPTO)
-                            .userId(user.getId())
-                            .name(toName)
-                            .quantity(quantityPriceTo)
-                    .build());
-        } else
-            portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), user.getId());
 
-        portfolioRepository.updatePortfolioQuantity(swap.getQuantity()*-1, swap.getFrom(), user.getId());
+        appendToRepository(swap, user.getId(), toName, quantityPriceTo);
 
-        if(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getQuantity() == 0)
-            portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getId());
-
-        System.out.println(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), user.getId()).getQuantity());
-        System.out.println("Put " + quantityPriceTo + " " + swap.getTo() + " in portfolio.");
         populateModel(model, user);
         return "swap";
     }
