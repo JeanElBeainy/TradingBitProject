@@ -143,11 +143,13 @@
                     <p>Swap</p>
                 </button>
 
-                <div th:if="${success}" class="success__message">
+                <div th:if="${success}" class="success__message" th:field="${successfulSwap}">
                     <p>Swap successful!</p>
-                    <p>BTC -> XRP</p>
-                    <p> Qtty -> qtty</p>
-                    <p>Fee: fee in xrp</p>
+                    <p>Pair: <span th:text="*{from}"></span> -> <span th:text="*{to}"></span></p>
+                    <p>Quantity: <span th:text="${successfulSwap.fromQuantity}"></span>
+                        ->
+                        <span th:text="${successfulSwap.toQuantity}"></span></p>
+                    <p>Fee: <span th:text="${successfulSwap.fee}"></span> in <span th:text="*{to}"></span></p>
                 </div>
             </div>
         </form>
