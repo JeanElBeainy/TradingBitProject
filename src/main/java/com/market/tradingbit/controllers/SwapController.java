@@ -57,33 +57,35 @@ public class SwapController {
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
-        if(swap.getFrom() == null || swap.getFrom().isEmpty()) {
+        if(swap.getFrom() == null || swap.getFrom().isEmpty())
             bindingResult.addError(new FieldError(
                     "swap", "from", "Please select a valid currency that you own."
             ));
-        }
-        if(swap.getTo() == null || swap.getTo().isEmpty()) {
+        if(swap.getTo() == null || swap.getTo().isEmpty())
             bindingResult.addError(new FieldError(
                     "swap", "to", "Please select a valid currency to swap."
             ));
-        }
-        if(swap.getQuantity() <= 0) {
+        if(swap.getQuantity() <= 0)
             bindingResult.addError(new FieldError(
                     "swap", "quantity", "Quantity cannot be less than or equal to zero."
             ));
-        }
+
         List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
         if(prices.size() < 2) {
             bindingResult.addError(new FieldError(
                     "swap", "to", "One or more of the currencies you selected are not valid."
             ));
         }
+        float quantityPriceFrom = (float) (prices.getFirst().getPrice() * swap.getQuantity());
+        if(quantityPriceFrom < 1)
+            bindingResult.addError(new FieldError(
+                    "swap", "quantity", "Minimum swap price must be at least 1 USD."
+            ));
         if(bindingResult.hasErrors()) {
-            populateModel(model, user); //TODO: work on bindingResult (not displaying)
+            populateModel(model, user);
             model.addAttribute("swap", swap);
             return "swap";
         }
-        float quantityPriceFrom = (float) (prices.getFirst().getPrice() * swap.getQuantity());
         System.out.println("quantity price from: " + quantityPriceFrom);
         float quantityPriceTo = (float) (quantityPriceFrom / prices.getLast().getPrice());
         System.out.println("quantity price to: " + quantityPriceTo);
