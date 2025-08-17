@@ -311,6 +311,22 @@ ul {
 .dropdown-list::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
+.error__field {
+    width: 100%;
+    position: relative;
+    display: flex;
+    margin-top: 3rem;
+    align-items: center;
+    background: rgba(255, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 8px;
+}
+.error__field p {
+    color: white;
+    font-size: 1.7rem;
+    margin: 0;
+    flex: 1;
+}
 
 .swap__arrow__line {
     display: flex;
