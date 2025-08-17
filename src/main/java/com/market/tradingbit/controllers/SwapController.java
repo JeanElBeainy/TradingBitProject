@@ -43,6 +43,19 @@ public class SwapController {
         return "swap";
     }
 
+    private void validateBasicFields(SwapDto swap, BindingResult bindingResult) {
+        if(swap.getFrom() == null || swap.getFrom().isEmpty())
+            bindingResult.addError(new FieldError("swap", "from", "Please select a valid currency that you own."));
+        if(swap.getTo() == null || swap.getTo().isEmpty())
+            bindingResult.addError(new FieldError("swap", "to", "Please select a valid currency to swap."));
+        if(swap.getQuantity() <= 0)
+            bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero."));
+        if(bindingResult.hasErrors())
+            return;
+        if(swap.getFrom().equals(swap.getTo()))
+            bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
+    }
+
     private void appendToRepository(SwapDto swap, Long userId, String toName, float quantityPriceTo) {
         if(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), userId) == null) {
             portfolioRepository.save(Portfolio.builder()
@@ -65,13 +78,7 @@ public class SwapController {
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
-        User user;
-        try {
-            user = userRepository.findByEmail(principal.getName());
-        } catch (Exception e) {
-            System.out.println("Exception with swap: " + e.getMessage());
-            return "swap";
-        }
+        User user = userRepository.findByEmail(principal.getName());
         populateModel(model, user);
         model.addAttribute("swap", new SwapDto());
         return "swap";
@@ -87,16 +94,9 @@ public class SwapController {
         float quantityPriceFrom = swap.getQuantity();
         float feePercentage = 0.001f;
 
-        if(swap.getFrom() == null || swap.getFrom().isEmpty())
-            bindingResult.addError(new FieldError("swap", "from", "Please select a valid currency that you own."));
-        if(swap.getTo() == null || swap.getTo().isEmpty())
-            bindingResult.addError(new FieldError("swap", "to", "Please select a valid currency to swap."));
-        if(swap.getQuantity() <= 0)
-            bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero."));
+        validateBasicFields(swap, bindingResult);
         if(bindingResult.hasErrors())
             return returnBindingResult(model, user, swap);
-        if(swap.getFrom().equals(swap.getTo()))
-            bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
 
         if(swap.getFrom().equals("US Dollar")) {
             if(swap.getQuantity() < 1) {
