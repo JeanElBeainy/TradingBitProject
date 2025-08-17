@@ -69,7 +69,11 @@ public class SwapController {
             bindingResult.addError(new FieldError(
                     "swap", "quantity", "Quantity cannot be less than or equal to zero."
             ));
-
+        if(bindingResult.hasErrors()) {
+            populateModel(model, user);
+            model.addAttribute("swap", swap);
+            return "swap";
+        }
         List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
         if(prices.size() < 2) {
             bindingResult.addError(new FieldError(
