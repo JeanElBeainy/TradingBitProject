@@ -99,6 +99,9 @@ public class SwapController {
             portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), user.getId());
 
         portfolioRepository.updatePortfolioQuantity(swap.getQuantity()*-1, swap.getFrom(), user.getId());
+        if(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getQuantity() == 0) {
+            portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getId());
+        }
         populateModel(model, user);
         return "swap";
     }
