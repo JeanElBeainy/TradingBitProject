@@ -143,9 +143,9 @@
                     <p>Swap</p>
                 </button>
 
-                <div class="success__content">
+                <div class="success__content" th:if="${success}">
 
-                    <div th:if="${success}" class="success__message" th:field="${successfulSwap}">
+                    <div class="success__message" th:field="${successfulSwap}">
                         <p>Swap successful!</p>
                         <p>Pair: <span th:text="*{from}"></span> -> <span th:text="*{to}"></span></p>
                         <p>Quantity: <span th:text="${successfulSwap.fromQuantity}"></span>

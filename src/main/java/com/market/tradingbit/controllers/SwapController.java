@@ -91,6 +91,7 @@ public class SwapController {
         User user = userRepository.findByEmail(principal.getName());
         populateModel(model, user);
         model.addAttribute("swap", new SwapDto());
+        model.addAttribute("success", false);
         return "swap";
     }
 
