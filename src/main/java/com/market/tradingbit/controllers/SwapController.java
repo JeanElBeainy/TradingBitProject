@@ -116,11 +116,15 @@ public class SwapController {
         if(swap.getFrom().equals("US Dollar")) {
             if(swap.getQuantity() < 1)
                 return swapQuantityError(model, user, swap, "Minimum swap price must be at least 1 USD.", bindingResult);
-
+            if(swap.getQuantity() > portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), user.getId()))
+                return swapQuantityError(model, user, swap, "You do not have enough USD to perform this swap.", bindingResult);
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
             toPrice = price.getPrice();
             toName = price.getName();
         } else {
+            if(swap.getQuantity() > portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), user.getId()))
+                return swapQuantityError(model, user, swap, "You do not have enough " + swap.getFrom() + " to perform this swap.", bindingResult);
+
             List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
             if(prices.size() < 2) {
                 bindingResult.addError(new FieldError(
