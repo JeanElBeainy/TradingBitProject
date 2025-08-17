@@ -3,6 +3,7 @@ package com.market.tradingbit.controllers;
 import com.market.tradingbit.dtos.UserDashboardDto;
 import com.market.tradingbit.entities.Balance;
 import com.market.tradingbit.entities.User;
+import com.market.tradingbit.models.CryptoInfo;
 import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinMarketCapService;
@@ -12,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/dashboard")
@@ -41,5 +43,12 @@ public class DashboardController {
         model.addAttribute("userDashboardDto", userDashboardDto);
         model.addAttribute("cryptos", service.getLatestListings());
         return "dashboard";
+    }
+
+    @GetMapping("/update-table")
+    public String getCryptoTableFragment(Model model) {
+        List<CryptoInfo> cryptos = service.getLatestListings();
+        model.addAttribute("cryptos", cryptos);
+        return "dashboard :: crypto-table-body";
     }
 }
