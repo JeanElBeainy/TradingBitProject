@@ -1,5 +1,6 @@
 package com.market.tradingbit.controllers;
 
+import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Type;
@@ -143,6 +144,15 @@ public class SwapController {
         appendToRepository(swap, user.getId(), toName, quantityPriceTo);
         populateModel(model, user);
         model.addAttribute("success", true);
+
+        SuccessfulSwapDto successfulSwapDto = SuccessfulSwapDto.builder()
+                .from(swap.getFrom())
+                .to(swap.getTo())
+                .fromQuantity(quantityPriceFrom)
+                .toQuantity(quantityPriceTo)
+                .fee(fee)
+                .build();
+        model.addAttribute("successfulSwap", successfulSwapDto);
         return "swap";
     }
 
