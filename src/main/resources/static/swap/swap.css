@@ -425,14 +425,31 @@ ul {
     to { transform: rotate(360deg); }
 }
 
+.success__content {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    height: 100%;
+    background-color: var(--color-primary);
+    border-radius: 20px;
+}
+
+.success__content button {
+    position: absolute;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
 .success__message {
     display: flex;
     flex-direction: column;
-    width: 90%;
+    width: 95%;
     height: 100%;
     padding: 1rem;
-    background-color: var(--color-primary);
-    border-radius: 20px;
 }
 
 .success__message p {
