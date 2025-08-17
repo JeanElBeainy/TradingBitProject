@@ -93,6 +93,9 @@ public class SwapController {
         System.out.println("quantity price from: " + quantityPriceFrom);
         float quantityPriceTo = (float) (quantityPriceFrom / prices.getLast().getPrice());
         System.out.println("quantity price to: " + quantityPriceTo);
+        float fee = quantityPriceTo * 0.001f;
+        quantityPriceTo -= fee;
+        System.out.println("fee in " + swap.getTo() + ": " + fee);
         if(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), user.getId()) == null) {
             portfolioRepository.save(Portfolio.builder()
                             .symbol(swap.getTo())
@@ -108,6 +111,7 @@ public class SwapController {
         if(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getQuantity() == 0) {
             portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getId());
         }
+        System.out.println("Put " + quantityPriceTo + " " + swap.getTo() + " in portfolio.");
         populateModel(model, user);
         return "swap";
     }
