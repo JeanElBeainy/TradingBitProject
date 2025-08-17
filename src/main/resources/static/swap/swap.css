@@ -425,7 +425,15 @@ ul {
     to { transform: rotate(360deg); }
 }
 
-
+.success__message {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    height: 80px;
+    background-color: #4caf50;
+    color: var(--color-text-light);
+    border: none;
+}
 
 
 /* --- FOOTER --- */
