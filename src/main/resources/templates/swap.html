@@ -39,16 +39,23 @@
                     <input type="hidden" th:field="*{from}">
                     <input type="text" id="cryptoSearch" class="swap__input" placeholder="Search your portfolio">
 
-                    <p th:if="${#fields.hasErrors('from')}"
-                       th:errorclass="text-danger" style="color: white; font-size: 12px; margin-top: 5px; margin-left: 10px;"
-                       th:errors="*{from}"></p>
+                    <div class="error__field" th:if="${#fields.hasErrors('from')}">
+                        <p
+                           th:errorclass="text-danger"
+                           th:errors="*{from}">
+                        </p>
 
-                    <div style="width: 100%; display: flex; margin-top: 3rem; align-items: center; background: rgba(255, 0, 0, 0.2); border-radius: 6px; padding: 8px; position: relative;"
+                        <button type="button"
+                                onclick="this.parentElement.style.display='none'"
+                                style="background: none; border: none; color: white; font-size: 2rem; cursor: pointer; margin-left: 10px;">
+                            &times;
+                        </button>
+                    </div>
+
+                    <div class="error__field"
                          th:if="${#fields.hasErrors('quantity')}">
-
                         <p th:errorclass="text-danger"
-                           th:errors="*{quantity}"
-                           style="color: white; font-size: 1.7rem; margin: 0; flex: 1;">
+                           th:errors="*{quantity}">
                         </p>
 
                         <button type="button"
@@ -104,9 +111,17 @@
                 <div class="swap__to">
                     <input type="hidden" th:field="*{to}">
                     <input type="text" id="cryptoSearchTo" class="swap__input" placeholder="Swap to ...">
-                    <p th:if="${#fields.hasErrors('to')}"
-                       th:errorclass="text-danger"
-                       th:errors="*{to}"></p>
+                    <div class="error__field" th:if="${#fields.hasErrors('to')}">
+                        <p
+                           th:errorclass="text-danger"
+                           th:errors="*{to}">
+                        </p>
+                        <button type="button"
+                                onclick="this.parentElement.style.display='none'"
+                                style="background: none; border: none; color: white; font-size: 2rem; cursor: pointer; margin-left: 10px;">
+                            &times;
+                        </button>
+                    </div>
                     <div id="dropdownListTo" class="dropdown-list">
                         <div th:each="swapTo : ${swapItems}"
                              class="dropdown-item"
