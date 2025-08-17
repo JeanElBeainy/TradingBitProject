@@ -61,6 +61,9 @@
                 </div>
 
                 <div id="quantitySection" style="display: none;">
+                    <div class="quantity__number">
+                        Quantity: <span id="maxFromQuantity"></span>
+                    </div>
                     <div class="from__text"><p>Amount</p></div>
                     <input type="number" th:field="*{quantity}" id="quantityInput" class="swap__input" placeholder="0.0" step="0.00000001" min="0">
                     <div class="quantity__buttons">
@@ -70,7 +73,7 @@
                         <button type="button" class="btn-percent" data-percent="1">100%</button>
                     </div>
                     <p th:if="${#fields.hasErrors('quantity')}"
-                       th:errorclass="text-danger"
+                       th:errorclass="text-danger" style="color: white; font-size: 12px; margin-top: 5px; margin-left: 10px;"
                        th:errors="*{quantity}"></p>
                 </div>
 
@@ -174,6 +177,7 @@
             if (container.classList.contains('swap__from')) {
                 document.getElementById('quantitySection').style.display = 'block'; //try flex
                 currentMaxQuantity = parseFloat(quantity);
+                document.getElementById('maxFromQuantity').textContent = quantity;
             }
         });
     }
