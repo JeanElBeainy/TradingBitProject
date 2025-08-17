@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/commonFiles/normalize.css">
     <link rel="stylesheet" href="/dashboard/dashboard.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <title>Dashboard</title>
 </head>
 <body>
@@ -45,6 +46,10 @@
         </div>
     </section>
 
+    <section>
+        <p>Last updated at: <span></span> </p>
+    </section>
+
     <section class="table__section">
         <div class="top__div">
             <table>
@@ -61,39 +66,47 @@
                     <th>Max Supply</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody
+                        id="crypto-table-body"
+                        hx-get="/dashboard/update-table"
+                        hx-trigger="every 60s"
+                        hx-swap="innerHTML"
+                >
+                <th:block th:fragment="crypto-table-body">
                     <tr th:each="crypto : ${cryptos}"
                         th:onclick="'window.location.href=\'' + @{/swap/{name}(name=${crypto.symbol})} + '\';'"
                     >
-                    <td><img th:src="'https://s2.coinmarketcap.com/static/img/coins/32x32/' + ${crypto.id} + '.png'"
-                             th:alt="${crypto.name + ' logo'}"
-                             width="24" height="24"
-                             class="me-2"></td>
-                    <td th:text="${crypto.name}"></td>
-                    <td th:text="${crypto.symbol}"></td>
-                    <td>
+                        <td><img th:src="'https://s2.coinmarketcap.com/static/img/coins/32x32/' + ${crypto.id} + '.png'"
+                                 th:alt="${crypto.name + ' logo'}"
+                                 width="24" height="24"
+                                 class="me-2"></td>
+                        <td th:text="${crypto.name}"></td>
+                        <td th:text="${crypto.symbol}"></td>
+                        <td>
                      <span th:if="${crypto.price >= 1}"
                            th:text="'$' + ${#numbers.formatDecimal(crypto.price, 1, 'COMMA', 2, 'POINT')}"></span>
-                        <span th:if="${crypto.price < 1 and crypto.price >= 0.001}"
-                              th:text="'$' + ${#numbers.formatDecimal(crypto.price, 1, 3)}"></span>
-                        <span th:if="${crypto.price < 0.001}"
-                              th:text="'$' + ${#numbers.formatDecimal(crypto.price, 1, 8)}"></span>
-                    </td>
-                    <td th:text="'$' + ${#numbers.formatDecimal(crypto.marketCap, 1, 'COMMA', 0, 'POINT')}"></td>
-                    <td th:text="'$' + ${#numbers.formatDecimal(crypto.volume24h, 1, 'COMMA', 0, 'POINT')}"></td>
-                    <td th:class="${crypto.percentChange24h >= 0} ? 'text-success' : 'text-danger'">
+                            <span th:if="${crypto.price < 1 and crypto.price >= 0.001}"
+                                  th:text="'$' + ${#numbers.formatDecimal(crypto.price, 1, 3)}"></span>
+                            <span th:if="${crypto.price < 0.001}"
+                                  th:text="'$' + ${#numbers.formatDecimal(crypto.price, 1, 8)}"></span>
+                        </td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(crypto.marketCap, 1, 'COMMA', 0, 'POINT')}"></td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(crypto.volume24h, 1, 'COMMA', 0, 'POINT')}"></td>
+                        <td th:class="${crypto.percentChange24h >= 0} ? 'text-success' : 'text-danger'">
                         <span th:if="${crypto.percentChange24h >= 0}"
                               th:text="'+' + ${#numbers.formatDecimal(crypto.percentChange24h, 1, 2)} + '%'"></span>
-                        <span th:unless="${crypto.percentChange24h >= 0}"
-                              th:text="${#numbers.formatDecimal(crypto.percentChange24h, 1, 2)} + '%'"></span>
-                    </td>
-                    <td th:text="${#numbers.formatDecimal(crypto.circulatingSupply, 1, 'COMMA', 0, 'POINT')}"></td>
-                    <td>
+                            <span th:unless="${crypto.percentChange24h >= 0}"
+                                  th:text="${#numbers.formatDecimal(crypto.percentChange24h, 1, 2)} + '%'"></span>
+                        </td>
+                        <td th:text="${#numbers.formatDecimal(crypto.circulatingSupply, 1, 'COMMA', 0, 'POINT')}"></td>
+                        <td>
                         <span th:if="${crypto.maxSupply != null}"
                               th:text="${#numbers.formatDecimal(crypto.maxSupply, 1, 'COMMA', 0, 'POINT')}"></span>
-                        <span th:unless="${crypto.maxSupply != null}">∞</span>
-                    </td>
+                            <span th:unless="${crypto.maxSupply != null}">∞</span>
+                        </td>
                     </tr>
+                </th:block>
+
                 </tbody>
 
             </table>
