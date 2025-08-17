@@ -119,9 +119,6 @@ public class SwapController {
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
             toPrice = price.getPrice();
             toName = price.getName();
-            float quantityPriceTo = (float) (swap.getQuantity() / price.getPrice());
-            float fee = quantityPriceTo * feePercentage;
-            quantityPriceTo -= fee;
         } else {
             List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
             if(prices.size() < 2) {
