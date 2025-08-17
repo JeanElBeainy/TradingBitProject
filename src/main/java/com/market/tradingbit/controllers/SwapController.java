@@ -9,6 +9,7 @@ import com.market.tradingbit.models.CryptoNameSymbol;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinMarketCapService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -16,8 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
-import javax.sound.sampled.Port;
 import java.security.Principal;
 import java.util.List;
 
@@ -54,6 +53,7 @@ public class SwapController {
     }
 
     @PostMapping("/crypto")
+    @Transactional
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
@@ -69,20 +69,19 @@ public class SwapController {
         }
         if(swap.getQuantity() <= 0) {
             bindingResult.addError(new FieldError(
-                    "swap", "quantity", "Quantity cannot be less than or equal to zero."
+                    "swap", "from", "Quantity cannot be less than or equal to zero."
             ));
         }
         List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
         if(prices.size() < 2) {
             bindingResult.addError(new FieldError(
-                    "swap", "quantity", "One or more of the currencies you selected are not valid."
+                    "swap", "to", "One or more of the currencies you selected are not valid."
             ));
         }
         if(bindingResult.hasErrors()) {
-            populateModel(model, user);
+            populateModel(model, user); //TODO: work on bindingResult (not displaying)
             return "swap";
         }
-        System.out.println(prices.getFirst() + " " + prices.getLast());
         float quantityPriceFrom = (float) (prices.getFirst().getPrice() * swap.getQuantity());
         System.out.println("quantity price from: " + quantityPriceFrom);
         float quantityPriceTo = (float) (quantityPriceFrom / prices.getLast().getPrice());
@@ -93,11 +92,15 @@ public class SwapController {
                             .purchaseType(Type.CRYPTO)
                             .userId(user.getId())
                             .name(prices.getLast().getName())
+                            .quantity(quantityPriceTo)
                     .build());
-        }
+            portfolioRepository.flush();
+        } else
+            portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), user.getId());
+
         portfolioRepository.updatePortfolioQuantity(swap.getQuantity()*-1, swap.getFrom(), user.getId());
-        portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), user.getId());
         populateModel(model, user);
+
         return "swap";
     }
 
