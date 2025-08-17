@@ -138,7 +138,7 @@
                 <div class="info__container">
                 </div>
 
-                <button type="submit" class="swap__button">
+                <button type="submit" class="swap__button" onclick="startSpinning(this)">
                     <img src="/images/swap-icon.svg" alt="" class="swap__icon">
                     <p>Swap</p>
                 </button>
@@ -242,5 +242,13 @@
         }
     });
 </script>
+
+<script>
+    function startSpinning(button) {
+        const icon = button.querySelector(".swap__icon");
+        icon.classList.add("spinning");
+    }
+</script>
+
 </body>
 </html>
