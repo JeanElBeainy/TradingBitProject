@@ -43,9 +43,21 @@
                        th:errorclass="text-danger" style="color: white; font-size: 12px; margin-top: 5px; margin-left: 10px;"
                        th:errors="*{from}"></p>
 
-                    <p th:if="${#fields.hasErrors('quantity')}"
-                       th:errorclass="text-danger" style="color: white; font-size: 12px; margin-top: 5px; margin-left: 10px;"
-                       th:errors="*{quantity}"></p>
+                    <div style="width: 100%; display: flex; margin-top: 3rem; align-items: center; background: rgba(255, 0, 0, 0.2); border-radius: 6px; padding: 8px; position: relative;"
+                         th:if="${#fields.hasErrors('quantity')}">
+
+                        <p th:errorclass="text-danger"
+                           th:errors="*{quantity}"
+                           style="color: white; font-size: 1.7rem; margin: 0; flex: 1;">
+                        </p>
+
+                        <button type="button"
+                                onclick="this.parentElement.style.display='none'"
+                                style="background: none; border: none; color: white; font-size: 2rem; cursor: pointer; margin-left: 10px;">
+                            &times;
+                        </button>
+                    </div>
+
 
                     <div id="dropdownList" class="dropdown-list">
                         <div th:each="item : ${userItems}"
