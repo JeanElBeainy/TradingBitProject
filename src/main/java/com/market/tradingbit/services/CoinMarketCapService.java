@@ -48,6 +48,18 @@ public class CoinMarketCapService {
         return result;
     }
 
+    public CryptoNamePrice getCryptoNameBySymbol(String symbol) {
+        List<CryptoInfo> allCryptos = getLatestListings();
+        return allCryptos.stream()
+                .filter(c -> c.getSymbol().equalsIgnoreCase(symbol))
+                .map(c -> new CryptoNamePrice(
+                        c.getName(),
+                        c.getQuote().get("USD").getPrice()
+                ))
+                .findFirst()
+                .orElse(null);
+    }
+
     public List<CryptoNamePrice> getPricesBySymbols(String symbol1, String symbol2) {
         List<CryptoInfo> allCryptos = getLatestListings();
 
