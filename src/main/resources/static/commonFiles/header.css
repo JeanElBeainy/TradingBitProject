@@ -1,0 +1,78 @@
+:root {
+    --color-text-light: #ffffff;
+    --color-border: #222;
+}
+
+.header {
+    padding: 1.5rem 0;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    background-color: black;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2.5rem;
+    border-radius: 30px;
+    border: 2px solid var(--color-border);
+    box-shadow: 0 0 10px rgb(58, 58, 58);
+}
+
+.nav__brand {
+    width: 200px;
+}
+
+.nav__toggler {
+    width: 40px;
+    height: 40px;
+    fill: var(--color-text-light);
+    opacity: 0.7;
+    transition: box-shadow 0.15s, opacity 0.15s;
+    cursor: pointer;
+}
+
+.nav.collapsible--expanded .nav__toggler {
+    opacity: 1;
+    box-shadow: 0 0 0 3px #666;
+    border-radius: 5px;
+}
+
+.nav__list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav__item {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.nav__item:last-of-type {
+    border-bottom: none;
+}
+
+.nav__item > a {
+    color: var(--color-text);
+    transition: color 0.3s;
+    font-weight: 500;
+}
+
+.nav__item > a:hover {
+    color: var(--color-text-light);
+}
+
+.collapsible__content {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.4s ease-out;
+}
+
+.collapsible--expanded .collapsible__content {
+    max-height: 100vh; /* Large value to ensure it opens fully */
+    opacity: 1;
+}
