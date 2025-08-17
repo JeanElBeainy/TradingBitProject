@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CoinMarketCapService {
@@ -50,13 +51,26 @@ public class CoinMarketCapService {
     public List<CryptoNamePrice> getPricesBySymbols(String symbol1, String symbol2) {
         List<CryptoInfo> allCryptos = getLatestListings();
 
-        return allCryptos.stream()
-                .filter(c -> c.getSymbol().equalsIgnoreCase(symbol1) || c.getSymbol().equalsIgnoreCase(symbol2))
+        Optional<CryptoNamePrice> crypto1 = allCryptos.stream()
+                .filter(c -> c.getSymbol().equalsIgnoreCase(symbol1))
                 .map(c -> new CryptoNamePrice(
                         c.getName(),
                         c.getQuote().get("USD").getPrice()
                 ))
-                .toList();
+                .findFirst();
+
+        Optional<CryptoNamePrice> crypto2 = allCryptos.stream()
+                .filter(c -> c.getSymbol().equalsIgnoreCase(symbol2))
+                .map(c -> new CryptoNamePrice(
+                        c.getName(),
+                        c.getQuote().get("USD").getPrice()
+                ))
+                .findFirst();
+
+        List<CryptoNamePrice> result = new ArrayList<>();
+        crypto1.ifPresent(result::add);
+        crypto2.ifPresent(result::add);
+        return result;
     }
 
 }
