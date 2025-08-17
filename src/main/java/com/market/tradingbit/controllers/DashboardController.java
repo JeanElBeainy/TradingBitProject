@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -42,6 +44,7 @@ public class DashboardController {
 
         model.addAttribute("userDashboardDto", userDashboardDto);
         model.addAttribute("cryptos", service.getLatestListings());
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "dashboard";
     }
 
@@ -50,5 +53,11 @@ public class DashboardController {
         List<CryptoInfo> cryptos = service.getLatestListings();
         model.addAttribute("cryptos", cryptos);
         return "dashboard :: crypto-table-body";
+    }
+
+    @GetMapping("/last-updated")
+    public String getLastUpdatedTime(Model model) {
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
+        return "dashboard :: last-updated";
     }
 }
