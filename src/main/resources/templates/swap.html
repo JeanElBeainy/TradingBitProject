@@ -142,6 +142,13 @@
                     <img src="/images/swap-icon.svg" alt="" class="swap__icon">
                     <p>Swap</p>
                 </button>
+
+                <div th:if="${success}" class="success__message">
+                    <p>Swap successful!</p>
+                    <p>BTC -> XRP</p>
+                    <p> Qtty -> qtty</p>
+                    <p>Fee: fee in xrp</p>
+                </div>
             </div>
         </form>
     </section>
