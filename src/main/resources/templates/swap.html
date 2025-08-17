@@ -38,9 +38,14 @@
                 <div class="swap__from">
                     <input type="hidden" th:field="*{from}">
                     <input type="text" id="cryptoSearch" class="swap__input" placeholder="Search your portfolio">
+
                     <p th:if="${#fields.hasErrors('from')}"
-                       th:errorclass="text-danger"
+                       th:errorclass="text-danger" style="color: white; font-size: 12px; margin-top: 5px; margin-left: 10px;"
                        th:errors="*{from}"></p>
+
+                    <p th:if="${#fields.hasErrors('quantity')}"
+                       th:errorclass="text-danger" style="color: white; font-size: 12px; margin-top: 5px; margin-left: 10px;"
+                       th:errors="*{quantity}"></p>
 
                     <div id="dropdownList" class="dropdown-list">
                         <div th:each="item : ${userItems}"
@@ -72,9 +77,6 @@
                         <button type="button" class="btn-percent" data-percent="0.75">75%</button>
                         <button type="button" class="btn-percent" data-percent="1">100%</button>
                     </div>
-                    <p th:if="${#fields.hasErrors('quantity')}"
-                       th:errorclass="text-danger" style="color: white; font-size: 12px; margin-top: 5px; margin-left: 10px;"
-                       th:errors="*{quantity}"></p>
                 </div>
 
                 <div class="swap__arrow__line">
