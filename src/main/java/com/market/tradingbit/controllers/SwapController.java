@@ -17,6 +17,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+
+import javax.naming.Binding;
 import java.security.Principal;
 import java.util.List;
 
@@ -75,6 +77,13 @@ public class SwapController {
 
     }
 
+    private String swapQuantityError(Model model, User user, SwapDto swap, String message, BindingResult bindingResult) {
+        bindingResult.addError(new FieldError(
+                "swap", "quantity", message
+        ));
+        return returnBindingResult(model, user, swap);
+    }
+
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
@@ -84,10 +93,15 @@ public class SwapController {
         return "swap";
     }
 
+    //TODO: try to make swap quantity string instead of float
     @PostMapping("/crypto")
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
+
+        if(Float.isNaN(swap.getQuantity())) {
+            return swapQuantityError(model, user, swap, "Quantity must be a valid number", bindingResult);
+        }
 
         Double toPrice;
         String toName;
@@ -99,12 +113,9 @@ public class SwapController {
             return returnBindingResult(model, user, swap);
 
         if(swap.getFrom().equals("US Dollar")) {
-            if(swap.getQuantity() < 1) {
-                bindingResult.addError(new FieldError(
-                        "swap", "quantity", "Minimum swap price must be at least 1 USD."
-                ));
-                return returnBindingResult(model, user, swap);
-            }
+            if(swap.getQuantity() < 1)
+                return swapQuantityError(model, user, swap, "Minimum swap price must be at least 1 USD.", bindingResult);
+
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
             toPrice = price.getPrice();
             toName = price.getName();
@@ -120,9 +131,8 @@ public class SwapController {
             }
             quantityPriceFrom = (float) (prices.getFirst().getPrice() * swap.getQuantity());
             if(quantityPriceFrom < 1)
-                bindingResult.addError(new FieldError(
-                        "swap", "quantity", "Minimum swap price must be at least 1 USD."
-                ));
+                return swapQuantityError(model, user, swap, "Minimum swap price must be at least 1 USD", bindingResult);
+
             toPrice = prices.getLast().getPrice();
             toName = prices.getLast().getName();
         }
@@ -134,7 +144,6 @@ public class SwapController {
         quantityPriceTo -= fee;
 
         appendToRepository(swap, user.getId(), toName, quantityPriceTo);
-
         populateModel(model, user);
         return "swap";
     }
