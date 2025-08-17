@@ -47,7 +47,18 @@
     </section>
 
     <section>
-        <p>Last updated at: <span></span> </p>
+        <p>Last updated at:
+            <span id="last-updated"
+                  hx-get="/dashboard/last-updated"
+                  hx-trigger="every 60s"
+                  hx-swap="innerHTML">
+                <th:block th:fragment="last-updated">
+                    <span th:text="${lastUpdated}"></span>
+                </th:block>
+            </span>
+        </p>
+
+
     </section>
 
     <section class="table__section">
