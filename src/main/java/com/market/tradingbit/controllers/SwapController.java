@@ -35,7 +35,7 @@ public class SwapController {
 
         List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
         model.addAttribute("swapItems", latestListings);
-        model.addAttribute("swap", new SwapDto());
+        //model.addAttribute("swap", new SwapDto());
     }
 
     @GetMapping("/crypto")
@@ -49,11 +49,11 @@ public class SwapController {
             return "swap";
         }
         populateModel(model, user);
+        model.addAttribute("swap", new SwapDto());
         return "swap";
     }
 
     @PostMapping("/crypto")
-    @Transactional
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
@@ -69,7 +69,7 @@ public class SwapController {
         }
         if(swap.getQuantity() <= 0) {
             bindingResult.addError(new FieldError(
-                    "swap", "from", "Quantity cannot be less than or equal to zero."
+                    "swap", "quantity", "Quantity cannot be less than or equal to zero."
             ));
         }
         List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
@@ -80,6 +80,7 @@ public class SwapController {
         }
         if(bindingResult.hasErrors()) {
             populateModel(model, user); //TODO: work on bindingResult (not displaying)
+            model.addAttribute("swap", swap);
             return "swap";
         }
         float quantityPriceFrom = (float) (prices.getFirst().getPrice() * swap.getQuantity());
@@ -94,13 +95,11 @@ public class SwapController {
                             .name(prices.getLast().getName())
                             .quantity(quantityPriceTo)
                     .build());
-            portfolioRepository.flush();
         } else
             portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), user.getId());
 
         portfolioRepository.updatePortfolioQuantity(swap.getQuantity()*-1, swap.getFrom(), user.getId());
         populateModel(model, user);
-
         return "swap";
     }
 
