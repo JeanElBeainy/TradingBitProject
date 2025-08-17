@@ -38,6 +38,12 @@ public class SwapController {
         //model.addAttribute("swap", new SwapDto());
     }
 
+    private String returnBindingResult(Model model, User user, SwapDto swap) {
+        populateModel(model, user);
+        model.addAttribute("swap", swap);
+        return "swap";
+    }
+
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
@@ -57,41 +63,56 @@ public class SwapController {
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
+        Double toPrice;
+        String toName;
+        float quantityPriceFrom = swap.getQuantity();
+
         if(swap.getFrom() == null || swap.getFrom().isEmpty())
-            bindingResult.addError(new FieldError(
-                    "swap", "from", "Please select a valid currency that you own."
-            ));
+            bindingResult.addError(new FieldError("swap", "from", "Please select a valid currency that you own."));
         if(swap.getTo() == null || swap.getTo().isEmpty())
-            bindingResult.addError(new FieldError(
-                    "swap", "to", "Please select a valid currency to swap."
-            ));
+            bindingResult.addError(new FieldError("swap", "to", "Please select a valid currency to swap."));
         if(swap.getQuantity() <= 0)
-            bindingResult.addError(new FieldError(
-                    "swap", "quantity", "Quantity cannot be less than or equal to zero."
-            ));
-        if(bindingResult.hasErrors()) {
-            populateModel(model, user);
-            model.addAttribute("swap", swap);
-            return "swap";
+            bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero."));
+        if(bindingResult.hasErrors())
+            return returnBindingResult(model, user, swap);
+        if(swap.getFrom().equals(swap.getTo()))
+            bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
+
+        if(swap.getFrom().equals("US Dollar")) {
+            CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
+            if(swap.getQuantity() < 1) {
+                bindingResult.addError(new FieldError(
+                        "swap", "quantity", "Minimum swap price must be at least 1 USD."
+                ));
+                populateModel(model, user);
+                model.addAttribute("swap", swap);
+                return "swap";
+            }
+            toPrice = price.getPrice();
+            toName = price.getName();
+            float quantityPriceTo = (float) (swap.getQuantity() / price.getPrice());
+            float fee = quantityPriceTo * 0.001f;
+            quantityPriceTo -= fee;
+        } else {
+            List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
+            if(prices.size() < 2) {
+                bindingResult.addError(new FieldError(
+                        "swap", "to", "One or more of the currencies you selected are not valid."
+                ));
+            }
+            quantityPriceFrom = (float) (prices.getFirst().getPrice() * swap.getQuantity());
+            if(quantityPriceFrom < 1)
+                bindingResult.addError(new FieldError(
+                        "swap", "quantity", "Minimum swap price must be at least 1 USD."
+                ));
+            toPrice = prices.getLast().getPrice();
+            toName = prices.getLast().getName();
         }
-        List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
-        if(prices.size() < 2) {
-            bindingResult.addError(new FieldError(
-                    "swap", "to", "One or more of the currencies you selected are not valid."
-            ));
-        }
-        float quantityPriceFrom = (float) (prices.getFirst().getPrice() * swap.getQuantity());
-        if(quantityPriceFrom < 1)
-            bindingResult.addError(new FieldError(
-                    "swap", "quantity", "Minimum swap price must be at least 1 USD."
-            ));
-        if(bindingResult.hasErrors()) {
-            populateModel(model, user);
-            model.addAttribute("swap", swap);
-            return "swap";
-        }
+        if(bindingResult.hasErrors())
+            return returnBindingResult(model, user, swap);
+
         System.out.println("quantity price from: " + quantityPriceFrom);
-        float quantityPriceTo = (float) (quantityPriceFrom / prices.getLast().getPrice());
+        float quantityPriceTo = (float) (quantityPriceFrom / toPrice);
         System.out.println("quantity price to: " + quantityPriceTo);
         float fee = quantityPriceTo * 0.001f;
         quantityPriceTo -= fee;
@@ -101,16 +122,18 @@ public class SwapController {
                             .symbol(swap.getTo())
                             .purchaseType(Type.CRYPTO)
                             .userId(user.getId())
-                            .name(prices.getLast().getName())
+                            .name(toName)
                             .quantity(quantityPriceTo)
                     .build());
         } else
             portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), user.getId());
 
         portfolioRepository.updatePortfolioQuantity(swap.getQuantity()*-1, swap.getFrom(), user.getId());
-        if(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getQuantity() == 0) {
+
+        if(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getQuantity() == 0)
             portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), user.getId()).getId());
-        }
+
+        System.out.println(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), user.getId()).getQuantity());
         System.out.println("Put " + quantityPriceTo + " " + swap.getTo() + " in portfolio.");
         populateModel(model, user);
         return "swap";
