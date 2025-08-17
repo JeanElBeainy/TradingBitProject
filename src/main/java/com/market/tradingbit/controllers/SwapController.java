@@ -142,6 +142,7 @@ public class SwapController {
 
         appendToRepository(swap, user.getId(), toName, quantityPriceTo);
         populateModel(model, user);
+        model.addAttribute("success", true);
         return "swap";
     }
 
