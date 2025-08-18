@@ -201,18 +201,9 @@ public class SwapController {
             return returnBindingResult(model, userId, swap);
 
         saveHistory(history, swap, userId, volume);
-
-        SuccessfulSwapDto successfulSwapDto = SuccessfulSwapDto.builder() //TODO: Try fromHistory()
-                .from(history.getFromSymbol())
-                .to(history.getToSymbol())
-                .fromQuantity(history.getFromQuantity().setScale(8, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString())
-                .toQuantity(history.getToQuantity().setScale(8, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString())
-                .fee(history.getFee().setScale(8, RoundingMode.HALF_EVEN).toPlainString())
-                .build();
-        System.out.println(history);
         populateModel(model, userId);
         model.addAttribute("success", true);
-        model.addAttribute("successfulSwap", successfulSwapDto);
+        model.addAttribute("successfulSwap", historyMapper.toSuccessfulSwapDto(history));
         return "swap";
     }
 
