@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
@@ -30,5 +32,5 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     @Modifying
     @Transactional
     @Query("UPDATE Portfolio p SET p.quantity = (p.quantity + :quantity) WHERE p.symbol = :symbol AND p.userId = :userId")
-    void updatePortfolioQuantity(@Param("quantity") float quantity, @Param("symbol") String symbol, @Param("userId") Long userId);
+    void updatePortfolioQuantity(@Param("quantity") BigDecimal quantity, @Param("symbol") String symbol, @Param("userId") Long userId);
 }
