@@ -9,4 +9,5 @@ import org.mapstruct.Mapper;
 public interface HistoryMapper {
     History toHistory(SuccessfulSwapDto successfulSwapDto);
     History toHistory(HistoryDto historyDto);
+    SuccessfulSwapDto toSuccessfulSwapDto(History history);
 }
