@@ -96,6 +96,9 @@ public class SwapController {
         model.addAttribute("success", false);
         return "swap";
     }
+    private void setId(History history, Long userId) {
+        history.setId(userId);
+    }
 
     //TODO: try to make swap quantity string instead of float
     @PostMapping("/crypto")
@@ -137,9 +140,9 @@ public class SwapController {
                 bindingResult.addError(new FieldError(
                         "swap", "to", "One or more of the currencies you selected are not valid."
                 ));
-
-            history.setFromPrice((float) (prices.getFirst().getPrice() * swap.getQuantity()));
-            if(history.getFromPrice() < 1)
+            history.setFromPrice(prices.getFirst().getPrice());
+            history.setVolume((float) (prices.getFirst().getPrice() * swap.getQuantity()));
+            if(history.getVolume() < 1)
                 return swapQuantityError(new QuantityError(model, userId, swap, "Minimum swap price must be at least 1 USD",  bindingResult));
 
             //NOTE: CryptoNamePrice will return: FROM-name and TO-name-price
@@ -157,7 +160,6 @@ public class SwapController {
         appendToRepository(swap, userId, history.getToName(), history.getToQuantity());
         populateModel(model, userId);
         history.setFee(fee);
-        history.setVolume((float) history.getFromPrice());
 
         historyRepository.save(history);
 
