@@ -171,9 +171,9 @@ public class SwapController {
         SuccessfulSwapDto successfulSwapDto = SuccessfulSwapDto.builder()
                 .from(swap.getFrom())
                 .to(swap.getTo())
-                .fromQuantity(history.getFromQuantity().setScale(8, RoundingMode.HALF_UP).stripTrailingZeros())
-                .toQuantity(history.getToQuantity().setScale(8, RoundingMode.HALF_UP).stripTrailingZeros())
-                .fee(fee.setScale(8, RoundingMode.HALF_UP))
+                .fromQuantity(history.getFromQuantity().setScale(8, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString())
+                .toQuantity(history.getToQuantity().setScale(8, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString())
+                .fee(fee.setScale(8, RoundingMode.HALF_UP).toPlainString())
                 .build();
 
         System.out.println(history);
