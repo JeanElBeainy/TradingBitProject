@@ -1,4 +1,4 @@
-package com.market.tradingbit.models;
+package com.market.tradingbit.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,12 +8,13 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FromUSD {
-    private final String fromName = "US Dollar Balance";
-    private final String fromSymbol = "USD";
+public class HistoryDto {
+    private final String fromSymbol;
+    private final String fromName;
     private BigDecimal fromQuantity;
-    private final double fromPrice = 1;
-    private String toName;
+    private final double fromPrice;
+
     private String toSymbol;
+    private String toName;
     private double toPrice;
 }
