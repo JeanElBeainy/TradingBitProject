@@ -2,15 +2,16 @@ package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
+import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.models.CryptoNamePrice;
 import com.market.tradingbit.models.CryptoNameSymbol;
+import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinMarketCapService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -18,8 +19,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
-import javax.naming.Binding;
 import java.security.Principal;
 import java.util.List;
 
@@ -31,6 +30,7 @@ public class SwapController {
     private final CoinMarketCapService service;
     private final PortfolioRepository portfolioRepository;
     private final UserRepository userRepository;
+    private final HistoryRepository historyRepository;
 
     private void populateModel(Model model, User user) {
         List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(user.getId());
@@ -104,10 +104,11 @@ public class SwapController {
         if(Float.isNaN(swap.getQuantity())) {
             return swapQuantityError(model, user, swap, "Quantity must be a valid number", bindingResult);
         }
+        History history = new History();
+        history.setUserId(user.getId());
+        history.setFromQuantity(swap.getQuantity());
+        history.setToSymbol(swap.getTo());
 
-        Double toPrice;
-        String toName;
-        float quantityPriceFrom = swap.getQuantity();
         float feePercentage = 0.001f;
 
         validateBasicFields(swap, bindingResult);
@@ -120,8 +121,12 @@ public class SwapController {
             if(swap.getQuantity() > portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), user.getId()))
                 return swapQuantityError(model, user, swap, "You do not have enough USD to perform this swap.", bindingResult);
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
-            toPrice = price.getPrice();
-            toName = price.getName();
+            history.setFromSymbol(swap.getFrom());
+            history.setFromName("US Dollar Balance");
+            history.setFromQuantity(swap.getQuantity());
+            history.setFromPrice(1);
+            history.setToPrice(price.getPrice());
+            history.setToName(price.getName());
         } else {
             if(swap.getQuantity() > portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), user.getId()))
                 return swapQuantityError(model, user, swap, "You do not have enough " + swap.getFrom() + " to perform this swap.", bindingResult);
@@ -132,31 +137,37 @@ public class SwapController {
                         "swap", "to", "One or more of the currencies you selected are not valid."
                 ));
             }
-            quantityPriceFrom = (float) (prices.getFirst().getPrice() * swap.getQuantity());
-            if(quantityPriceFrom < 1)
+            history.setFromPrice((float) (prices.getFirst().getPrice() * swap.getQuantity()));
+            if(history.getFromPrice() < 1)
                 return swapQuantityError(model, user, swap, "Minimum swap price must be at least 1 USD", bindingResult);
 
-            toPrice = prices.getLast().getPrice();
-            toName = prices.getLast().getName();
+            history.setToPrice(prices.getLast().getPrice());
+            history.setToName(prices.getLast().getName());
         }
         if(bindingResult.hasErrors())
             return returnBindingResult(model, user, swap);
 
-        float quantityPriceTo = (float) (quantityPriceFrom / toPrice);
-        float fee = quantityPriceTo * feePercentage;
-        quantityPriceTo -= fee;
+        history.setToQuantity((float) (history.getFromQuantity() / history.getToPrice()));
+        float fee = history.getToQuantity() * feePercentage;
 
-        appendToRepository(swap, user.getId(), toName, quantityPriceTo);
+        float subtractedFees = history.getToQuantity() - fee;
+        history.setToQuantity(subtractedFees);
+
+        appendToRepository(swap, user.getId(), history.getToName(), history.getToQuantity());
         populateModel(model, user);
+
+        historyRepository.save(history);
+
         model.addAttribute("success", true);
 
         SuccessfulSwapDto successfulSwapDto = SuccessfulSwapDto.builder()
                 .from(swap.getFrom())
                 .to(swap.getTo())
-                .fromQuantity(quantityPriceFrom)
-                .toQuantity(quantityPriceTo)
+                .fromQuantity(history.getFromQuantity())
+                .toQuantity(history.getToQuantity())
                 .fee(fee)
                 .build();
+
         model.addAttribute("successfulSwap", successfulSwapDto);
         return "swap";
     }
