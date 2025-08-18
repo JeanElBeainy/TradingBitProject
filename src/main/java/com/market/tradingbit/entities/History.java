@@ -3,6 +3,8 @@ package com.market.tradingbit.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -22,7 +24,7 @@ public class History {
     private String fromName;
 
     @Column(name = "from_quantity")
-    private float fromQuantity;
+    private BigDecimal fromQuantity;
 
     @Column(name = "from_price")
     private double fromPrice;
@@ -34,7 +36,7 @@ public class History {
     private String toName;
 
     @Column(name = "to_quantity")
-    private float toQuantity;
+    private BigDecimal toQuantity;
 
     @Column(name = "to_price")
     private double toPrice;
@@ -46,7 +48,7 @@ public class History {
     private float volume;
 
     @Column(name = "fee")
-    private float fee;
+    private BigDecimal fee;
 
     @Override
     public String toString() {

@@ -3,6 +3,8 @@ package com.market.tradingbit.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -31,6 +33,6 @@ public class Portfolio {
     private String symbol;
 
     @Column(name = "quantity")
-    private float quantity;
+    private BigDecimal quantity;
 
 }
