@@ -47,4 +47,23 @@ public class History {
 
     @Column(name = "fee")
     private float fee;
+
+    @Override
+    public String toString() {
+        return "History{" +
+                "id=" + id +
+                ", fromSymbol='" + fromSymbol + '\'' +
+                ", fromName='" + fromName + '\'' +
+                ", fromQuantity=" + fromQuantity +
+                ", fromPrice=" + fromPrice +
+                ", toSymbol='" + toSymbol + '\'' +
+                ", toName='" + toName + '\'' +
+                ", toQuantity=" + toQuantity +
+                ", toPrice=" + toPrice +
+                ", userId=" + userId +
+                ", volume=" + volume +
+                ", fee=" + fee +
+                '}';
+    }
+
 }
