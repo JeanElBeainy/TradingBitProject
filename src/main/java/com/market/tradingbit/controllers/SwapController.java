@@ -20,6 +20,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.List;
 
@@ -61,7 +64,7 @@ public class SwapController {
             bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
     }
 
-    private void appendToRepository(SwapDto swap, Long userId, String toName, float quantityPriceTo) {
+    private void appendToRepository(SwapDto swap, Long userId, String toName, BigDecimal quantityPriceTo) {
         if(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), userId) == null) {
             portfolioRepository.save(Portfolio.builder()
                     .symbol(swap.getTo())
@@ -73,9 +76,9 @@ public class SwapController {
         } else
             portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), userId);
 
-        portfolioRepository.updatePortfolioQuantity(swap.getQuantity()*-1, swap.getFrom(), userId);
-
-        if(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getQuantity() == 0)
+        portfolioRepository.updatePortfolioQuantity(BigDecimal.valueOf(swap.getQuantity()*-1), swap.getFrom(), userId);
+        BigDecimal quantity = portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getQuantity();
+        if(quantity.equals(BigDecimal.ZERO))
             portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getId());
 
     }
@@ -112,7 +115,7 @@ public class SwapController {
 
         History history = new History();
         history.setUserId(userId);
-        history.setFromQuantity(swap.getQuantity());
+        history.setFromQuantity(BigDecimal.valueOf(swap.getQuantity()));
         history.setToSymbol(swap.getTo());
         history.setFromSymbol(swap.getFrom());
 
@@ -127,7 +130,7 @@ public class SwapController {
                 return swapQuantityError(new QuantityError(model, userId, swap, "You do not have enough USD to perform this swap",  bindingResult));
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
             history.setFromName("US Dollar Balance");
-            history.setFromQuantity(swap.getQuantity());
+            history.setFromQuantity(BigDecimal.valueOf(swap.getQuantity()));
             history.setFromPrice(1);
             history.setToPrice(price.getPrice());
             history.setToName(price.getName());
@@ -146,16 +149,16 @@ public class SwapController {
                 return swapQuantityError(new QuantityError(model, userId, swap, "Minimum swap price must be at least 1 USD",  bindingResult));
 
             //NOTE: CryptoNamePrice will return: FROM-name and TO-name-price
-            history.setFromName("Solana");
-            history.setToName("USDC");
+            history.setFromName(prices.getFirst().getName());
+            history.setToName(prices.getLast().getName());
             history.setToPrice(prices.getLast().getPrice());
         }
         if(bindingResult.hasErrors())
             return returnBindingResult(model, userId, swap);
 
-        float toQuantity = (float) (history.getFromPrice() / history.getToPrice());
-        float fee = toQuantity * FEE_PERCENTAGE;
-        history.setToQuantity(toQuantity - fee);
+        BigDecimal toQuantity = BigDecimal.valueOf((history.getFromPrice() * swap.getQuantity() / history.getToPrice()));
+        BigDecimal fee = toQuantity.multiply(BigDecimal.valueOf(FEE_PERCENTAGE));
+        history.setToQuantity(toQuantity.subtract(fee));
 
         appendToRepository(swap, userId, history.getToName(), history.getToQuantity());
         populateModel(model, userId);
@@ -168,13 +171,14 @@ public class SwapController {
         SuccessfulSwapDto successfulSwapDto = SuccessfulSwapDto.builder()
                 .from(swap.getFrom())
                 .to(swap.getTo())
-                .fromQuantity(history.getFromQuantity())
-                .toQuantity(history.getToQuantity())
-                .fee(fee)
+                .fromQuantity(history.getFromQuantity().setScale(8, RoundingMode.HALF_UP).stripTrailingZeros())
+                .toQuantity(history.getToQuantity().setScale(8, RoundingMode.HALF_UP).stripTrailingZeros())
+                .fee(fee.setScale(8, RoundingMode.HALF_UP))
                 .build();
 
         System.out.println(history);
         model.addAttribute("successfulSwap", successfulSwapDto);
+        System.out.println(historyRepository.getToQuantityById(15L));
         return "swap";
     }
 
