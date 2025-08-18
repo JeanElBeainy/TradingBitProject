@@ -1,4 +1,5 @@
 let currentMaxQuantity = 0;
+let currentMaxQuantityString = '0'; // ✨ ADDED: Stores the exact string value
 
 function setupDropdown(containerSelector) {
     const container = document.querySelector(containerSelector);
@@ -32,8 +33,9 @@ function setupDropdown(containerSelector) {
         dropdownList.style.display = 'none';
 
         if (container.classList.contains('swap__from')) {
-            document.getElementById('quantitySection').style.display = 'block'; //try flex
+            document.getElementById('quantitySection').style.display = 'block';
             currentMaxQuantity = parseFloat(quantity);
+            currentMaxQuantityString = quantity;
             document.getElementById('maxFromQuantity').textContent = quantity;
         }
     });
@@ -46,14 +48,22 @@ document.querySelector('.quantity__buttons').addEventListener('click', (event) =
     if (event.target.classList.contains('btn-percent')) {
         const percent = parseFloat(event.target.dataset.percent);
         const quantityInput = document.getElementById('quantityInput');
-        if (currentMaxQuantity > 0)
+
+        if (percent === 1)
+            quantityInput.value = currentMaxQuantityString;
+        else if (currentMaxQuantity > 0)
             quantityInput.value = (currentMaxQuantity * percent).toFixed(8);
     }
 });
 
 document.addEventListener('click', (event) => {
-    if (!event.target.closest('.swap__from'))
-        document.getElementById('dropdownList').style.display = 'none';
-    if (!event.target.closest('.swap__to'))
-        document.getElementById('dropdownListTo').style.display = 'none';
+    const fromDropdown = document.querySelector('.swap__from .dropdown-list');
+    const toDropdown = document.querySelector('.swap__to .dropdown-list');
+
+    if (!event.target.closest('.swap__from') && fromDropdown) {
+        fromDropdown.style.display = 'none';
+    }
+    if (!event.target.closest('.swap__to') && toDropdown) {
+        toDropdown.style.display = 'none';
+    }
 });
