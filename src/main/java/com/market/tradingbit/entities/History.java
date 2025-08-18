@@ -23,7 +23,7 @@ public class History {
     @Column(name = "from_name")
     private String fromName;
 
-    @Column(name = "from_quantity")
+    @Column(name = "from_quantity", precision = 30, scale = 8)
     private BigDecimal fromQuantity;
 
     @Column(name = "from_price")
@@ -35,7 +35,7 @@ public class History {
     @Column(name = "to_name")
     private String toName;
 
-    @Column(name = "to_quantity")
+    @Column(name = "to_quantity", precision = 30, scale = 8)
     private BigDecimal toQuantity;
 
     @Column(name = "to_price")
@@ -47,7 +47,7 @@ public class History {
     @Column(name = "volume")
     private float volume;
 
-    @Column(name = "fee")
+    @Column(name = "fee", precision = 30, scale = 8)
     private BigDecimal fee;
 
     @Override

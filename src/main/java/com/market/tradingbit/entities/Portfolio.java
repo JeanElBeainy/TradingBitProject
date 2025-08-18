@@ -32,7 +32,7 @@ public class Portfolio {
     @Column(name = "symbol")
     private String symbol;
 
-    @Column(name = "quantity")
+    @Column(name = "quantity", precision = 30, scale = 8)
     private BigDecimal quantity;
 
 }
