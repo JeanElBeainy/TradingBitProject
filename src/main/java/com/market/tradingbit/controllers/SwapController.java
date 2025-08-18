@@ -156,6 +156,8 @@ public class SwapController {
 
         appendToRepository(swap, userId, history.getToName(), history.getToQuantity());
         populateModel(model, userId);
+        history.setFee(fee);
+        history.setVolume((float) history.getFromPrice());
 
         historyRepository.save(history);
 
@@ -169,8 +171,6 @@ public class SwapController {
                 .fee(fee)
                 .build();
 
-        history.setFee(fee);
-        history.setVolume((float) history.getFromPrice());
         System.out.println(history);
         model.addAttribute("successfulSwap", successfulSwapDto);
         return "swap";
