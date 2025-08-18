@@ -17,4 +17,5 @@ public class HistoryDto {
     private String toSymbol;
     private String toName;
     private double toPrice;
+    private float volume;
 }
