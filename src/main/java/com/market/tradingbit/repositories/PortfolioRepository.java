@@ -27,7 +27,7 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     List<Portfolio> getStockPortfolioByUserId(Long userId);
 
     @Query("SELECT p.quantity FROM Portfolio p WHERE p.symbol = :symbol AND p.userId = :userId")
-    float getQuantityBySymbolAndUserId(String symbol, Long userId);
+    BigDecimal getQuantityBySymbolAndUserId(String symbol, Long userId);
 
     @Modifying
     @Transactional
