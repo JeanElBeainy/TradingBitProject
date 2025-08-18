@@ -108,7 +108,20 @@ public class SwapController {
                 1,
                 swap.getTo(),
                 price.getName(),
-                price.getPrice());
+                price.getPrice()
+        );
+        return historyMapper.toHistory(historyDto);
+    }
+
+    private History toHistory(SwapDto swap, List<CryptoNamePrice> prices) {
+        HistoryDto historyDto = new HistoryDto(swap.getFrom(),
+                prices.getFirst().getName(),
+                BigDecimal.valueOf(swap.getQuantity()),
+                prices.getFirst().getPrice(),
+                swap.getTo(),
+                prices.getLast().getName(),
+                prices.getLast().getPrice()
+        );
         return historyMapper.toHistory(historyDto);
     }
 
@@ -137,12 +150,10 @@ public class SwapController {
         User user = userRepository.findByEmail(principal.getName());
         Long userId = user.getId();
 
-        if(Float.isNaN(swap.getQuantity()))
+        if(Float.isNaN(swap.getQuantity())) //TODO: remove this and change swap's Quantity to String
             return swapQuantityError(new Error(model, userId, swap, "Quantity must be a valid number", bindingResult));
 
         History history = new History();
-//        history.setFromQuantity(BigDecimal.valueOf(swap.getQuantity()));
-//        history.setToSymbol(swap.getTo());
 
         validateBasicFields(swap, bindingResult);
         if(bindingResult.hasErrors())
@@ -164,7 +175,7 @@ public class SwapController {
             if(prices.size() < 2)
                 return swapToError(new Error(model, userId, swap, "One or more of the currencies you selected are not valid.", bindingResult));
 
-            history.setFromPrice(prices.getFirst().getPrice());
+            // history.setFromPrice(prices.getFirst().getPrice());
             history.setVolume((float) (prices.getFirst().getPrice() * swap.getQuantity()));
             if(history.getVolume() < 1)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD",  bindingResult));
