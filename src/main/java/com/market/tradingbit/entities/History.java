@@ -44,4 +44,7 @@ public class History {
 
     @Column(name = "volume")
     private float volume;
+
+    @Column(name = "fee")
+    private float fee;
 }
