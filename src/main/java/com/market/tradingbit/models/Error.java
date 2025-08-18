@@ -8,7 +8,7 @@ import org.springframework.validation.BindingResult;
 
 @Getter
 @AllArgsConstructor
-public class QuantityError {
+public class Error {
     private Model model;
     private Long userId;
     private SwapDto swap;
