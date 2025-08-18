@@ -61,11 +61,11 @@ public class SwapController {
             bindingResult.addError(new FieldError("swap", "to", "Please select a valid currency to swap."));
         if(swap.getQuantity() <= 0)
             bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero."));
-        if(bindingResult.hasErrors())
-            return;
+        if(bindingResult.hasErrors()) return;
         if(swap.getFrom().equals(swap.getTo()))
             bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
     }
+
 
     private void appendToRepository(SwapDto swap, Long userId, String toName, BigDecimal quantityPriceTo) {
         if(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), userId) == null) {
@@ -81,7 +81,7 @@ public class SwapController {
 
         portfolioRepository.updatePortfolioQuantity(BigDecimal.valueOf(swap.getQuantity()*-1), swap.getFrom(), userId);
         BigDecimal quantity = portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getQuantity();
-        if(quantity.equals(BigDecimal.ZERO))
+        if(quantity.compareTo(BigDecimal.ZERO) <= 0)
             portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getId());
     }
 
@@ -106,26 +106,24 @@ public class SwapController {
                 1,
                 swap.getTo(),
                 price.getName(),
-                price.getPrice(),
-                swap.getQuantity()
+                price.getPrice()
         );
         return historyMapper.toHistory(historyDto);
     }
 
-    private History toHistory(SwapDto swap, List<CryptoNamePrice> prices, float volume) {
+    private History toHistory(SwapDto swap, List<CryptoNamePrice> prices) {
         HistoryDto historyDto = new HistoryDto(swap.getFrom(),
                 prices.getFirst().getName(),
                 BigDecimal.valueOf(swap.getQuantity()),
                 prices.getFirst().getPrice(),
                 swap.getTo(),
                 prices.getLast().getName(),
-                prices.getLast().getPrice(),
-                volume
+                prices.getLast().getPrice()
         );
         return historyMapper.toHistory(historyDto);
     }
 
-    private History saveHistory(History history, SwapDto swap, Long userId) {
+    private void saveHistory(History history, SwapDto swap, Long userId, float volume) {
         BigDecimal toQuantity = BigDecimal.valueOf((history.getFromPrice() * swap.getQuantity() / history.getToPrice()))
                 .setScale(8, RoundingMode.HALF_EVEN);
         BigDecimal fee = toQuantity.multiply(BigDecimal.valueOf(FEE_PERCENTAGE))
@@ -135,8 +133,8 @@ public class SwapController {
         appendToRepository(swap, userId, history.getToName(), history.getToQuantity());
         history.setFee(fee);
         history.setUserId(userId);
+        history.setVolume(volume);
         historyRepository.save(history);
-        return history;
     }
 
     private String swapSuccessful(SuccessfulSwapDto successfulSwapDto, Model model) {
@@ -163,11 +161,13 @@ public class SwapController {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
         Long userId = user.getId();
+        float volume;
+        History history;
 
         if(Float.isNaN(swap.getQuantity())) //TODO: remove this and change swap's Quantity to String
+        {
             return swapQuantityError(new Error(model, userId, swap, "Quantity must be a valid number", bindingResult));
-
-        History history;
+        }
 
         validateBasicFields(swap, bindingResult);
         if(bindingResult.hasErrors())
@@ -181,6 +181,7 @@ public class SwapController {
 
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
             history = toHistory(swap, price);
+            volume = swap.getQuantity();
         } else {
             List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
 
@@ -189,28 +190,17 @@ public class SwapController {
             if(prices.size() < 2)
                 return swapToError(new Error(model, userId, swap, "One or more of the currencies you selected are not valid.", bindingResult));
 
-            float volume = (float) (prices.getFirst().getPrice() * swap.getQuantity());
+            volume = (float) (prices.getFirst().getPrice() * swap.getQuantity());
+            System.out.println(volume);
             if(volume < 1)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD",  bindingResult));
 
-            history = toHistory(swap, prices, volume);
+            history = toHistory(swap, prices);
         }
         if(bindingResult.hasErrors())
             return returnBindingResult(model, userId, swap);
 
-//        BigDecimal toQuantity = BigDecimal.valueOf((history.getFromPrice() * swap.getQuantity() / history.getToPrice()))
-//                .setScale(8, RoundingMode.HALF_EVEN);
-//        BigDecimal fee = toQuantity.multiply(BigDecimal.valueOf(FEE_PERCENTAGE))
-//                .setScale(8, RoundingMode.HALF_EVEN);;
-//        history.setToQuantity(toQuantity.subtract(fee));
-//
-//        appendToRepository(swap, userId, history.getToName(), history.getToQuantity());
-//        history.setFee(fee);
-//        history.setVolume(volume);
-//        history.setUserId(userId);
-//
-//        historyRepository.save(history);
-        saveHistory(history, swap, userId);
+        saveHistory(history, swap, userId, volume);
 
         SuccessfulSwapDto successfulSwapDto = SuccessfulSwapDto.builder() //TODO: Try fromHistory()
                 .from(history.getFromSymbol())
