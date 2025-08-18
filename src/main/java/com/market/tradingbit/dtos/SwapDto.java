@@ -6,5 +6,5 @@ import lombok.Data;
 public class SwapDto {
     private String from;
     private String to;
-    private float quantity;
+    private String quantity;
 }
