@@ -13,10 +13,7 @@ import java.math.BigDecimal;
 public class SuccessfulSwapDto {
     private String from;
     private String to;
-
-    private BigDecimal fromQuantity;
-
-    private BigDecimal toQuantity;
-
-    private BigDecimal fee;
+    private String fromQuantity;
+    private String toQuantity;
+    private String fee;
 }
