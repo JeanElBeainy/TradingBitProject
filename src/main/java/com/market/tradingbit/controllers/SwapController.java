@@ -101,6 +101,17 @@ public class SwapController {
         return returnBindingResult(quantityError.getModel(), quantityError.getUserId(), quantityError.getSwap());
     }
 
+    private History toHistory(SwapDto swap, CryptoNamePrice price) {
+        HistoryDto historyDto = new HistoryDto("US Dollar",
+                "US Dollar Balance",
+                BigDecimal.valueOf(swap.getQuantity()),
+                1,
+                swap.getTo(),
+                price.getName(),
+                price.getPrice());
+        return historyMapper.toHistory(historyDto);
+    }
+
     private String swapSuccessful(SuccessfulSwapDto successfulSwapDto, Model model) {
 
         return "swap";
@@ -144,16 +155,7 @@ public class SwapController {
                 return swapQuantityError(new Error(model, userId, swap, "You do not have enough USD to perform this swap",  bindingResult));
 
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
-            //create a class with these and save them using historyMapper.
-
-            HistoryDto fromUSD = new HistoryDto("US Dollar",
-                    "US Dollar Balance",
-                    BigDecimal.valueOf(swap.getQuantity()),
-                    1,
-                    swap.getTo(),
-                    price.getName(),
-                    price.getPrice());
-            history = historyMapper.toHistory(fromUSD);
+            history = toHistory(swap, price);
         } else {
             List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
 
