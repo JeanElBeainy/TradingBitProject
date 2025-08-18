@@ -37,9 +37,7 @@ public class SwapController {
     private final PortfolioRepository portfolioRepository;
     private final UserRepository userRepository;
     private final HistoryRepository historyRepository;
-
     private final HistoryMapper historyMapper;
-
     private final float FEE_PERCENTAGE = 0.001f;
 
     private void populateModel(Model model, Long userId) {
@@ -108,21 +106,37 @@ public class SwapController {
                 1,
                 swap.getTo(),
                 price.getName(),
-                price.getPrice()
+                price.getPrice(),
+                swap.getQuantity()
         );
         return historyMapper.toHistory(historyDto);
     }
 
-    private History toHistory(SwapDto swap, List<CryptoNamePrice> prices) {
+    private History toHistory(SwapDto swap, List<CryptoNamePrice> prices, float volume) {
         HistoryDto historyDto = new HistoryDto(swap.getFrom(),
                 prices.getFirst().getName(),
                 BigDecimal.valueOf(swap.getQuantity()),
                 prices.getFirst().getPrice(),
                 swap.getTo(),
                 prices.getLast().getName(),
-                prices.getLast().getPrice()
+                prices.getLast().getPrice(),
+                volume
         );
         return historyMapper.toHistory(historyDto);
+    }
+
+    private History saveHistory(History history, SwapDto swap, Long userId) {
+        BigDecimal toQuantity = BigDecimal.valueOf((history.getFromPrice() * swap.getQuantity() / history.getToPrice()))
+                .setScale(8, RoundingMode.HALF_EVEN);
+        BigDecimal fee = toQuantity.multiply(BigDecimal.valueOf(FEE_PERCENTAGE))
+                .setScale(8, RoundingMode.HALF_EVEN);;
+        history.setToQuantity(toQuantity.subtract(fee));
+
+        appendToRepository(swap, userId, history.getToName(), history.getToQuantity());
+        history.setFee(fee);
+        history.setUserId(userId);
+        historyRepository.save(history);
+        return history;
     }
 
     private String swapSuccessful(SuccessfulSwapDto successfulSwapDto, Model model) {
@@ -153,7 +167,7 @@ public class SwapController {
         if(Float.isNaN(swap.getQuantity())) //TODO: remove this and change swap's Quantity to String
             return swapQuantityError(new Error(model, userId, swap, "Quantity must be a valid number", bindingResult));
 
-        History history = new History();
+        History history;
 
         validateBasicFields(swap, bindingResult);
         if(bindingResult.hasErrors())
@@ -175,41 +189,39 @@ public class SwapController {
             if(prices.size() < 2)
                 return swapToError(new Error(model, userId, swap, "One or more of the currencies you selected are not valid.", bindingResult));
 
-            // history.setFromPrice(prices.getFirst().getPrice());
-            history.setVolume((float) (prices.getFirst().getPrice() * swap.getQuantity()));
-            if(history.getVolume() < 1)
+            float volume = (float) (prices.getFirst().getPrice() * swap.getQuantity());
+            if(volume < 1)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD",  bindingResult));
 
-            //NOTE: CryptoNamePrice will return: FROM-name and TO-name-price
-            history.setFromName(prices.getFirst().getName());
-            history.setToName(prices.getLast().getName());
-            history.setToPrice(prices.getLast().getPrice());
+            history = toHistory(swap, prices, volume);
         }
         if(bindingResult.hasErrors())
             return returnBindingResult(model, userId, swap);
 
-        BigDecimal toQuantity = BigDecimal.valueOf((history.getFromPrice() * swap.getQuantity() / history.getToPrice()));
-        BigDecimal fee = toQuantity.multiply(BigDecimal.valueOf(FEE_PERCENTAGE));
-        history.setToQuantity(toQuantity.subtract(fee));
-
-        appendToRepository(swap, userId, history.getToName(), history.getToQuantity());
-        populateModel(model, userId);
-        history.setFee(fee);
-        history.setUserId(userId);
-
-        historyRepository.save(history);
-
-        model.addAttribute("success", true);
+//        BigDecimal toQuantity = BigDecimal.valueOf((history.getFromPrice() * swap.getQuantity() / history.getToPrice()))
+//                .setScale(8, RoundingMode.HALF_EVEN);
+//        BigDecimal fee = toQuantity.multiply(BigDecimal.valueOf(FEE_PERCENTAGE))
+//                .setScale(8, RoundingMode.HALF_EVEN);;
+//        history.setToQuantity(toQuantity.subtract(fee));
+//
+//        appendToRepository(swap, userId, history.getToName(), history.getToQuantity());
+//        history.setFee(fee);
+//        history.setVolume(volume);
+//        history.setUserId(userId);
+//
+//        historyRepository.save(history);
+        saveHistory(history, swap, userId);
 
         SuccessfulSwapDto successfulSwapDto = SuccessfulSwapDto.builder() //TODO: Try fromHistory()
                 .from(history.getFromSymbol())
                 .to(history.getToSymbol())
-                .fromQuantity(history.getFromQuantity().setScale(8, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString())
-                .toQuantity(history.getToQuantity().setScale(8, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString())
-                .fee(history.getFee().setScale(8, RoundingMode.HALF_UP).toPlainString())
+                .fromQuantity(history.getFromQuantity().setScale(8, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString())
+                .toQuantity(history.getToQuantity().setScale(8, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString())
+                .fee(history.getFee().setScale(8, RoundingMode.HALF_EVEN).toPlainString())
                 .build();
-
         System.out.println(history);
+        populateModel(model, userId);
+        model.addAttribute("success", true);
         model.addAttribute("successfulSwap", successfulSwapDto);
         return "swap";
     }
