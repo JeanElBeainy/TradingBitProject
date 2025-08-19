@@ -171,6 +171,7 @@
             <div class="history__text">
                 <p>Swap History</p>
             </div>
+            <div th:if="${history.isEmpty()}">You do not have any swapping history.</div>
             <div class="swap__history" th:each="historyItem : ${history}">
                 <div class="pair">Pair:
                     <span th:text="${historyItem.fromSymbol}"></span>
@@ -183,7 +184,7 @@
                     <span th:text="${historyItem.toQuantity}"></span>
                 </div>
                 <div class="fee">Fees: <span th:text="${historyItem.fee}"></span>
-                    <span th:text="${historyItem.fromSymbol}"></span>
+                    <span th:text="${historyItem.toSymbol}"></span>
                 </div>
             </div>
             <div class="more__history">

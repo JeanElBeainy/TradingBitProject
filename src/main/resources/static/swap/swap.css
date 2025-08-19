@@ -425,7 +425,7 @@ ul {
     font-weight: 600;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 540px) {
     .swap__history {
         font-size: 1.5rem;
     }
