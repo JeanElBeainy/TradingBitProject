@@ -1,13 +1,11 @@
 package com.market.tradingbit.services;
 
-import com.market.tradingbit.models.CmcResponse;
-import com.market.tradingbit.models.CryptoInfo;
-import com.market.tradingbit.models.CryptoNamePrice;
-import com.market.tradingbit.models.CryptoNameSymbol;
+import com.market.tradingbit.models.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +81,31 @@ public class CoinMarketCapService {
         crypto1.ifPresent(result::add);
         crypto2.ifPresent(result::add);
         return result;
+    }
+
+    public BigDecimal calculatePortfolioValue(List<CryptoHolding> cryptoHoldings) {
+        if (cryptoHoldings == null || cryptoHoldings.isEmpty())
+            return BigDecimal.ZERO;
+
+        List<CryptoInfo> allCryptos = getLatestListings();
+        BigDecimal totalValue = BigDecimal.ZERO;
+
+        for (CryptoHolding holding : cryptoHoldings) {
+            String symbol = holding.getSymbol();
+            BigDecimal quantity = holding.getQuantity();
+
+            Optional<CryptoInfo> cryptoInfo = allCryptos.stream()
+                    .filter(c -> c.getSymbol().equalsIgnoreCase(symbol))
+                    .findFirst();
+
+            if (cryptoInfo.isPresent()) {
+                BigDecimal price = BigDecimal.valueOf(cryptoInfo.get().getQuote().get("USD").getPrice());
+                BigDecimal value = price.multiply(quantity);
+                totalValue = totalValue.add(value);
+            } else //if crypto falls off the top 100 range, since the API gives only the top 100
+                System.out.println("No such symbol: " + symbol);
+        }
+        return totalValue;
     }
 
 }
