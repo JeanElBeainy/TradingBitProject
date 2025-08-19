@@ -85,15 +85,13 @@ public class SwapController {
             bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
     }
 
-    private boolean notSufficientBalance(String symbol, Long userId, BigDecimal requiredAmount) {
-        BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(symbol, userId);
+    private boolean notSufficientBalance(BigDecimal availableBalance, BigDecimal requiredAmount) {
         if (availableBalance == null) return true;
         BigDecimal difference = availableBalance.subtract(requiredAmount);
         return difference.compareTo(BigDecimal.ZERO) < 0;
     }
 
-    private BigDecimal getExactSwapAmount(String symbol, Long userId, BigDecimal requestedAmount) {
-        BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(symbol, userId);
+    private BigDecimal getExactSwapAmount(BigDecimal availableBalance, BigDecimal requestedAmount) {
         BigDecimal difference = requestedAmount.subtract(availableBalance);
         if (difference.compareTo(BigDecimal.ZERO) > 0 && difference.compareTo(TOLERANCE) <= 0)
             return availableBalance;
@@ -207,7 +205,7 @@ public class SwapController {
                 .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
     }
 
-    private String checkForBasicErrors(BasicUserError error) {
+    private String checkForBasicErrors(BasicUserError error, BigDecimal availableBalance) {
         if (error.getSwapQuantity() == null)
             return swapQuantityError(new Error(error.getModel(),
                     error.getUserId(),
@@ -216,10 +214,10 @@ public class SwapController {
                     error.getBindingResult()));
 
         validateBasicFields(error.getSwap(), error.getBindingResult());
-        if(notSufficientBalance(error.getSwap().getFrom(), error.getUserId(), error.getSwapQuantity()))
+        if(notSufficientBalance(availableBalance, error.getSwapQuantity()))
             return swapQuantityError(new Error(error.getModel(),
                     error.getUserId(),
-                    error.getSwap(),
+                    error.getSwap(), //TODO: We have request here (duplicate) below
                     "You do not have enough "+ error.getSwap().getFrom() + " to perform this swap",
                     error.getBindingResult()));
 
@@ -229,6 +227,7 @@ public class SwapController {
     }
 
     @GetMapping("/crypto")
+    //3 Queries: userRepository, portfolioRepository, historyRepository (ALL CRUCIAL)
     public String cryptoSwap(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
@@ -243,17 +242,19 @@ public class SwapController {
     @PostMapping("/crypto")
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
+        System.out.println("Post Mapping:");
         User user = userRepository.findByEmail(principal.getName());
         Long userId = user.getId();
         BigDecimal volume;
         History history;
 
         BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
-        String basicErrors = checkForBasicErrors(new BasicUserError(model, swapQuantity, swap, userId, bindingResult));
+        BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), userId);
+        String basicErrors = checkForBasicErrors(new BasicUserError(model, swapQuantity, swap, userId, bindingResult), availableBalance);
         if(basicErrors != null) return basicErrors;
 
         //swapQuantity already checked in checkForBasicErrors, so no need to assert swapQuantity
-        BigDecimal exactSwapAmount = getExactSwapAmount(swap.getFrom(), userId, swapQuantity);
+        BigDecimal exactSwapAmount = getExactSwapAmount(availableBalance, swapQuantity);
         volume = exactSwapAmount;
 
         if(swap.getFrom().equals("US Dollar")) {
