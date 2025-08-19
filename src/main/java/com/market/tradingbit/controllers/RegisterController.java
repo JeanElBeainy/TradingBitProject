@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Controller
@@ -58,11 +59,11 @@ public class RegisterController {
             Balance balance = Balance
                     .builder()
                     .id(savedUser.getId())
-                    .cryptoBalance(0.0)
-                    .stockBalance(0.0)
-                    .usdBalance(100_000)
+                    .cryptoBalance(BigDecimal.ZERO)
+                    .stockBalance(BigDecimal.ZERO)
+                    .usdBalance(BigDecimal.valueOf(100_000))
                     .build();
-            balance.setTotalBalance(balance.getCryptoBalance() + balance.getStockBalance() + balance.getUsdBalance());
+            balance.setTotalBalance(BigDecimal.valueOf(100_000));
             balanceRepository.save(balance);
 
         } catch (Exception e) {
