@@ -5,6 +5,7 @@ import com.market.tradingbit.entities.Balance;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.models.CryptoInfo;
 import com.market.tradingbit.repositories.BalanceRepository;
+import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinMarketCapService;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class DashboardController {
     private final UserRepository userRepository;
     private final BalanceRepository balanceRepository;
     private final CoinMarketCapService service;
+    private final PortfolioRepository portfolioRepository;
 
     @GetMapping
     public String dashboard(Model model, Principal principal) {
@@ -36,6 +38,9 @@ public class DashboardController {
         System.out.println(user.getId());
 
         Balance balance = balanceRepository.findById(user.getId()).orElseThrow();
+        balanceRepository.updateUSDBalanceByAmountAndUserId(
+                portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
+                user.getId());
         System.out.println(balance);
         userDashboardDto.setUsdBalance(balance.getUsdBalance());
         userDashboardDto.setCryptoBalance(balance.getCryptoBalance());
