@@ -59,12 +59,15 @@ public class RegisterController {
             Balance balance = Balance
                     .builder()
                     .id(savedUser.getId())
-                    .cryptoBalance(BigDecimal.ZERO)
-                    .stockBalance(BigDecimal.ZERO)
+                    .cryptoBalance(BigDecimal.valueOf(0))
+                    .stockBalance(BigDecimal.valueOf(0))
                     .usdBalance(BigDecimal.valueOf(100_000))
+                    .totalBalance(BigDecimal.valueOf(100_000))
+                    .totalVolume(BigDecimal.valueOf(0))
                     .build();
-            balance.setTotalBalance(BigDecimal.valueOf(100_000));
             balanceRepository.save(balance);
+
+
 
         } catch (Exception e) {
             System.out.println("Exception with POST register: " + e.getMessage());
