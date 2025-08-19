@@ -51,6 +51,7 @@ public class SwapController {
     private String returnBindingResult(Model model, Long userId, SwapDto swap) {
         populateModel(model, userId);
         model.addAttribute("swap", swap);
+        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
         return "swap";
     }
 
@@ -220,7 +221,8 @@ public class SwapController {
         populateModel(model, user.getId());
         model.addAttribute("swap", new SwapDto());
         model.addAttribute("success", false);
-        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId()));
+        List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
+        model.addAttribute("history", history);
         return "swap";
     }
 
@@ -238,14 +240,20 @@ public class SwapController {
 
         //swapQuantity already checked in checkForBasicErrors, so no need to assert swapQuantity
         BigDecimal exactSwapAmount = getExactSwapAmount(swap.getFrom(), userId, swapQuantity);
+        volume = exactSwapAmount;
 
         if(swap.getFrom().equals("US Dollar")) {
             if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult));
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
             history = toHistory(swap, price, exactSwapAmount);
-            volume = exactSwapAmount;
-        } else {
+        } else if(swap.getTo().equals("US Dollar")) {
+            if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
+                return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult));
+            CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getFrom());
+            history = toHistory(swap, price, exactSwapAmount);
+        }
+        else {
             List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
             if(prices.size() < 2)
                 return swapToError(new Error(model, userId, swap, "One or more of the currencies you selected are not valid.", bindingResult));
@@ -267,6 +275,7 @@ public class SwapController {
         populateModel(model, userId);
         model.addAttribute("success", true);
         model.addAttribute("successfulSwap", historyMapper.toSuccessfulSwapDto(history));
+        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
         return "swap";
     }
 
