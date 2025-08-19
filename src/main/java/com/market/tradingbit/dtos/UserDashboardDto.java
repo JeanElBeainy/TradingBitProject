@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 @Data
 public class UserDashboardDto {
     private String name;
-    private BigDecimal usdBalance;
-    private BigDecimal cryptoBalance;
-    private BigDecimal stockBalance;
-    private BigDecimal totalBalance;
+    private String usdBalance;
+    private String cryptoBalance;
+    private String stockBalance;
+    private String totalBalance;
 }
