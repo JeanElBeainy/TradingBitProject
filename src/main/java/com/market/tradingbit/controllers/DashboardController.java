@@ -39,11 +39,12 @@ public class DashboardController {
 
         System.out.println(user.getId());
 
-        Balance balance = balanceRepository.findById(user.getId()).orElseThrow();
+        //TODO: if value = BigDecimal.ZERO, set 0.0 as value.
         balanceRepository.updateUSDBalanceByAmountAndUserId(
                 portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
                 user.getId());
-        System.out.println(balance);
+        Balance balance = balanceRepository.findById(user.getId()).orElseThrow();
+        balance.setTotalBalance(balance.getUsdBalance().add(balance.getCryptoBalance()).add(balance.getStockBalance()));
 
         model.addAttribute("userDashboardDto", balanceMapper.toUserDashboardDto(balance));
         model.addAttribute("cryptos", service.getLatestListings());
