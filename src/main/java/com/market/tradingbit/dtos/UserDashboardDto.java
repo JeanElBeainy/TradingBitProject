@@ -1,7 +1,6 @@
 package com.market.tradingbit.dtos;
 
 import lombok.Data;
-import java.math.BigDecimal;
 
 @Data
 public class UserDashboardDto {

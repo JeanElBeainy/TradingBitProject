@@ -31,14 +31,7 @@ public class DashboardController {
     private final PortfolioRepository portfolioRepository;
     private final BalanceMapper balanceMapper;
 
-    @GetMapping
-    public String dashboard(Model model, Principal principal) {
-        if(principal == null) return "redirect:/login";
-        User user = userRepository.findByEmail(principal.getName());
-        UserDashboardDto userDashboardDto = new UserDashboardDto();
-        userDashboardDto.setName(user.getName());
-
-        //TODO: if value = BigDecimal.ZERO, set 0.0 as value.
+    private void setUpUserDashboard(Model model, User user) {
         balanceRepository.updateUSDBalanceByAmountAndUserId(
                 portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
                 user.getId());
@@ -50,8 +43,22 @@ public class DashboardController {
 
         Balance balance = balanceRepository.findById(user.getId()).orElseThrow();
         balance.setTotalBalance(balance.getUsdBalance().add(balance.getCryptoBalance()).add(balance.getStockBalance()));
+        UserDashboardDto userDashboard = balanceMapper.toUserDashboardDto(balance);
+        userDashboard.setName(user.getName());
 
-        model.addAttribute("userDashboardDto", balanceMapper.toUserDashboardDto(balance));
+        if(userDashboard.getCryptoBalance().equals("0E-8"))
+            userDashboard.setCryptoBalance("0.0");
+        if(userDashboard.getStockBalance().equals("0E-8"))
+            userDashboard.setStockBalance("0.0");
+        model.addAttribute("userDashboardDto", userDashboard);
+    }
+
+    @GetMapping
+    public String dashboard(Model model, Principal principal) {
+        if(principal == null) return "redirect:/login";
+        User user = userRepository.findByEmail(principal.getName());
+        setUpUserDashboard(model, user);
+
         model.addAttribute("cryptos", service.getLatestListings());
         model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "dashboard";
