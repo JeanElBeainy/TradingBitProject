@@ -3,6 +3,7 @@ package com.market.tradingbit.controllers;
 import com.market.tradingbit.dtos.UserDashboardDto;
 import com.market.tradingbit.entities.Balance;
 import com.market.tradingbit.entities.User;
+import com.market.tradingbit.mappers.BalanceMapper;
 import com.market.tradingbit.models.CryptoInfo;
 import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
@@ -27,6 +28,7 @@ public class DashboardController {
     private final BalanceRepository balanceRepository;
     private final CoinMarketCapService service;
     private final PortfolioRepository portfolioRepository;
+    private final BalanceMapper balanceMapper;
 
     @GetMapping
     public String dashboard(Model model, Principal principal) {
@@ -42,12 +44,8 @@ public class DashboardController {
                 portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
                 user.getId());
         System.out.println(balance);
-        userDashboardDto.setUsdBalance(balance.getUsdBalance());
-        userDashboardDto.setCryptoBalance(balance.getCryptoBalance());
-        userDashboardDto.setStockBalance(balance.getStockBalance());
-        userDashboardDto.setTotalBalance(balance.getTotalBalance());
 
-        model.addAttribute("userDashboardDto", userDashboardDto);
+        model.addAttribute("userDashboardDto", balanceMapper.toUserDashboardDto(balance));
         model.addAttribute("cryptos", service.getLatestListings());
         model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "dashboard";
