@@ -180,7 +180,7 @@ public class SwapController {
         historyRepository.save(saveHistory.getHistory());
     }
 
-    private static BigDecimal getBigDecimalQuantity(History history, BigDecimal exactSwapAmount) {
+    private BigDecimal getBigDecimalQuantity(History history, BigDecimal exactSwapAmount) {
         BigDecimal fromPrice = new BigDecimal(String.valueOf(history.getFromPrice()))
                 .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
         BigDecimal toPrice = new BigDecimal(String.valueOf(history.getToPrice()))
@@ -220,6 +220,7 @@ public class SwapController {
         populateModel(model, user.getId());
         model.addAttribute("swap", new SwapDto());
         model.addAttribute("success", false);
+        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId()));
         return "swap";
     }
 
