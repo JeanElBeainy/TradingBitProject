@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,12 +38,16 @@ public class DashboardController {
         UserDashboardDto userDashboardDto = new UserDashboardDto();
         userDashboardDto.setName(user.getName());
 
-        System.out.println(user.getId());
-
         //TODO: if value = BigDecimal.ZERO, set 0.0 as value.
         balanceRepository.updateUSDBalanceByAmountAndUserId(
                 portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
                 user.getId());
+
+        BigDecimal cryptoBalance = service.calculatePortfolioValue(
+                portfolioRepository.getCryptoSymbolAndQuantityByUserId(user.getId())
+        );
+        balanceRepository.updateCryptoBalanceByAmountAndUserId(cryptoBalance, user.getId());
+
         Balance balance = balanceRepository.findById(user.getId()).orElseThrow();
         balance.setTotalBalance(balance.getUsdBalance().add(balance.getCryptoBalance()).add(balance.getStockBalance()));
 
