@@ -1,6 +1,7 @@
 package com.market.tradingbit.repositories;
 
 import com.market.tradingbit.entities.Portfolio;
+import com.market.tradingbit.models.CryptoHolding;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -28,6 +29,9 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
     @Query("SELECT p.quantity FROM Portfolio p WHERE p.symbol = :symbol AND p.userId = :userId")
     BigDecimal getQuantityBySymbolAndUserId(String symbol, Long userId);
+
+    @Query("SELECT p.symbol as symbol, p.quantity as quantity FROM Portfolio p WHERE p.userId = :userId AND p.purchaseType = 'CRYPTO'")
+    List<CryptoHolding> getCryptoSymbolAndQuantityByUserId(Long userId);
 
     @Modifying
     @Transactional
