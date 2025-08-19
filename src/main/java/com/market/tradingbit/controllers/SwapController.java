@@ -107,10 +107,15 @@ public class SwapController {
                     .quantity(appendRepository.getQuantityPriceTo())
                     .build());
         else
-            portfolioRepository.updatePortfolioQuantity(appendRepository.getQuantityPriceTo(), appendRepository.getSwap().getTo(), appendRepository.getUserId());
+            portfolioRepository.updatePortfolioQuantity(appendRepository.getQuantityPriceTo(),
+                    appendRepository.getSwap().getTo(),
+                    appendRepository.getUserId());
 
-        portfolioRepository.updatePortfolioQuantity(appendRepository.getExactSwapAmount().negate(), appendRepository.getSwap().getFrom(), appendRepository.getUserId());
-        BigDecimal remainingQuantity = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(), appendRepository.getUserId()).getQuantity();
+        portfolioRepository.updatePortfolioQuantity(appendRepository.getExactSwapAmount().negate(),
+                appendRepository.getSwap().getFrom(),
+                appendRepository.getUserId());
+        BigDecimal remainingQuantity = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(),
+                appendRepository.getUserId()).getQuantity();
 
         if(remainingQuantity.abs().compareTo(TOLERANCE) <= 0)
             portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(), appendRepository.getUserId()).getId());
@@ -189,10 +194,19 @@ public class SwapController {
 
     private String checkForBasicErrors(BasicUserError error) {
         if (error.getSwapQuantity() == null)
-            return swapQuantityError(new Error(error.getModel(), error.getUserId(), error.getSwap(), "Quantity must be a valid number", error.getBindingResult()));
+            return swapQuantityError(new Error(error.getModel(),
+                    error.getUserId(),
+                    error.getSwap(),
+                    "Quantity must be a valid number",
+                    error.getBindingResult()));
+
         validateBasicFields(error.getSwap(), error.getBindingResult());
         if(notSufficientBalance(error.getSwap().getFrom(), error.getUserId(), error.getSwapQuantity()))
-            return swapQuantityError(new Error(error.getModel(), error.getUserId(), error.getSwap(), "You do not have enough " + error.getSwap().getFrom() + " to perform this swap", error.getBindingResult()));
+            return swapQuantityError(new Error(error.getModel(),
+                    error.getUserId(),
+                    error.getSwap(),
+                    "You do not have enough "+ error.getSwap().getFrom() + " to perform this swap",
+                    error.getBindingResult()));
 
         if(error.getBindingResult().hasErrors())
             return returnBindingResult(error.getModel(), error.getUserId(), error.getSwap());
