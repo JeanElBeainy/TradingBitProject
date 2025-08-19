@@ -32,6 +32,7 @@ public class DashboardController {
     private final BalanceMapper balanceMapper;
 
     private void setUpUserDashboard(Model model, User user) {
+        //TODO: remove this and update it once in SwapController
         balanceRepository.updateUSDBalanceByAmountAndUserId(
                 portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
                 user.getId());
@@ -42,7 +43,6 @@ public class DashboardController {
         balanceRepository.updateCryptoBalanceByAmountAndUserId(cryptoBalance, user.getId());
 
         Balance balance = balanceRepository.findById(user.getId()).orElseThrow();
-        balance.setTotalBalance(balance.getUsdBalance().add(balance.getCryptoBalance()).add(balance.getStockBalance()));
         UserDashboardDto userDashboard = balanceMapper.toUserDashboardDto(balance);
         userDashboard.setName(user.getName());
 
