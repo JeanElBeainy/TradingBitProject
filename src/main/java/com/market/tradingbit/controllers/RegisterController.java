@@ -1,11 +1,10 @@
 package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.RegisterDto;
-import com.market.tradingbit.entities.Balance;
-import com.market.tradingbit.entities.Role;
-import com.market.tradingbit.entities.User;
+import com.market.tradingbit.entities.*;
 import com.market.tradingbit.mappers.UserMapper;
 import com.market.tradingbit.repositories.BalanceRepository;
+import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -30,6 +29,7 @@ public class RegisterController {
     private final UserRepository userRepository;
     private final BalanceRepository balanceRepository;
     private final UserMapper userMapper;
+    private final PortfolioRepository portfolioRepository;
 
     @GetMapping
     public String register(Model model) {
@@ -67,6 +67,13 @@ public class RegisterController {
                     .build();
             balanceRepository.save(balance);
 
+            portfolioRepository.save(Portfolio.builder()
+                            .purchaseType(Type.USD)
+                            .symbol("US Dollar")
+                            .quantity(BigDecimal.valueOf(100_000))
+                            .userId(savedUser.getId())
+                            .name("US Dollar Balance")
+                    .build());
 
 
         } catch (Exception e) {
