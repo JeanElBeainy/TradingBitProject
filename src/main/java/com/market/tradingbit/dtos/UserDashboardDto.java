@@ -1,12 +1,13 @@
 package com.market.tradingbit.dtos;
 
 import lombok.Data;
+import java.math.BigDecimal;
 
 @Data
 public class UserDashboardDto {
     private String name;
-    private double usdBalance;
-    private double cryptoBalance;
-    private double stockBalance;
-    private double totalBalance;
+    private BigDecimal usdBalance;
+    private BigDecimal cryptoBalance;
+    private BigDecimal stockBalance;
+    private BigDecimal totalBalance;
 }
