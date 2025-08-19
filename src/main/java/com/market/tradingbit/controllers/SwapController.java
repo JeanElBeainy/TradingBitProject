@@ -9,6 +9,7 @@ import com.market.tradingbit.entities.User;
 import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
+import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
@@ -35,6 +36,7 @@ public class SwapController {
     private final UserRepository userRepository;
     private final HistoryRepository historyRepository;
     private final HistoryMapper historyMapper;
+    private final BalanceRepository balanceRepository;
     private final BigDecimal FEE_PERCENTAGE = new BigDecimal("0.001");
     private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
     private final BigDecimal TOLERANCE = new BigDecimal("0.00000001");
@@ -284,6 +286,10 @@ public class SwapController {
             return returnBindingResult(model, userId, swap);
 
         saveHistory(new SaveHistory(history, swap, userId, volume, exactSwapAmount));
+        if(swap.getFrom().equals("US Dollar") || swap.getTo().equals("US Dollar"))
+            balanceRepository.updateUSDBalanceByAmountAndUserId(
+                    portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
+                    user.getId());
         populateModel(model, userId);
         model.addAttribute("success", true);
         model.addAttribute("successfulSwap", historyMapper.toSuccessfulSwapDto(history));

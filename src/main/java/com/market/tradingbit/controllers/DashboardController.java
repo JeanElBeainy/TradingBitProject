@@ -33,9 +33,9 @@ public class DashboardController {
 
     private void setUpUserDashboard(Model model, User user) {
         //TODO: remove this and update it once in SwapController
-        balanceRepository.updateUSDBalanceByAmountAndUserId(
-                portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
-                user.getId());
+//        balanceRepository.updateUSDBalanceByAmountAndUserId(
+//                portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
+//                user.getId());
 
         BigDecimal cryptoBalance = service.calculatePortfolioValue(
                 portfolioRepository.getCryptoSymbolAndQuantityByUserId(user.getId())
