@@ -7,8 +7,7 @@ import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.mappers.HistoryMapper;
-import com.market.tradingbit.models.CryptoNamePrice;
-import com.market.tradingbit.models.CryptoNameSymbol;
+import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
 import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
@@ -40,7 +39,6 @@ public class SwapController {
     private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
     private final BigDecimal TOLERANCE = new BigDecimal("0.00000001");
     private static final int CRYPTO_PRECISION = 8;
-    private static final int CALCULATION_PRECISION = 18;
 
     private void populateModel(Model model, Long userId) {
         List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(userId);
@@ -84,42 +82,38 @@ public class SwapController {
             bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
     }
 
-    private boolean hasSufficientBalance(String symbol, Long userId, BigDecimal requiredAmount) {
+    private boolean notSufficientBalance(String symbol, Long userId, BigDecimal requiredAmount) {
         BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(symbol, userId);
         if (availableBalance == null) return true;
         BigDecimal difference = availableBalance.subtract(requiredAmount);
-        return difference.compareTo(TOLERANCE.negate()) < 0;
+        return difference.compareTo(BigDecimal.ZERO) < 0;
     }
 
     private BigDecimal getExactSwapAmount(String symbol, Long userId, BigDecimal requestedAmount) {
         BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(symbol, userId);
-        if (availableBalance == null)
-            return BigDecimal.ZERO;
-
         BigDecimal difference = requestedAmount.subtract(availableBalance);
         if (difference.compareTo(BigDecimal.ZERO) > 0 && difference.compareTo(TOLERANCE) <= 0)
             return availableBalance;
-
         return requestedAmount;
     }
 
-    private void appendToRepository(SwapDto swap, Long userId, String toName, BigDecimal quantityPriceTo, BigDecimal exactSwapAmount) {
-        if(portfolioRepository.getItemBySymbolAndUserId(swap.getTo(), userId) == null)
+    private void appendToRepository(AppendRepository appendRepository) {
+        if(portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getTo(), appendRepository.getUserId()) == null)
             portfolioRepository.save(Portfolio.builder()
-                    .symbol(swap.getTo())
+                    .symbol(appendRepository.getSwap().getTo())
                     .purchaseType(Type.CRYPTO)
-                    .userId(userId)
-                    .name(toName)
-                    .quantity(quantityPriceTo)
+                    .userId(appendRepository.getUserId())
+                    .name(appendRepository.getToName())
+                    .quantity(appendRepository.getQuantityPriceTo())
                     .build());
         else
-            portfolioRepository.updatePortfolioQuantity(quantityPriceTo, swap.getTo(), userId);
+            portfolioRepository.updatePortfolioQuantity(appendRepository.getQuantityPriceTo(), appendRepository.getSwap().getTo(), appendRepository.getUserId());
 
-        portfolioRepository.updatePortfolioQuantity(exactSwapAmount.negate(), swap.getFrom(), userId);
-        BigDecimal remainingQuantity = portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getQuantity();
+        portfolioRepository.updatePortfolioQuantity(appendRepository.getExactSwapAmount().negate(), appendRepository.getSwap().getFrom(), appendRepository.getUserId());
+        BigDecimal remainingQuantity = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(), appendRepository.getUserId()).getQuantity();
 
         if(remainingQuantity.abs().compareTo(TOLERANCE) <= 0)
-            portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(swap.getFrom(), userId).getId());
+            portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(), appendRepository.getUserId()).getId());
     }
 
     private String swapToError(Error toError) {
@@ -160,31 +154,36 @@ public class SwapController {
         return historyMapper.toHistory(historyDto);
     }
 
-    private void saveHistory(History history, SwapDto swap, Long userId, BigDecimal volume, BigDecimal exactSwapAmount) {
-        BigDecimal toQuantity = getBigDecimalQuantity(history, exactSwapAmount);
+    private void saveHistory(SaveHistory saveHistory) {
+        BigDecimal toQuantity = getBigDecimalQuantity(saveHistory.getHistory(), saveHistory.getExactSwapAmount());
         BigDecimal fee = toQuantity
                 .multiply(FEE_PERCENTAGE)
                 .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
 
         BigDecimal finalToQuantity = toQuantity.subtract(fee);
-        history.setToQuantity(finalToQuantity);
+        saveHistory.getHistory().setToQuantity(finalToQuantity);
 
-        appendToRepository(swap, userId, history.getToName(), finalToQuantity, exactSwapAmount);
-        history.setFee(fee);
-        history.setUserId(userId);
-        history.setVolume(volume.floatValue());
-        historyRepository.save(history);
+        appendToRepository(new AppendRepository(saveHistory.getSwap(),
+                saveHistory.getUserId(),
+                saveHistory.getHistory().getToName(),
+                finalToQuantity,
+                saveHistory.getExactSwapAmount()));
+
+        saveHistory.getHistory().setFee(fee);
+        saveHistory.getHistory().setUserId(saveHistory.getUserId());
+        saveHistory.getHistory().setVolume(saveHistory.getVolume().floatValue());
+        historyRepository.save(saveHistory.getHistory());
     }
 
     private static BigDecimal getBigDecimalQuantity(History history, BigDecimal exactSwapAmount) {
         BigDecimal fromPrice = new BigDecimal(String.valueOf(history.getFromPrice()))
-                .setScale(CALCULATION_PRECISION, RoundingMode.HALF_EVEN);
+                .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
         BigDecimal toPrice = new BigDecimal(String.valueOf(history.getToPrice()))
-                .setScale(CALCULATION_PRECISION, RoundingMode.HALF_EVEN);
+                .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
 
         return fromPrice
                 .multiply(exactSwapAmount)
-                .divide(toPrice, CALCULATION_PRECISION, RoundingMode.HALF_EVEN)
+                .divide(toPrice, CRYPTO_PRECISION, RoundingMode.HALF_EVEN)
                 .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
     }
 
@@ -207,13 +206,12 @@ public class SwapController {
         History history;
 
         BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
-        if (swapQuantity == null) {
+        if (swapQuantity == null)
             return swapQuantityError(new Error(model, userId, swap, "Quantity must be a valid number", bindingResult));
-        }
         validateBasicFields(swap, bindingResult);
-        if(hasSufficientBalance(swap.getFrom(), userId, swapQuantity)) {
+        if(notSufficientBalance(swap.getFrom(), userId, swapQuantity))
             return swapQuantityError(new Error(model, userId, swap, "You do not have enough " + swap.getFrom() + " to perform this swap", bindingResult));
-        }
+
         if(bindingResult.hasErrors())
             return returnBindingResult(model, userId, swap);
 
@@ -231,7 +229,7 @@ public class SwapController {
                 return swapToError(new Error(model, userId, swap, "One or more of the currencies you selected are not valid.", bindingResult));
 
             BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.getFirst().getPrice()))
-                    .setScale(CALCULATION_PRECISION, RoundingMode.HALF_EVEN);
+                    .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
             volume = fromPrice.multiply(exactSwapAmount).setScale(2, RoundingMode.HALF_EVEN);
 
             if(volume.compareTo(MINIMUM_SWAP_USD) < 0)
@@ -243,7 +241,7 @@ public class SwapController {
         if(bindingResult.hasErrors())
             return returnBindingResult(model, userId, swap);
 
-        saveHistory(history, swap, userId, volume, exactSwapAmount);
+        saveHistory(new SaveHistory(history, swap, userId, volume, exactSwapAmount));
         populateModel(model, userId);
         model.addAttribute("success", true);
         model.addAttribute("successfulSwap", historyMapper.toSuccessfulSwapDto(history));
