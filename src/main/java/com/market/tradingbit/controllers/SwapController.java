@@ -187,6 +187,18 @@ public class SwapController {
                 .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
     }
 
+    private String checkForBasicErrors(BasicUserError error) {
+        if (error.getSwapQuantity() == null)
+            return swapQuantityError(new Error(error.getModel(), error.getUserId(), error.getSwap(), "Quantity must be a valid number", error.getBindingResult()));
+        validateBasicFields(error.getSwap(), error.getBindingResult());
+        if(notSufficientBalance(error.getSwap().getFrom(), error.getUserId(), error.getSwapQuantity()))
+            return swapQuantityError(new Error(error.getModel(), error.getUserId(), error.getSwap(), "You do not have enough " + error.getSwap().getFrom() + " to perform this swap", error.getBindingResult()));
+
+        if(error.getBindingResult().hasErrors())
+            return returnBindingResult(error.getModel(), error.getUserId(), error.getSwap());
+        return null;
+    }
+
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
@@ -206,15 +218,10 @@ public class SwapController {
         History history;
 
         BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
-        if (swapQuantity == null)
-            return swapQuantityError(new Error(model, userId, swap, "Quantity must be a valid number", bindingResult));
-        validateBasicFields(swap, bindingResult);
-        if(notSufficientBalance(swap.getFrom(), userId, swapQuantity))
-            return swapQuantityError(new Error(model, userId, swap, "You do not have enough " + swap.getFrom() + " to perform this swap", bindingResult));
+        String basicErrors = checkForBasicErrors(new BasicUserError(model, swapQuantity, swap, userId, bindingResult));
+        if(basicErrors != null) return basicErrors;
 
-        if(bindingResult.hasErrors())
-            return returnBindingResult(model, userId, swap);
-
+        //swapQuantity already checked in checkForBasicErrors, so no need to assert swapQuantity
         BigDecimal exactSwapAmount = getExactSwapAmount(swap.getFrom(), userId, swapQuantity);
 
         if(swap.getFrom().equals("US Dollar")) {
