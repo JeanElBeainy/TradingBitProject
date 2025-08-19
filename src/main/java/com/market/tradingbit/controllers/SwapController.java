@@ -136,7 +136,7 @@ public class SwapController {
         return returnBindingResult(quantityError.getModel(), quantityError.getUserId(), quantityError.getSwap());
     }
 
-    private History toHistory(SwapDto swap, CryptoNamePrice price, BigDecimal exactQuantity) {
+    private History fromUSDtoHistory(SwapDto swap, CryptoNamePrice price, BigDecimal exactQuantity) {
         HistoryDto historyDto = new HistoryDto("US Dollar",
                 "US Dollar Balance",
                 exactQuantity,
@@ -144,6 +144,18 @@ public class SwapController {
                 swap.getTo(),
                 price.getName(),
                 price.getPrice()
+        );
+        return historyMapper.toHistory(historyDto);
+    }
+
+    private History toUSDtoHistory(SwapDto swap, CryptoNamePrice price, BigDecimal exactQuantity) {
+        HistoryDto historyDto = new HistoryDto(swap.getFrom(),
+                price.getName(),
+                exactQuantity,
+                price.getPrice(),
+                "US Dollar",
+                "US Dollar Balance",
+                1
         );
         return historyMapper.toHistory(historyDto);
     }
@@ -246,12 +258,12 @@ public class SwapController {
             if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult));
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
-            history = toHistory(swap, price, exactSwapAmount);
+            history = fromUSDtoHistory(swap, price, exactSwapAmount);
         } else if(swap.getTo().equals("US Dollar")) {
             if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult));
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getFrom());
-            history = toHistory(swap, price, exactSwapAmount);
+            history = toUSDtoHistory(swap, price, exactSwapAmount);
         }
         else {
             List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
