@@ -33,6 +33,9 @@ public class Balance {
     @Column(name = "total_balance")
     private BigDecimal totalBalance;
 
+    @Column(name = "total_volume")
+    private BigDecimal totalVolume;
+
     @Override
     public String toString() {
         return "Portfolio{" +
