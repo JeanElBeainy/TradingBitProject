@@ -6,6 +6,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -20,16 +22,16 @@ public class Balance {
     private Long id;
 
     @Column(name = "crypto_balance")
-    private double cryptoBalance;
+    private BigDecimal cryptoBalance;
 
     @Column(name = "stock_balance")
-    private double stockBalance;
+    private BigDecimal stockBalance;
 
     @Column(name = "usd_balance")
-    private double usdBalance;
+    private BigDecimal usdBalance;
 
     @Column(name = "total_balance")
-    private double totalBalance;
+    private BigDecimal totalBalance;
 
     @Override
     public String toString() {
