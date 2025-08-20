@@ -32,11 +32,10 @@ public class DashboardController {
     private final BalanceMapper balanceMapper;
 
     private void setUpUserDashboard(Model model, User user) {
-        //TODO: remove this and update it once in SwapController
-//        balanceRepository.updateUSDBalanceByAmountAndUserId(
-//                portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
-//                user.getId());
+        GetUserDashboard(model, user, service, portfolioRepository, balanceRepository, balanceMapper);
+    }
 
+    static void GetUserDashboard(Model model, User user, CoinMarketCapService service, PortfolioRepository portfolioRepository, BalanceRepository balanceRepository, BalanceMapper balanceMapper) {
         BigDecimal cryptoBalance = service.calculatePortfolioValue(
                 portfolioRepository.getCryptoSymbolAndQuantityByUserId(user.getId())
         );
@@ -45,11 +44,14 @@ public class DashboardController {
         Balance balance = balanceRepository.findById(user.getId()).orElseThrow();
         UserDashboardDto userDashboard = balanceMapper.toUserDashboardDto(balance);
         userDashboard.setName(user.getName());
+        userDashboard.setRole(user.getRole());
 
         if(userDashboard.getCryptoBalance().equals("0E-8"))
             userDashboard.setCryptoBalance("0.0");
         if(userDashboard.getStockBalance().equals("0E-8"))
             userDashboard.setStockBalance("0.0");
+        if(userDashboard.getTotalVolume() == null || userDashboard.getTotalVolume().equals("0E-8"))
+            userDashboard.setTotalVolume("0.0");
         model.addAttribute("userDashboardDto", userDashboard);
     }
 
