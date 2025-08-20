@@ -68,22 +68,28 @@
     </section>
 
     <section class="history-section">
-        <div class="history-card">
+        <div class="history-card" th:each="historyItem : ${history}">
             <div class="history-card__group history-card__group--primary">
                 <div class="history-card__item">
                     <span class="history-card__label">Trading Pair</span>
                     <div class="history-card__value history-card__value--pair">
-                        <span>Bitcoin (BTC)</span>
+                        <span>
+                            <span th:text="${historyItem.fromName}"></span>
+                            (<span th:text="${historyItem.fromSymbol}"></span>)
+                        </span>
                         <span class="trade-arrow">→</span>
-                        <span>Ethereum (ETH)</span>
+                        <span>
+                            <span th:text="${historyItem.toName}"></span>
+                            (<span th:text="${historyItem.toSymbol}"></span>)
+                        </span>
                     </div>
                 </div>
                 <div class="history-card__item">
                     <span class="history-card__label">Quantity</span>
                     <div class="history-card__value history-card__value--quantity">
-                        <span>0.12312312</span>
+                        <span th:text="${historyItem.fromQuantity}"></span>
                         <span class="trade-arrow">→</span>
-                        <span>0.12312312</span>
+                        <span th:text="${historyItem.toQuantity}"></span>
                     </div>
                 </div>
             </div>
@@ -92,21 +98,34 @@
                 <div class="history-card__item">
                     <span class="history-card__label">Price</span>
                     <div class="history-card__value history-card__value--price">
-                        <span>118,091.01 per BTC</span>
-                        <span>4012.12 per ETH</span>
+                        <span><span th:text="${historyItem.fromPrice}"></span>
+                            per <span th:text="${historyItem.fromSymbol}"></span>
+                        </span>
+                        <span><span th:text="${historyItem.toPrice}"></span>
+                            per <span th:text="${historyItem.toSymbol}"></span>
+                        </span>
                     </div>
                 </div>
                 <div class="history-card__item">
                     <span class="history-card__label">Volume</span>
-                    <div class="history-card__value">$12,021.12</div>
+                    <div class="history-card__value">
+                        <span th:text="${historyItem.volume}"></span>
+                    </div>
                 </div>
                 <div class="history-card__item">
                     <span class="history-card__label">Fee</span>
-                    <div class="history-card__value">0.01212131 ETH</div>
+                    <div class="history-card__value">
+                        <span>
+                            <span th:text="${historyItem.fee}"></span>
+                            <span th:text="${historyItem.toSymbol}"></span>
+                        </span>
+                    </div>
                 </div>
                 <div class="history-card__item">
                     <span class="history-card__label">Time</span>
-                    <div class="history-card__value">Aug 20, 2025, 08:45 AM</div>
+                    <div class="history-card__value">
+                        <span th:text="${historyItem.time}"></span>
+                    </div>
                 </div>
             </div>
         </div>
