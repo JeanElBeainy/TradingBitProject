@@ -176,7 +176,10 @@ ul {
 .history-section {
     display: flex;
     justify-content: center;
-    padding: 1.5rem 1rem 0;
+    align-items: center;
+    flex-direction: column;
+    padding: 1.5rem 1rem 1.5rem 1rem;
+    gap: 2rem;
 }
 
 .history-card {
