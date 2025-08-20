@@ -13,4 +13,7 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
     BigDecimal getToQuantityById(Long id);
 
     List<History> findTop3ByUserIdOrderByIdDesc(Long userId);
+
+    @Query("SELECT h FROM History h WHERE h.userId = :userId ORDER BY h.id DESC")
+    List<History> findAllByIdDesc(Long userId);
 }
