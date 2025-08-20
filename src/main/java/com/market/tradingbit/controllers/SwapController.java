@@ -271,6 +271,7 @@ public class SwapController {
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult));
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getFrom());
             history = toUSDtoHistory(swap, price, exactSwapAmount);
+            volume = volume.multiply(BigDecimal.valueOf(price.getPrice()));
         }
         else {
             List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
@@ -286,6 +287,7 @@ public class SwapController {
 
             history = toHistory(swap, prices, exactSwapAmount);
         }
+        balanceRepository.updateTotalVolumeByAmountAndUserId(volume, userId);
 
         if(bindingResult.hasErrors())
             return returnBindingResult(model, userId, swap);
