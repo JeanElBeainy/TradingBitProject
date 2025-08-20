@@ -209,6 +209,7 @@ public class SwapController {
                 .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
     }
 
+    //Does not contain queries if successful.
     private String checkForBasicErrors(BasicUserError error, BigDecimal availableBalance) {
         if (error.getSwapQuantity() == null)
             return swapQuantityError(new Error(error.getModel(),
@@ -221,7 +222,7 @@ public class SwapController {
         if(notSufficientBalance(availableBalance, error.getSwapQuantity()))
             return swapQuantityError(new Error(error.getModel(),
                     error.getUserId(),
-                    error.getSwap(), //TODO: We have request here (duplicate) below
+                    error.getSwap(),
                     "You do not have enough "+ error.getSwap().getFrom() + " to perform this swap",
                     error.getBindingResult()));
 

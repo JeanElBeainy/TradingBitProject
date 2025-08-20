@@ -35,7 +35,7 @@ public class DashboardController {
         GetUserDashboard(model, user, service, portfolioRepository, balanceRepository, balanceMapper);
     }
 
-    static void GetUserDashboard(Model model, User user, CoinMarketCapService service, PortfolioRepository portfolioRepository, BalanceRepository balanceRepository, BalanceMapper balanceMapper) {
+    public static void GetUserDashboard(Model model, User user, CoinMarketCapService service, PortfolioRepository portfolioRepository, BalanceRepository balanceRepository, BalanceMapper balanceMapper) {
         BigDecimal cryptoBalance = service.calculatePortfolioValue(
                 portfolioRepository.getCryptoSymbolAndQuantityByUserId(user.getId())
         );

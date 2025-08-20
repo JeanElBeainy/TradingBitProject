@@ -1,7 +1,6 @@
 package com.market.tradingbit.controllers;
 
-import com.market.tradingbit.dtos.UserDashboardDto;
-import com.market.tradingbit.entities.Balance;
+import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.mappers.BalanceMapper;
 import com.market.tradingbit.repositories.BalanceRepository;
@@ -15,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/profile")
@@ -42,6 +42,10 @@ public class ProfileController {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
         getUserInfo(model, user);
+
+        List<History> history = historyRepository.findAllByIdDesc(user.getId());
+        model.addAttribute("history", history);
+
         return "profile";
     }
 }
