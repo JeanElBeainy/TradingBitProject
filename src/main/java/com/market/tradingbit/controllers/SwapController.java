@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -190,6 +192,8 @@ public class SwapController {
         saveHistory.getHistory().setFee(fee);
         saveHistory.getHistory().setUserId(saveHistory.getUserId());
         saveHistory.getHistory().setVolume(saveHistory.getVolume().floatValue());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a");
+        saveHistory.getHistory().setTime(LocalDateTime.now().format(formatter));
         historyRepository.save(saveHistory.getHistory());
     }
 
