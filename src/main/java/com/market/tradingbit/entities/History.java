@@ -2,7 +2,6 @@ package com.market.tradingbit.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 
 @Getter
@@ -49,6 +48,9 @@ public class History {
 
     @Column(name = "fee", precision = 30, scale = 8)
     private BigDecimal fee;
+
+    @Column(name = "time")
+    private String time;
 
     @Override
     public String toString() {
