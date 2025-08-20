@@ -46,11 +46,14 @@ public class DashboardController {
         userDashboard.setName(user.getName());
         userDashboard.setRole(user.getRole());
 
+        //TODO: check why it's not being mapped in BalanceMapper
+        userDashboard.setTotalVolume(balance.getTotalVolume().toString());
+
         if(userDashboard.getCryptoBalance().equals("0E-8"))
             userDashboard.setCryptoBalance("0.0");
         if(userDashboard.getStockBalance().equals("0E-8"))
             userDashboard.setStockBalance("0.0");
-        if(userDashboard.getTotalVolume() == null || userDashboard.getTotalVolume().equals("0E-8"))
+        if(userDashboard.getTotalVolume().equals("0E-8"))
             userDashboard.setTotalVolume("0.0");
         model.addAttribute("userDashboardDto", userDashboard);
     }
