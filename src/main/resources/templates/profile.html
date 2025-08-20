@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,7 @@
 <header class="header">
     <nav class="nav collapsible">
         <a class="nav__brand" href="">
-            <img src="/Main/Images/TradingBitLogo.webp" alt="TradingBit Logo">
+            <img src="/images/TradingBitLogo.webp" alt="TradingBit Logo">
         </a>
         <svg class="nav__toggler" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
             <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
@@ -28,33 +28,34 @@
 
 <main>
     <section class="profile-section">
-        <div class="profile-card">
+        <!--/*@thymesVar id="userDashboardDto" type="com.market.tradingbit.dtos.UserDashboardDto"*/-->
+        <div class="profile-card" th:object="${userDashboardDto}">
             <div class="profile-card__header">
                 <div>
-                    <h1 class="profile-card__name">Name here!</h1>
-                    <p class="profile-card__role">ROLE_USER</p>
+                    <h1 class="profile-card__name" th:text="*{name}"></h1>
+                    <p class="profile-card__role">Role: <span th:text="*{role}"></span> </p>
                 </div>
                 <div class="profile-card__total-volume">
                     <span class="label">Total Trading Volume</span>
-                    <span class="value">$1,111,111,111</span>
+                    <span class="value">$<span th:text="*{totalVolume}"></span></span>
                 </div>
             </div>
             <div class="profile-card__main-balance">
                 <span class="label">Total Balance</span>
-                <span class="value">$348,058.31</span>
+                <span class="value">$<span th:text="*{totalBalance}"></span></span>
             </div>
             <div class="profile-card__sub-balances">
                 <div class="balance-item">
                     <span class="label">💰 USD Balance</span>
-                    <span class="value">$103,011.34</span>
+                    <span class="value">$<span th:text="*{usdBalance}"></span></span>
                 </div>
                 <div class="balance-item">
                     <span class="label">₿ Crypto Balance</span>
-                    <span class="value">$32,034.43</span>
+                    <span class="value">$<span th:text="*{cryptoBalance}"></span></span>
                 </div>
                 <div class="balance-item">
                     <span class="label">📈 Stock Balance</span>
-                    <span class="value">$213,012.54</span>
+                    <span class="value">$<span th:text="*{stockBalance}"></span></span>
                 </div>
             </div>
         </div>
