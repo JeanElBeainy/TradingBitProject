@@ -2,17 +2,16 @@ package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.*;
+import com.market.tradingbit.helpers.ApiService;
 import com.market.tradingbit.helpers.MapToHistory;
 import com.market.tradingbit.helpers.SaveToHistory;
 import com.market.tradingbit.helpers.SwapValidation;
-import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
 import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
-import com.market.tradingbit.services.CoinMarketCapService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -31,7 +30,6 @@ import static com.market.tradingbit.helpers.SwapValidation.*;
 @RequestMapping("/swap")
 public class SwapController {
 
-    private final CoinMarketCapService service;
     private final PortfolioRepository portfolioRepository;
     private final UserRepository userRepository;
     private final HistoryRepository historyRepository;
@@ -39,6 +37,7 @@ public class SwapController {
     private final SaveToHistory saveToHistory;
     private final MapToHistory mapToHistory;
     private final SwapValidation swapValidation;
+    private final ApiService apiService;
     private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
     private final BigDecimal TOLERANCE = new BigDecimal("0.00000001");
     private static final int CRYPTO_PRECISION = 8;
@@ -80,7 +79,7 @@ public class SwapController {
         Error error = new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult);
 
         if(swap.getFrom().equals("US Dollar")) {
-            CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
+            CryptoNamePrice price = apiService.getCryptoPrice(swap.getTo());
 
             if((swapQuantity.multiply(BigDecimal.valueOf(price.getPrice()))).compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapValidation.swapError(error, SwapErrorType.QUANTITY);
@@ -90,13 +89,13 @@ public class SwapController {
             if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapValidation.swapError(error, SwapErrorType.QUANTITY);
 
-            CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getFrom());
+            CryptoNamePrice price = apiService.getCryptoPrice(swap.getFrom());
             history = mapToHistory.toUSDtoHistory(swap, price, exactSwapAmount);
             volume = volume.multiply(BigDecimal.valueOf(price.getPrice()));
         }
         else {
             error.setMessage("One or more of the currencies you selected are not valid.");
-            List<CryptoNamePrice> prices = service.getPricesBySymbols(swap.getFrom(), swap.getTo());
+            List<CryptoNamePrice> prices = apiService.getCryptoPair(swap.getFrom(), swap.getTo());
             if(prices.size() < 2)
                 return swapValidation.swapError(error, SwapErrorType.TO);
 
