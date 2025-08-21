@@ -60,9 +60,11 @@ public class DashboardController {
 
     @GetMapping
     public String dashboard(Model model, Principal principal) {
-        if(principal == null) return "redirect:/login";
-        User user = userRepository.findByEmail(principal.getName());
-        setUpUserDashboard(model, user);
+        User user = null;
+        if(principal != null)
+            user = userRepository.findByEmail(principal.getName());
+        if(user != null)
+            setUpUserDashboard(model, user);
 
         model.addAttribute("cryptos", service.getLatestListings());
         model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
@@ -80,5 +82,12 @@ public class DashboardController {
     public String getLastUpdatedTime(Model model) {
         model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "dashboard :: last-updated";
+    }
+
+    @GetMapping("/update-user-info")
+    public String updateUserInfo(Model model, Principal principal) {
+        if(principal != null)
+            setUpUserDashboard(model, userRepository.findByEmail(principal.getName()));
+        return "dashboard :: update-user-info";
     }
 }
