@@ -1,12 +1,12 @@
 package com.market.tradingbit.controllers;
 
-import com.market.tradingbit.dtos.HistoryDto;
 import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.entities.User;
+import com.market.tradingbit.helpers.MapToHistory;
 import com.market.tradingbit.helpers.SaveToHistory;
 import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.models.*;
@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.List;
+
 import static com.market.tradingbit.helpers.SwapValidation.*;
 
 @Controller
@@ -41,6 +42,7 @@ public class SwapController {
     private final HistoryMapper historyMapper;
     private final BalanceRepository balanceRepository;
     private final SaveToHistory saveToHistory;
+    private final MapToHistory mapToHistory;
     private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
     private final BigDecimal TOLERANCE = new BigDecimal("0.00000001");
     private static final int CRYPTO_PRECISION = 8;
@@ -88,42 +90,6 @@ public class SwapController {
         return returnBindingResult(quantityError.getModel(), quantityError.getUserId(), quantityError.getSwap());
     }
 
-    private History fromUSDtoHistory(SwapDto swap, CryptoNamePrice price, BigDecimal exactQuantity) {
-        HistoryDto historyDto = new HistoryDto("US Dollar",
-                "US Dollar Balance",
-                exactQuantity,
-                1,
-                swap.getTo(),
-                price.getName(),
-                price.getPrice()
-        );
-        return historyMapper.toHistory(historyDto);
-    }
-
-    private History toUSDtoHistory(SwapDto swap, CryptoNamePrice price, BigDecimal exactQuantity) {
-        HistoryDto historyDto = new HistoryDto(swap.getFrom(),
-                price.getName(),
-                exactQuantity,
-                price.getPrice(),
-                "US Dollar",
-                "US Dollar Balance",
-                1
-        );
-        return historyMapper.toHistory(historyDto);
-    }
-
-    private History toHistory(SwapDto swap, List<CryptoNamePrice> prices, BigDecimal exactQuantity) {
-        HistoryDto historyDto = new HistoryDto(swap.getFrom(),
-                prices.getFirst().getName(),
-                exactQuantity,
-                prices.getFirst().getPrice(),
-                swap.getTo(),
-                prices.getLast().getName(),
-                prices.getLast().getPrice()
-        );
-        return historyMapper.toHistory(historyDto);
-    }
-
     //Does not contain queries if successful.
     private String checkForBasicErrors(BasicUserError error, BigDecimal availableBalance) {
         validateBasicFields(error.getSwap(), error.getBindingResult(), availableBalance, error.getSwapQuantity());
@@ -157,7 +123,7 @@ public class SwapController {
         return "swap";
     }
 
-    public String userSwap(Model model, SwapDto swap, Long userId, BindingResult bindingResult) {
+    private String userSwap(Model model, SwapDto swap, Long userId, BindingResult bindingResult) {
         BigDecimal volume;
         History history;
 
@@ -175,12 +141,12 @@ public class SwapController {
             if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult));
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getTo());
-            history = fromUSDtoHistory(swap, price, exactSwapAmount);
+            history = mapToHistory.fromUSDtoHistory(swap, price, exactSwapAmount);
         } else if(swap.getTo().equals("US Dollar")) {
             if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult));
             CryptoNamePrice price = service.getCryptoNameBySymbol(swap.getFrom());
-            history = toUSDtoHistory(swap, price, exactSwapAmount);
+            history = mapToHistory.toUSDtoHistory(swap, price, exactSwapAmount);
             volume = volume.multiply(BigDecimal.valueOf(price.getPrice()));
         }
         else {
@@ -195,7 +161,7 @@ public class SwapController {
             if(volume.compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapQuantityError(new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult));
 
-            history = toHistory(swap, prices, exactSwapAmount);
+            history = mapToHistory.toHistory(swap, prices, exactSwapAmount);
         }
         balanceRepository.updateTotalVolumeByAmountAndUserId(volume, userId);
 
