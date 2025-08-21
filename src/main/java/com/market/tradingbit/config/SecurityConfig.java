@@ -20,7 +20,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup/**", "signin/**").permitAll()
                         .requestMatchers("/dashboard/**", "/swap/**").permitAll()
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/dashboard/**").hasRole("USER")
+                        .requestMatchers("/dashboard").permitAll()
                         .requestMatchers("/crypto/**").hasRole("USER")
                         .requestMatchers("/profile/**").hasRole("USER")
                         .requestMatchers("/swap/**").hasRole("USER")
@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/dashboard", true)
+                        .defaultSuccessUrl("/swap/crypto", true)
                         .permitAll()
                 )
                 .logout(config -> config.logoutSuccessUrl("/login"))

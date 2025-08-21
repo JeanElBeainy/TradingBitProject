@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,15 +27,22 @@
 </header>
 
 <main>
-    <section class="top__section">
+    <section class="top__section" sec:authorize="isAuthenticated()">
         <div class="top__div">
             <div class="top__container">
-                <div class="user__info" th:object="${userDashboardDto}">
-                    <h1>Welcome, <span th:text="*{name}"></span></h1>
-                    <p>USD balance: <span th:text="*{usdBalance}">null</span></p>
-                    <p>Crypto balance: <span th:text="*{cryptoBalance}">null</span></p>
-                    <p>Stock balance: <span th:text="*{stockBalance}">null</span></p>
-                    <p>Total balance: <span th:text="*{totalBalance}">null</span></p>
+                <div class="user__info"
+                     id="update-user-info"
+                     hx-get="/dashboard/update-user-info"
+                     hx-trigger="every 60s"
+                     hx-swap="innerHTML"
+                     >
+                    <th:block th:fragment="update-user-info" th:object="${userDashboardDto}">
+                        <h1>Welcome, <span th:text="*{name}"></span></h1>
+                        <p>USD balance: <span th:text="*{usdBalance}">null</span></p>
+                        <p>Crypto balance: <span th:text="*{cryptoBalance}">null</span></p>
+                        <p>Stock balance: <span th:text="*{stockBalance}">null</span></p>
+                        <p>Total balance: <span th:text="*{totalBalance}">null</span></p>
+                    </th:block>
                 </div>
             </div>
         </div>
