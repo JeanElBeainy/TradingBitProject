@@ -6,6 +6,7 @@ import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.entities.User;
+import com.market.tradingbit.helpers.SaveToHistory;
 import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
@@ -27,6 +28,7 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import static com.market.tradingbit.helpers.SwapValidation.*;
 
 @Controller
 @AllArgsConstructor
@@ -39,7 +41,7 @@ public class SwapController {
     private final HistoryRepository historyRepository;
     private final HistoryMapper historyMapper;
     private final BalanceRepository balanceRepository;
-    private final BigDecimal FEE_PERCENTAGE = new BigDecimal("0.001");
+    private final SaveToHistory saveToHistory;
     private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
     private final BigDecimal TOLERANCE = new BigDecimal("0.00000001");
     private static final int CRYPTO_PRECISION = 8;
@@ -66,74 +68,11 @@ public class SwapController {
         return "swap";
     }
 
-    private BigDecimal parseQuantity(String quantityStr) {
-        try {
-            return new BigDecimal(quantityStr.trim()).setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
-        } catch (NumberFormatException | NullPointerException e) {
-            return null;
-        }
-    }
-
-    private boolean notSufficientBalance(BigDecimal availableBalance, BigDecimal requiredAmount) {
-        if (availableBalance == null) return true;
-        BigDecimal difference = availableBalance.subtract(requiredAmount);
-        return difference.compareTo(BigDecimal.ZERO) < 0;
-    }
-
-    private String getValidationError(SwapDto swap, BigDecimal availableBalance, BigDecimal swapQuantity) {
-        if (swap.getFrom() == null || swap.getFrom().isEmpty()) return "from_empty";
-        if (swap.getTo() == null || swap.getTo().isEmpty()) return "to_empty";
-
-        BigDecimal quantity = parseQuantity(swap.getQuantity());
-        if (quantity == null) return "quantity_invalid";
-        if (quantity.compareTo(BigDecimal.ZERO) <= 0) return "quantity_zero_or_negative";
-        if (swap.getFrom().equals(swap.getTo())) return "same_currency";
-        if(notSufficientBalance(availableBalance, swapQuantity)) return "insufficient_balance";
-        return "valid";
-    }
-
-    private void validateBasicFields(SwapDto swap, BindingResult bindingResult, BigDecimal availableBalance, BigDecimal swapQuantity) {
-        String validationError = getValidationError(swap, availableBalance, swapQuantity);
-        switch (validationError) {
-            case "from_empty" -> bindingResult.addError(new FieldError("swap", "from", "Please select a valid currency that you own"));
-            case "to_empty" -> bindingResult.addError(new FieldError("swap", "to", "Please select a valid currency to swap"));
-            case "quantity_invalid" -> bindingResult.addError(new FieldError("swap", "quantity", "Quantity is either empty or not a number"));
-            case "quantity_zero_or_negative" -> bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero"));
-            case "same_currency" -> bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from"));
-            case "insufficient_balance" -> bindingResult.addError(new FieldError("swap", "quantity", "You do not have enough "+ swap.getFrom() + " to perform this swap"));
-
-        }
-    }
-
     private BigDecimal getExactSwapAmount(BigDecimal availableBalance, BigDecimal requestedAmount) {
         BigDecimal difference = requestedAmount.subtract(availableBalance);
         if (difference.compareTo(BigDecimal.ZERO) > 0 && difference.compareTo(TOLERANCE) <= 0)
             return availableBalance;
         return requestedAmount;
-    }
-
-    private void appendToRepository(AppendRepository appendRepository) {
-        if(portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getTo(), appendRepository.getUserId()) == null)
-            portfolioRepository.save(Portfolio.builder()
-                    .symbol(appendRepository.getSwap().getTo())
-                    .purchaseType(Type.CRYPTO)
-                    .userId(appendRepository.getUserId())
-                    .name(appendRepository.getToName())
-                    .quantity(appendRepository.getQuantityPriceTo())
-                    .build());
-        else
-            portfolioRepository.updatePortfolioQuantity(appendRepository.getQuantityPriceTo(),
-                    appendRepository.getSwap().getTo(),
-                    appendRepository.getUserId());
-
-        portfolioRepository.updatePortfolioQuantity(appendRepository.getExactSwapAmount().negate(),
-                appendRepository.getSwap().getFrom(),
-                appendRepository.getUserId());
-        BigDecimal remainingQuantity = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(),
-                appendRepository.getUserId()).getQuantity();
-
-        if(remainingQuantity.abs().compareTo(TOLERANCE) <= 0)
-            portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(), appendRepository.getUserId()).getId());
     }
 
     private String swapToError(Error toError) {
@@ -184,41 +123,6 @@ public class SwapController {
                 prices.getLast().getPrice()
         );
         return historyMapper.toHistory(historyDto);
-    }
-
-    private void saveHistory(SaveHistory saveHistory) {
-        BigDecimal toQuantity = getBigDecimalQuantity(saveHistory.getHistory(), saveHistory.getExactSwapAmount());
-        BigDecimal fee = toQuantity
-                .multiply(FEE_PERCENTAGE)
-                .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
-
-        BigDecimal finalToQuantity = toQuantity.subtract(fee);
-        saveHistory.getHistory().setToQuantity(finalToQuantity);
-
-        appendToRepository(new AppendRepository(saveHistory.getSwap(),
-                saveHistory.getUserId(),
-                saveHistory.getHistory().getToName(),
-                finalToQuantity,
-                saveHistory.getExactSwapAmount()));
-
-        saveHistory.getHistory().setFee(fee);
-        saveHistory.getHistory().setUserId(saveHistory.getUserId());
-        saveHistory.getHistory().setVolume(saveHistory.getVolume().floatValue());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a");
-        saveHistory.getHistory().setTime(LocalDateTime.now().format(formatter));
-        historyRepository.save(saveHistory.getHistory());
-    }
-
-    private BigDecimal getBigDecimalQuantity(History history, BigDecimal exactSwapAmount) {
-        BigDecimal fromPrice = new BigDecimal(String.valueOf(history.getFromPrice()))
-                .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
-        BigDecimal toPrice = new BigDecimal(String.valueOf(history.getToPrice()))
-                .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
-
-        return fromPrice
-                .multiply(exactSwapAmount)
-                .divide(toPrice, CRYPTO_PRECISION, RoundingMode.HALF_EVEN)
-                .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
     }
 
     //Does not contain queries if successful.
@@ -291,7 +195,7 @@ public class SwapController {
         if(bindingResult.hasErrors())
             return returnBindingResult(model, userId, swap);
 
-        saveHistory(new SaveHistory(history, swap, userId, volume, exactSwapAmount));
+        saveToHistory.saveHistory(new SaveHistory(history, swap, userId, volume, exactSwapAmount));
         if(swap.getFrom().equals("US Dollar") || swap.getTo().equals("US Dollar"))
             balanceRepository.updateUSDBalanceByAmountAndUserId(
                     portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
