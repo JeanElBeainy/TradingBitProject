@@ -52,6 +52,10 @@ public class History {
     @Column(name = "time")
     private String time;
 
+    @Column(name = "purchase_type")
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
     @Override
     public String toString() {
         return "History{" +

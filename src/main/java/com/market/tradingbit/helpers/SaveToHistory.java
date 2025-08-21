@@ -93,6 +93,7 @@ public class SaveToHistory {
         saveHistory.getHistory().setFee(fee);
         saveHistory.getHistory().setUserId(saveHistory.getUserId());
         saveHistory.getHistory().setVolume(saveHistory.getVolume().floatValue());
+        saveHistory.getHistory().setType(Type.CRYPTO);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a");
         saveHistory.getHistory().setTime(LocalDateTime.now().format(formatter));
         historyRepository.save(saveHistory.getHistory());
