@@ -4,6 +4,7 @@ import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
+import com.market.tradingbit.entities.SwapErrorType;
 import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.models.BasicUserError;
 import com.market.tradingbit.models.CryptoNameSymbol;
@@ -43,7 +44,7 @@ public class SwapValidation {
         return difference.compareTo(BigDecimal.ZERO) < 0;
     }
 
-    public static String getValidationError(SwapDto swap, BigDecimal availableBalance, BigDecimal swapQuantity) {
+    private static String getValidationError(SwapDto swap, BigDecimal availableBalance, BigDecimal swapQuantity) {
         if (swap.getFrom() == null || swap.getFrom().isEmpty()) return "from_empty";
         if (swap.getTo() == null || swap.getTo().isEmpty()) return "to_empty";
 
@@ -101,8 +102,7 @@ public class SwapValidation {
         return returnBindingResult(toError.getModel(), toError.getUserId(), toError.getSwap());
     }
 
-    //Does not contain queries if successful.
-    private String checkForBasicErrors(BasicUserError error, BigDecimal availableBalance) {
+    public String checkForBasicErrors(BasicUserError error, BigDecimal availableBalance) {
         validateBasicFields(error.getSwap(), error.getBindingResult(), availableBalance, error.getSwapQuantity());
         if(error.getBindingResult().hasErrors())
             return returnBindingResult(error.getModel(), error.getUserId(), error.getSwap());
@@ -114,6 +114,18 @@ public class SwapValidation {
                 "swap", "quantity", quantityError.getMessage()
         ));
         return returnBindingResult(quantityError.getModel(), quantityError.getUserId(), quantityError.getSwap());
+    }
+
+    public String swapError(Error error, SwapErrorType field) {
+        switch (field) {
+            case SwapErrorType.TO -> {
+                return swapToError(error);
+            }
+            case SwapErrorType.QUANTITY -> {
+                return swapQuantityError(error);
+            }
+        }
+        return null;
     }
 
     public static boolean isValidQuantity() {
