@@ -5,6 +5,7 @@ import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
+import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.helpers.SaveToHistory;
 import com.market.tradingbit.mappers.HistoryMapper;
@@ -144,6 +145,18 @@ public class SwapController {
         return "swap";
     }
 
+    public String swapSuccessful(Model model, Long userId, SwapDto swap, History history) {
+        populateModel(model, userId);
+        model.addAttribute("success", true);
+        model.addAttribute("swap", swapToNull(swap));
+        SuccessfulSwapDto successfulSwap = historyMapper.toSuccessfulSwapDto(history);
+        model.addAttribute("successfulSwap", successfulSwap);
+        successfulSwap.setFromSymbol(history.getFromSymbol());
+        successfulSwap.setToSymbol(history.getToSymbol());
+        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
+        return "swap";
+    }
+
     @PostMapping("/crypto")
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
@@ -193,20 +206,8 @@ public class SwapController {
         if(bindingResult.hasErrors())
             return returnBindingResult(model, userId, swap);
 
-        saveToHistory.saveHistory(new SaveHistory(history, swap, userId, volume, exactSwapAmount));
-        if(swap.getFrom().equals("US Dollar") || swap.getTo().equals("US Dollar"))
-            balanceRepository.updateUSDBalanceByAmountAndUserId(
-                    portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", user.getId()),
-                    user.getId());
-        populateModel(model, userId);
-        model.addAttribute("success", true);
-        model.addAttribute("swap", swapToNull(swap));
-        SuccessfulSwapDto successfulSwap = historyMapper.toSuccessfulSwapDto(history);
-        model.addAttribute("successfulSwap", successfulSwap);
-        successfulSwap.setFromSymbol(history.getFromSymbol()); //Temporary fix. Stopped mapping all of a sudden
-        successfulSwap.setToSymbol(history.getToSymbol());
-        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
-        return "swap";
+        saveToHistory.saveHistory(new SaveHistory(history, swap, userId, volume, exactSwapAmount, Type.CRYPTO));
+        return swapSuccessful(model, userId, swap, history);
     }
 
     @GetMapping("/stock")
