@@ -4,10 +4,8 @@ import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.SwapErrorType;
 import com.market.tradingbit.entities.Type;
-import com.market.tradingbit.models.BasicUserError;
-import com.market.tradingbit.models.CryptoNamePrice;
+import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
-import com.market.tradingbit.models.SaveHistory;
 import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import lombok.AllArgsConstructor;
@@ -40,6 +38,18 @@ public class UserSwap {
         return requestedAmount;
     }
 
+    private void validateQuantity(BigDecimal swapQuantity, Error error, Double price) {
+        if((swapQuantity.multiply(BigDecimal.valueOf(price))).compareTo(MINIMUM_SWAP_USD) < 0)
+            swapValidation.swapError(error, SwapErrorType.QUANTITY);
+    }
+
+    private HistoryVolume swapFrom(SwapDto swap, Error error, BigDecimal swapQuantity , BigDecimal exactSwapAmount) {
+        CryptoNamePrice price = apiService.getCryptoPrice(swap.getTo());
+        validateQuantity(swapQuantity, error, price.getPrice());
+        History history = mapToHistory.fromUSDtoHistory(swap, price, exactSwapAmount);
+        return new HistoryVolume(history, exactSwapAmount);
+    }
+
     public String userSwap(Model model, SwapDto swap, Long userId, BindingResult bindingResult) {
         BigDecimal volume;
         History history;
@@ -54,15 +64,12 @@ public class UserSwap {
         BigDecimal exactSwapAmount = getExactSwapAmount(availableBalance, swapQuantity);
         volume = exactSwapAmount;
 
-        com.market.tradingbit.models.Error error = new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult);
+        Error error = new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult);
 
         if(swap.getFrom().equals("US Dollar")) {
-            CryptoNamePrice price = apiService.getCryptoPrice(swap.getTo());
-
-            if((swapQuantity.multiply(BigDecimal.valueOf(price.getPrice()))).compareTo(MINIMUM_SWAP_USD) < 0)
-                return swapValidation.swapError(error, SwapErrorType.QUANTITY);
-
-            history = mapToHistory.fromUSDtoHistory(swap, price, exactSwapAmount);
+            HistoryVolume historyVolumes = swapFrom(swap, error, swapQuantity, exactSwapAmount);
+            history = historyVolumes.getHistory();
+            volume = historyVolumes.getVolume();
         } else if(swap.getTo().equals("US Dollar")) {
             if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
                 return swapValidation.swapError(error, SwapErrorType.QUANTITY);
