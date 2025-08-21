@@ -8,6 +8,7 @@ import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.helpers.MapToHistory;
 import com.market.tradingbit.helpers.SaveToHistory;
+import com.market.tradingbit.helpers.SwapValidation;
 import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
@@ -43,31 +44,10 @@ public class SwapController {
     private final BalanceRepository balanceRepository;
     private final SaveToHistory saveToHistory;
     private final MapToHistory mapToHistory;
+    private final SwapValidation swapValidation;
     private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
     private final BigDecimal TOLERANCE = new BigDecimal("0.00000001");
     private static final int CRYPTO_PRECISION = 8;
-
-    private void populateModel(Model model, Long userId) {
-        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(userId);
-        model.addAttribute("userItems", portfolioList);
-
-        List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
-        model.addAttribute("swapItems", latestListings);
-    }
-
-    private SwapDto swapToNull(SwapDto swap) {
-        swap.setFrom(null);
-        swap.setTo(null);
-        swap.setQuantity(null);
-        return swap;
-    }
-
-    private String returnBindingResult(Model model, Long userId, SwapDto swap) {
-        populateModel(model, userId);
-        model.addAttribute("swap", swapToNull(swap));
-        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
-        return "swap";
-    }
 
     private BigDecimal getExactSwapAmount(BigDecimal availableBalance, BigDecimal requestedAmount) {
         BigDecimal difference = requestedAmount.subtract(availableBalance);
@@ -76,50 +56,16 @@ public class SwapController {
         return requestedAmount;
     }
 
-    private String swapToError(Error toError) {
-        toError.getBindingResult().addError(new FieldError(
-                "swap", "to", toError.getMessage()
-        ));
-        return returnBindingResult(toError.getModel(), toError.getUserId(), toError.getSwap());
-    }
-
-    private String swapQuantityError(Error quantityError) {
-        quantityError.getBindingResult().addError(new FieldError(
-                "swap", "quantity", quantityError.getMessage()
-        ));
-        return returnBindingResult(quantityError.getModel(), quantityError.getUserId(), quantityError.getSwap());
-    }
-
-    //Does not contain queries if successful.
-    private String checkForBasicErrors(BasicUserError error, BigDecimal availableBalance) {
-        validateBasicFields(error.getSwap(), error.getBindingResult(), availableBalance, error.getSwapQuantity());
-        if(error.getBindingResult().hasErrors())
-            return returnBindingResult(error.getModel(), error.getUserId(), error.getSwap());
-        return null;
-    }
-
     @GetMapping("/crypto")
     //3 Queries: userRepository, portfolioRepository, historyRepository (ALL CRUCIAL)
     public String cryptoSwap(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
-        populateModel(model, user.getId());
+        swapValidation.populateModelToUser(model, user.getId());
         model.addAttribute("swap", new SwapDto());
         model.addAttribute("success", false);
         List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
         model.addAttribute("history", history);
-        return "swap";
-    }
-
-    public String swapSuccessful(Model model, Long userId, SwapDto swap, History history) {
-        populateModel(model, userId);
-        model.addAttribute("success", true);
-        model.addAttribute("swap", swapToNull(swap));
-        SuccessfulSwapDto successfulSwap = historyMapper.toSuccessfulSwapDto(history);
-        model.addAttribute("successfulSwap", successfulSwap);
-        successfulSwap.setFromSymbol(history.getFromSymbol());
-        successfulSwap.setToSymbol(history.getToSymbol());
-        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
         return "swap";
     }
 
