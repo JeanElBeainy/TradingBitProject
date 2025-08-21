@@ -3,10 +3,12 @@ package com.market.tradingbit.models;
 import com.market.tradingbit.dtos.SwapDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 @Getter
+@Setter
 @AllArgsConstructor
 public class Error {
     private Model model;
