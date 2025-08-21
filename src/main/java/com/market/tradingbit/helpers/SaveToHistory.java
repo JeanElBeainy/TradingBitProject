@@ -52,11 +52,10 @@ public class SaveToHistory {
         portfolioRepository.updatePortfolioQuantity(appendRepository.getExactSwapAmount().negate(),
                 appendRepository.getSwap().getFrom(),
                 appendRepository.getUserId());
-        BigDecimal remainingQuantity = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(),
-                appendRepository.getUserId()).getQuantity();
 
-        if(remainingQuantity.abs().compareTo(TOLERANCE) <= 0)
-            portfolioRepository.deleteById(portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getFrom(), appendRepository.getUserId()).getId());
+        portfolioRepository.deletePortfolioByQuantityIsLessThanEqualAndUserIdAndSymbol(BigDecimal.ZERO,
+                appendRepository.getUserId(),
+                appendRepository.getSwap().getFrom());
     }
 
     public void saveHistory(SaveHistory saveHistory) {

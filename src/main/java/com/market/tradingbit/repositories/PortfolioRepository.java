@@ -37,4 +37,8 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     @Transactional
     @Query("UPDATE Portfolio p SET p.quantity = (p.quantity + :quantity) WHERE p.symbol = :symbol AND p.userId = :userId")
     void updatePortfolioQuantity(@Param("quantity") BigDecimal quantity, @Param("symbol") String symbol, @Param("userId") Long userId);
+
+    @Modifying
+    @Transactional
+    void deletePortfolioByQuantityIsLessThanEqualAndUserIdAndSymbol(BigDecimal quantity, Long userId, String symbol);
 }
