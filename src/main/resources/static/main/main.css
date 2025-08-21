@@ -349,7 +349,8 @@ main {
 
 .info__item__body {
     padding: 3rem 2rem;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
+    font-weight: 500;
 }
 
 @media screen and (min-width: 801px) and (max-width: 1550px) {
