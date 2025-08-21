@@ -7,4 +7,10 @@ public class SwapDto {
     private String from;
     private String to;
     private String quantity;
+
+    public SwapDto() {
+        from = null;
+        to = null;
+        quantity = null;
+    }
 }
