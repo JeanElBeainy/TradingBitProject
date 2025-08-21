@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class SuccessfulSwapDto {
-    private String from;
-    private String to;
+    private String fromSymbol;
+    private String toSymbol;
     private String fromQuantity;
     private String toQuantity;
     private String fee;

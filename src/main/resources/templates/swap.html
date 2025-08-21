@@ -149,11 +149,11 @@
 
                     <div class="success__message" th:field="${successfulSwap}">
                         <p>Swap successful!</p>
-                        <p>Pair: <span th:text="*{from}"></span> -> <span th:text="*{to}"></span></p>
+                        <p>Pair: <span th:text="${successfulSwap.fromSymbol}"></span> -> <span th:text="${successfulSwap.toSymbol}"></span></p>
                         <p>Quantity: <span th:text="${successfulSwap.fromQuantity}"></span>
                             ->
                             <span th:text="${successfulSwap.toQuantity}"></span></p>
-                        <p>Fee: <span th:text="${successfulSwap.fee}"></span> in <span th:text="*{to}"></span></p>
+                        <p>Fee: <span th:text="${successfulSwap.fee}"></span> in <span th:text="${successfulSwap.toSymbol}"></span></p>
                     </div>
                     <div>
                         <button type="button"

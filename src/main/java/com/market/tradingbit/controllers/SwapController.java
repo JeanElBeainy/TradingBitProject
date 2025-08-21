@@ -1,10 +1,10 @@
 package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.dtos.HistoryDto;
+import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
-import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.entities.User;
 import com.market.tradingbit.helpers.SaveToHistory;
 import com.market.tradingbit.mappers.HistoryMapper;
@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import static com.market.tradingbit.helpers.SwapValidation.*;
 
@@ -203,7 +201,10 @@ public class SwapController {
         populateModel(model, userId);
         model.addAttribute("success", true);
         model.addAttribute("swap", swapToNull(swap));
-        model.addAttribute("successfulSwap", historyMapper.toSuccessfulSwapDto(history));
+        SuccessfulSwapDto successfulSwap = historyMapper.toSuccessfulSwapDto(history);
+        model.addAttribute("successfulSwap", successfulSwap);
+        successfulSwap.setFromSymbol(history.getFromSymbol()); //Temporary fix. Stopped mapping all of a sudden
+        successfulSwap.setToSymbol(history.getToSymbol());
         model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
         return "swap";
     }
