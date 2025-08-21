@@ -52,9 +52,16 @@ public class SwapController {
         model.addAttribute("swapItems", latestListings);
     }
 
+    private SwapDto swapToNull(SwapDto swap) {
+        swap.setFrom(null);
+        swap.setTo(null);
+        swap.setQuantity(null);
+        return swap;
+    }
+
     private String returnBindingResult(Model model, Long userId, SwapDto swap) {
         populateModel(model, userId);
-        model.addAttribute("swap", swap);
+        model.addAttribute("swap", swapToNull(swap));
         model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
         return "swap";
     }
@@ -67,30 +74,35 @@ public class SwapController {
         }
     }
 
-    private void validateBasicFields(SwapDto swap, BindingResult bindingResult) {
-        if(swap.getFrom() == null || swap.getFrom().isEmpty())
-            bindingResult.addError(new FieldError("swap", "from", "Please select a valid currency that you own."));
-        if(swap.getTo() == null || swap.getTo().isEmpty())
-            bindingResult.addError(new FieldError("swap", "to", "Please select a valid currency to swap."));
-
-        BigDecimal quantity = parseQuantity(swap.getQuantity());
-        if(quantity == null) {
-            bindingResult.addError(new FieldError("swap", "quantity", "Quantity must be a valid number."));
-            return;
-        }
-
-        if(quantity.compareTo(BigDecimal.ZERO) <= 0)
-            bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero."));
-        if(bindingResult.hasErrors())
-            return;
-        if(swap.getFrom().equals(swap.getTo()))
-            bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from."));
-    }
-
     private boolean notSufficientBalance(BigDecimal availableBalance, BigDecimal requiredAmount) {
         if (availableBalance == null) return true;
         BigDecimal difference = availableBalance.subtract(requiredAmount);
         return difference.compareTo(BigDecimal.ZERO) < 0;
+    }
+
+    private String getValidationError(SwapDto swap, BigDecimal availableBalance, BigDecimal swapQuantity) {
+        if (swap.getFrom() == null || swap.getFrom().isEmpty()) return "from_empty";
+        if (swap.getTo() == null || swap.getTo().isEmpty()) return "to_empty";
+
+        BigDecimal quantity = parseQuantity(swap.getQuantity());
+        if (quantity == null) return "quantity_invalid";
+        if (quantity.compareTo(BigDecimal.ZERO) <= 0) return "quantity_zero_or_negative";
+        if (swap.getFrom().equals(swap.getTo())) return "same_currency";
+        if(notSufficientBalance(availableBalance, swapQuantity)) return "insufficient_balance";
+        return "valid";
+    }
+
+    private void validateBasicFields(SwapDto swap, BindingResult bindingResult, BigDecimal availableBalance, BigDecimal swapQuantity) {
+        String validationError = getValidationError(swap, availableBalance, swapQuantity);
+        switch (validationError) {
+            case "from_empty" -> bindingResult.addError(new FieldError("swap", "from", "Please select a valid currency that you own"));
+            case "to_empty" -> bindingResult.addError(new FieldError("swap", "to", "Please select a valid currency to swap"));
+            case "quantity_invalid" -> bindingResult.addError(new FieldError("swap", "quantity", "Quantity is either empty or not a number"));
+            case "quantity_zero_or_negative" -> bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero"));
+            case "same_currency" -> bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from"));
+            case "insufficient_balance" -> bindingResult.addError(new FieldError("swap", "quantity", "You do not have enough "+ swap.getFrom() + " to perform this swap"));
+
+        }
     }
 
     private BigDecimal getExactSwapAmount(BigDecimal availableBalance, BigDecimal requestedAmount) {
@@ -211,21 +223,7 @@ public class SwapController {
 
     //Does not contain queries if successful.
     private String checkForBasicErrors(BasicUserError error, BigDecimal availableBalance) {
-        if (error.getSwapQuantity() == null)
-            return swapQuantityError(new Error(error.getModel(),
-                    error.getUserId(),
-                    error.getSwap(),
-                    "Quantity must be a valid number",
-                    error.getBindingResult()));
-
-        validateBasicFields(error.getSwap(), error.getBindingResult());
-        if(notSufficientBalance(availableBalance, error.getSwapQuantity()))
-            return swapQuantityError(new Error(error.getModel(),
-                    error.getUserId(),
-                    error.getSwap(),
-                    "You do not have enough "+ error.getSwap().getFrom() + " to perform this swap",
-                    error.getBindingResult()));
-
+        validateBasicFields(error.getSwap(), error.getBindingResult(), availableBalance, error.getSwapQuantity());
         if(error.getBindingResult().hasErrors())
             return returnBindingResult(error.getModel(), error.getUserId(), error.getSwap());
         return null;
@@ -300,6 +298,7 @@ public class SwapController {
                     user.getId());
         populateModel(model, userId);
         model.addAttribute("success", true);
+        model.addAttribute("swap", swapToNull(swap));
         model.addAttribute("successfulSwap", historyMapper.toSuccessfulSwapDto(history));
         model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
         return "swap";
