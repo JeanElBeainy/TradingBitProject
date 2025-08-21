@@ -157,18 +157,14 @@ public class SwapController {
         return "swap";
     }
 
-    @PostMapping("/crypto")
-    public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
-        if(principal == null) return "redirect:/login";
-        System.out.println("Post Mapping:");
-        User user = userRepository.findByEmail(principal.getName());
-        Long userId = user.getId();
+    public String userSwap(Model model, SwapDto swap, Long userId, BindingResult bindingResult) {
         BigDecimal volume;
         History history;
 
         BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
         BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), userId);
-        String basicErrors = checkForBasicErrors(new BasicUserError(model, swapQuantity, swap, userId, bindingResult), availableBalance);
+        BasicUserError basicUserError = new BasicUserError(model, swapQuantity, swap, userId, bindingResult);
+        String basicErrors = checkForBasicErrors(basicUserError, availableBalance);
         if(basicErrors != null) return basicErrors;
 
         //swapQuantity already checked in checkForBasicErrors, so no need to assert swapQuantity
@@ -208,6 +204,14 @@ public class SwapController {
 
         saveToHistory.saveHistory(new SaveHistory(history, swap, userId, volume, exactSwapAmount, Type.CRYPTO));
         return swapSuccessful(model, userId, swap, history);
+    }
+
+    @PostMapping("/crypto")
+    public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
+        if(principal == null) return "redirect:/login";
+        System.out.println("Post Mapping:");
+        User user = userRepository.findByEmail(principal.getName());
+        return userSwap(model, swap, user.getId(), bindingResult);
     }
 
     @GetMapping("/stock")
