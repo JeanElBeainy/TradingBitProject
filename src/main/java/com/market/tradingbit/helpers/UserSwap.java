@@ -23,7 +23,7 @@ import static com.market.tradingbit.helpers.SwapValidation.parseQuantity;
 public class UserSwap {
     private final PortfolioRepository portfolioRepository;
     private final SwapValidation swapValidation;
-    private static final int CRYPTO_PRECISION = 8;
+    private static final int PRECISION = 8;
     private final BalanceRepository balanceRepository;
     private final SaveToHistory saveToHistory;
     private final MapToHistory mapToHistory;
@@ -38,22 +38,29 @@ public class UserSwap {
         return requestedAmount;
     }
 
-    private void validateQuantity(BigDecimal swapQuantity, Error error, Double price) {
+    private String validateQuantity(BigDecimal swapQuantity, Error error, Double price) {
         if((swapQuantity.multiply(BigDecimal.valueOf(price))).compareTo(MINIMUM_SWAP_USD) < 0)
-            swapValidation.swapError(error, SwapErrorType.QUANTITY);
+            return swapValidation.swapError(error, SwapErrorType.QUANTITY);
+        return null;
     }
 
     private HistoryVolume swapFrom(SwapDto swap, Error error, BigDecimal swapQuantity , BigDecimal exactSwapAmount) {
+        if(validateQuantity(swapQuantity, error, 1.0) != null) return null;
         CryptoNamePrice price = apiService.getCryptoPrice(swap.getTo());
-        validateQuantity(swapQuantity, error, price.getPrice());
         History history = mapToHistory.fromUSDtoHistory(swap, price, exactSwapAmount);
+        return new HistoryVolume(history, exactSwapAmount);
+    }
+
+    private HistoryVolume swapTo(SwapDto swap, Error error, BigDecimal swapQuantity , BigDecimal exactSwapAmount) {
+        CryptoNamePrice price = apiService.getCryptoPrice(swap.getFrom());
+        validateQuantity(swapQuantity, error, price.getPrice());
+        History history = mapToHistory.toUSDtoHistory(swap, price, exactSwapAmount);
         return new HistoryVolume(history, exactSwapAmount);
     }
 
     public String userSwap(Model model, SwapDto swap, Long userId, BindingResult bindingResult) {
         BigDecimal volume;
         History history;
-
         BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
         BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), userId);
         BasicUserError basicUserError = new BasicUserError(model, swapQuantity, swap, userId, bindingResult);
@@ -66,17 +73,14 @@ public class UserSwap {
 
         Error error = new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult);
 
-        if(swap.getFrom().equals("US Dollar")) {
+        if(swap.getFrom().equals(CurrencyConstant.USDName)) {
             HistoryVolume historyVolumes = swapFrom(swap, error, swapQuantity, exactSwapAmount);
             history = historyVolumes.getHistory();
             volume = historyVolumes.getVolume();
-        } else if(swap.getTo().equals("US Dollar")) {
-            if(swapQuantity.compareTo(MINIMUM_SWAP_USD) < 0)
-                return swapValidation.swapError(error, SwapErrorType.QUANTITY);
-
-            CryptoNamePrice price = apiService.getCryptoPrice(swap.getFrom());
-            history = mapToHistory.toUSDtoHistory(swap, price, exactSwapAmount);
-            volume = volume.multiply(BigDecimal.valueOf(price.getPrice()));
+        } else if(swap.getTo().equals(CurrencyConstant.USDName)) {
+            HistoryVolume historyVolume = swapTo(swap, error, swapQuantity, exactSwapAmount);
+            history = historyVolume.getHistory();
+            volume = historyVolume.getVolume();
         }
         else {
             error.setMessage("One or more of the currencies you selected are not valid.");
@@ -85,7 +89,7 @@ public class UserSwap {
                 return swapValidation.swapError(error, SwapErrorType.TO);
 
             BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.getFirst().getPrice()))
-                    .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
+                    .setScale(PRECISION, RoundingMode.HALF_EVEN);
             volume = fromPrice.multiply(exactSwapAmount).setScale(2, RoundingMode.HALF_EVEN);
 
             if(volume.compareTo(MINIMUM_SWAP_USD) < 0) {
