@@ -24,11 +24,13 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class SwapValidation {
-    private static final int CRYPTO_PRECISION = 8;
     private final HistoryRepository historyRepository;
     private final PortfolioRepository portfolioRepository;
     private final CoinMarketCapService service;
     private final HistoryMapper historyMapper;
+    private static final int CRYPTO_PRECISION = 8;
+    private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
+
 
     public static BigDecimal parseQuantity(String quantityStr) {
         try {
@@ -128,9 +130,24 @@ public class SwapValidation {
         return null;
     }
 
-    public static boolean isValidQuantity() {
+    public String validateQuantity(BigDecimal swapQuantity, Error error, Double price) {
+        if((swapQuantity.multiply(BigDecimal.valueOf(price))).compareTo(MINIMUM_SWAP_USD) < 0)
+            return swapError(error, SwapErrorType.QUANTITY);
+        return null;
+    }
 
-        return true;
+    public String swapCurrencyError(Error error, int size) {
+        if(size < 2)
+            return swapError(error, SwapErrorType.TO);
+        return null;
+    }
+
+    public String swapVolumeError(Error error, BigDecimal volume) {
+        if(volume.compareTo(MINIMUM_SWAP_USD) < 0) {
+            error.setMessage("Minimum swap price must be at least 1 USD");
+            return swapError(error, SwapErrorType.QUANTITY);
+        }
+        return null;
     }
 
     public String swapSuccessful(Model model, Long userId, SwapDto swap, History history) {
