@@ -7,7 +7,6 @@ import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.models.CryptoNamePrice;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.util.List;
 

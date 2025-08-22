@@ -58,50 +58,64 @@ public class UserSwap {
         return new HistoryVolume(history, exactSwapAmount);
     }
 
-    public String userSwap(Model model, SwapDto swap, Long userId, BindingResult bindingResult) {
-        BigDecimal volume;
-        History history;
+    private String swapCurrencyError(Error error, int size) {
+        if(size < 2)
+            return swapValidation.swapError(error, SwapErrorType.TO);
+        return null;
+    }
+
+    private String swapVolumeError(Error error, BigDecimal volume) {
+        if(volume.compareTo(MINIMUM_SWAP_USD) < 0) {
+            error.setMessage("Minimum swap price must be at least 1 USD");
+            return swapValidation.swapError(error, SwapErrorType.QUANTITY);
+        }
+        return null;
+    }
+
+    private HistoryVolume swapCrypto(SwapDto swap, Error error, BigDecimal exactSwapAmount) {
+        error.setMessage("One or more of the currencies you selected are not valid.");
+        List<CryptoNamePrice> prices = apiService.getCryptoPair(swap.getFrom(), swap.getTo());
+        if(swapCurrencyError(error, prices.size()) != null)
+            return null;
+
+        BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.getFirst().getPrice()))
+                .setScale(PRECISION, RoundingMode.HALF_EVEN);
+        BigDecimal volume = fromPrice.multiply(exactSwapAmount).setScale(2, RoundingMode.HALF_EVEN);
+
+        if(swapVolumeError(error, volume) != null)
+            return null;
+
+        History history = mapToHistory.toHistory(swap, prices, exactSwapAmount);
+        return new HistoryVolume(history, volume);
+    }
+
+    private HistoryVolume getHistoryVolume(SwapDto swap, Error error, BasicUserError basicUserError, BigDecimal availableBalance) {
         BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
-        BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), userId);
-        BasicUserError basicUserError = new BasicUserError(model, swapQuantity, swap, userId, bindingResult);
         String basicErrors = swapValidation.checkForBasicErrors(basicUserError, availableBalance);
-        if(basicErrors != null) return basicErrors;
-
-        //swapQuantity already checked in checkForBasicErrors, so no need to assert swapQuantity
+        if(basicErrors != null) return null;
         BigDecimal exactSwapAmount = getExactSwapAmount(availableBalance, swapQuantity);
-        volume = exactSwapAmount;
-
-        Error error = new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult);
 
         if(swap.getFrom().equals(CurrencyConstant.USDName)) {
-            HistoryVolume historyVolumes = swapFrom(swap, error, swapQuantity, exactSwapAmount);
-            history = historyVolumes.getHistory();
-            volume = historyVolumes.getVolume();
+            return swapFrom(swap, error, swapQuantity, exactSwapAmount);
         } else if(swap.getTo().equals(CurrencyConstant.USDName)) {
-            HistoryVolume historyVolume = swapTo(swap, error, swapQuantity, exactSwapAmount);
-            history = historyVolume.getHistory();
-            volume = historyVolume.getVolume();
+            return swapTo(swap, error, swapQuantity, exactSwapAmount);
+        } else {
+            return swapCrypto(swap, error, exactSwapAmount);
         }
-        else {
-            error.setMessage("One or more of the currencies you selected are not valid.");
-            List<CryptoNamePrice> prices = apiService.getCryptoPair(swap.getFrom(), swap.getTo());
-            if(prices.size() < 2)
-                return swapValidation.swapError(error, SwapErrorType.TO);
+    }
 
-            BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.getFirst().getPrice()))
-                    .setScale(PRECISION, RoundingMode.HALF_EVEN);
-            volume = fromPrice.multiply(exactSwapAmount).setScale(2, RoundingMode.HALF_EVEN);
+    public String userSwap(Model model, SwapDto swap, Long userId, BindingResult bindingResult) {
+        BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
+        BasicUserError basicUserError = new BasicUserError(model, swapQuantity, swap, userId, bindingResult);
+        BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), userId);
+        //swapQuantity already checked in checkForBasicErrors, so no need to assert swapQuantity
+        Error error = new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult);
 
-            if(volume.compareTo(MINIMUM_SWAP_USD) < 0) {
-                error.setMessage("Minimum swap price must be at least 1 USD");
-                return swapValidation.swapError(error, SwapErrorType.QUANTITY);
-            }
-
-            history = mapToHistory.toHistory(swap, prices, exactSwapAmount);
-        }
-        balanceRepository.updateTotalVolumeByAmountAndUserId(volume, userId);
-
-        saveToHistory.saveHistory(new SaveHistory(history, swap, userId, volume, exactSwapAmount, Type.CRYPTO));
-        return swapValidation.swapSuccessful(model, userId, swap, history);
+        HistoryVolume historyVolume = getHistoryVolume(swap, error, basicUserError, availableBalance);
+        if(historyVolume == null) return "swap";
+        BigDecimal exactSwapAmount = getExactSwapAmount(availableBalance, swapQuantity);
+        balanceRepository.updateTotalVolumeByAmountAndUserId(historyVolume.getVolume(), userId);
+        saveToHistory.saveHistory(new SaveHistory(historyVolume.getHistory(), swap, userId, historyVolume.getVolume(), exactSwapAmount, Type.CRYPTO));
+        return swapValidation.swapSuccessful(model, userId, swap, historyVolume.getHistory());
     }
 }
