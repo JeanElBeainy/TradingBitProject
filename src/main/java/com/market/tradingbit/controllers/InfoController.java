@@ -17,4 +17,9 @@ public class InfoController {
     public String faq() {
         return "faq";
     }
+
+    @GetMapping("/disclaimer")
+    public String disclaimer() {
+        return "disclaimer";
+    }
 }
