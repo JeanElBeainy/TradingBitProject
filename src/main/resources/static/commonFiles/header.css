@@ -56,13 +56,24 @@
     border-bottom: none;
 }
 
+.nav__item .logout-button {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--color-text);
+    transition: color 0.3s;
+}
+
 .nav__item > a {
     color: var(--color-text);
     transition: color 0.3s;
     font-weight: 500;
 }
 
-.nav__item > a:hover {
+.nav__item > a:hover, .nav__item > form > button:hover {
     color: var(--color-text-light);
 }
 
