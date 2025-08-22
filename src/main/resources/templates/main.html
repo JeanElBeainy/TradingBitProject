@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,8 +31,13 @@
         <ul class="collapsible__content nav__list">
             <li class="nav__item"><a href="/dashboard">Market</a></li>
             <li class="nav__item"><a href="/docs">Docs</a></li>
-            <li class="nav__item"><a href="/signup">Sign Up</a></li>
-            <li class="nav__item"><a href="/login">Sign In</a></li>
+            <li sec:authorize="!isAuthenticated()" class="nav__item"><a href="/signup">Sign Up</a></li>
+            <li sec:authorize="!isAuthenticated()" class="nav__item"><a href="/login">Sign In</a></li>
+            <li sec:authorize="isAuthenticated()" class="nav__item">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-button">Sign Out</button>
+                </form>
+            </li>
         </ul>
     </nav>
 </header>
