@@ -1,8 +1,6 @@
 package com.market.tradingbit.helpers;
 
 import com.market.tradingbit.dtos.SwapDto;
-import com.market.tradingbit.entities.History;
-import com.market.tradingbit.entities.SwapErrorType;
 import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
@@ -13,8 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
 
 import static com.market.tradingbit.helpers.SwapValidation.parseQuantity;
 
@@ -23,11 +19,8 @@ import static com.market.tradingbit.helpers.SwapValidation.parseQuantity;
 public class UserSwap {
     private final PortfolioRepository portfolioRepository;
     private final SwapValidation swapValidation;
-    private static final int PRECISION = 8;
     private final BalanceRepository balanceRepository;
     private final SaveToHistory saveToHistory;
-    private final MapToHistory mapToHistory;
-    private final ApiService apiService;
     private final BigDecimal TOLERANCE = new BigDecimal("0.00000001");
 
     private BigDecimal getExactSwapAmount(BigDecimal availableBalance, BigDecimal requestedAmount) {
@@ -37,37 +30,6 @@ public class UserSwap {
         return requestedAmount;
     }
 
-    private HistoryVolume swapFrom(SwapDto swap, Error error, BigDecimal swapQuantity , BigDecimal exactSwapAmount) {
-        if(swapValidation.validateQuantity(swapQuantity, error, 1.0) != null) return null;
-        CryptoNamePrice price = apiService.getCryptoPrice(swap.getTo());
-        History history = mapToHistory.fromUSDtoHistory(swap, price, exactSwapAmount);
-        return new HistoryVolume(history, exactSwapAmount);
-    }
-
-    private HistoryVolume swapTo(SwapDto swap, Error error, BigDecimal swapQuantity , BigDecimal exactSwapAmount) {
-        CryptoNamePrice price = apiService.getCryptoPrice(swap.getFrom());
-        swapValidation.validateQuantity(swapQuantity, error, price.getPrice());
-        History history = mapToHistory.toUSDtoHistory(swap, price, exactSwapAmount);
-        return new HistoryVolume(history, exactSwapAmount);
-    }
-
-    private HistoryVolume swapCrypto(SwapDto swap, Error error, BigDecimal exactSwapAmount) {
-        error.setMessage("One or more of the currencies you selected are not valid.");
-        List<CryptoNamePrice> prices = apiService.getCryptoPair(swap.getFrom(), swap.getTo());
-        if(swapValidation.swapCurrencyError(error, prices.size()) != null)
-            return null;
-
-        BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.getFirst().getPrice()))
-                .setScale(PRECISION, RoundingMode.HALF_EVEN);
-        BigDecimal volume = fromPrice.multiply(exactSwapAmount).setScale(2, RoundingMode.HALF_EVEN);
-
-        if(swapValidation.swapVolumeError(error, volume) != null)
-            return null;
-
-        History history = mapToHistory.toHistory(swap, prices, exactSwapAmount);
-        return new HistoryVolume(history, volume);
-    }
-
     private HistoryVolume getHistoryVolume(SwapDto swap, Error error, BasicUserError basicUserError, BigDecimal availableBalance) {
         BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
         String basicErrors = swapValidation.checkForBasicErrors(basicUserError, availableBalance);
@@ -75,11 +37,11 @@ public class UserSwap {
         BigDecimal exactSwapAmount = getExactSwapAmount(availableBalance, swapQuantity);
 
         if(swap.getFrom().equals(CurrencyConstant.USDName)) {
-            return swapFrom(swap, error, swapQuantity, exactSwapAmount);
+            return swapValidation.swapFrom(swap, error, swapQuantity, exactSwapAmount);
         } else if(swap.getTo().equals(CurrencyConstant.USDName)) {
-            return swapTo(swap, error, swapQuantity, exactSwapAmount);
+            return swapValidation.swapTo(swap, error, swapQuantity, exactSwapAmount);
         } else {
-            return swapCrypto(swap, error, exactSwapAmount);
+            return swapValidation.swapCrypto(swap, error, exactSwapAmount);
         }
     }
 
