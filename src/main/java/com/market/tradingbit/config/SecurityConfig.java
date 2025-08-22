@@ -15,7 +15,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(auth -> auth //causing error: not displaying CSS anymore (did not happen previously)
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers( "/commonFiles/**","/main/**", "images/**").permitAll()
                         .requestMatchers("/signup/**", "signin/**").permitAll()
                         .requestMatchers("/dashboard/**", "/swap/**").permitAll()
@@ -26,7 +26,7 @@ public class SecurityConfig {
                         .requestMatchers("/swap/**").hasRole("USER")
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
-                        .requestMatchers("/logout").hasRole("USER")
+                        .requestMatchers("/logout").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -35,7 +35,12 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/swap/crypto", true)
                         .permitAll()
                 )
-                .logout(config -> config.logoutSuccessUrl("/login"))
+                .logout(config -> config
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll())
                 .build();
     }
 
