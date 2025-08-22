@@ -4,6 +4,7 @@ import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.models.AppendRepository;
+import com.market.tradingbit.models.CurrencyConstant;
 import com.market.tradingbit.models.SaveHistory;
 import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.HistoryRepository;
@@ -39,7 +40,7 @@ public class SaveToHistory {
     private void appendToRepository(AppendRepository appendRepository) { //4 queries
         Portfolio portfolio = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getTo(), appendRepository.getUserId());
         if(portfolio == null) {
-            if (appendRepository.getSwap().getTo().equals("US Dollar"))
+            if (appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName))
                 portfolioRepository.save(Portfolio.builder()
                         .symbol(appendRepository.getSwap().getTo())
                         .purchaseType(Type.USD)
@@ -65,9 +66,10 @@ public class SaveToHistory {
                 appendRepository.getSwap().getFrom(),
                 appendRepository.getUserId());
 
-        if(appendRepository.getSwap().getFrom().equals("US Dollar") || appendRepository.getSwap().getTo().equals("US Dollar"))
+        if(appendRepository.getSwap().getFrom().equals(CurrencyConstant.USDName)
+                || appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName))
             balanceRepository.updateUSDBalanceByAmountAndUserId(
-                    portfolioRepository.getQuantityBySymbolAndUserId("US Dollar", appendRepository.getUserId()),
+                    portfolioRepository.getQuantityBySymbolAndUserId(CurrencyConstant.USDName, appendRepository.getUserId()),
                     appendRepository.getUserId());
 
         portfolioRepository.deletePortfolioByQuantityIsLessThanEqualAndUserIdAndSymbol(BigDecimal.ZERO,
