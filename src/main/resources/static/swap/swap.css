@@ -84,6 +84,15 @@ ul {
     }
 }
 
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 95%;
+    height: 100%;
+}
+
 
 .swap__section {
     display: flex;
@@ -97,7 +106,8 @@ ul {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    width: 600px;
+    max-width: 700px;
+    width: 100%;
     border-radius: 25px;
     margin: 0 2rem 0 2rem;
     padding: 1.5rem .5rem 1.5rem .5rem;

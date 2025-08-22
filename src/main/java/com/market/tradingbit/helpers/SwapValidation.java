@@ -29,11 +29,11 @@ public class SwapValidation {
     private final HistoryMapper historyMapper;
     private final MapToHistory mapToHistory;
     private final ApiService apiService;
+
     private static final int PRECISION = 8;
-
     private static final int CRYPTO_PRECISION = 8;
-    private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
 
+    private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
 
     public static BigDecimal parseQuantity(String quantityStr) {
         try {
@@ -70,7 +70,6 @@ public class SwapValidation {
             case "quantity_zero_or_negative" -> bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero"));
             case "same_currency" -> bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from"));
             case "insufficient_balance" -> bindingResult.addError(new FieldError("swap", "quantity", "You do not have enough "+ swap.getFrom() + " to perform this swap"));
-
         }
     }
 
