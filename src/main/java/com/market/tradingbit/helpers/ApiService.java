@@ -1,7 +1,6 @@
 package com.market.tradingbit.helpers;
 
 import com.market.tradingbit.models.CryptoNamePrice;
-import com.market.tradingbit.models.CryptoNameSymbol;
 import com.market.tradingbit.services.CoinMarketCapService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
