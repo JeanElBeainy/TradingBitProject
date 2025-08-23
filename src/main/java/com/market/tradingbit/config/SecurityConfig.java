@@ -35,7 +35,10 @@ public class SecurityConfig {
                                 "/register",
                                 "/login",
                                 "/docs",
-                                "/dashboard"
+                                "/dashboard",
+                                "/faq",
+                                "/disclaimer",
+                                "error"
 
                         ).permitAll()
 
