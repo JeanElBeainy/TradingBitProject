@@ -16,16 +16,35 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/commonFiles/**","/main/**", "images/**").permitAll()
-                        .requestMatchers("/signup/**", "signin/**").permitAll()
-                        .requestMatchers("/dashboard/**", "/swap/**").permitAll()
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/dashboard").permitAll()
-                        .requestMatchers("/crypto/**").hasRole("USER")
-                        .requestMatchers("/profile/**").hasRole("USER")
-                        .requestMatchers("/swap/**").hasRole("USER")
-                        .requestMatchers("/register").permitAll()
-                        .requestMatchers("/login").permitAll()
+                        //Access to static files (CSS & JS)
+                        .requestMatchers( "/commonFiles/**",
+                                "/dashboard/**",
+                                "/disclaimer/**",
+                                "/document/**",
+                                "/error/**",
+                                "images/**",
+                                "/main/**",
+                                "/profile/**",
+                                "/signin/**",
+                                "/signup/**",
+                                "swap/**"
+                        ).permitAll()
+
+                        //Access to guests
+                        .requestMatchers("/",
+                                "/register",
+                                "/login",
+                                "/docs",
+                                "/dashboard"
+
+                        ).permitAll()
+
+                        //Access to users
+                        .requestMatchers("/crypto/**",
+                                "/profile/**",
+                                "/swap/**"
+
+                                ).hasRole("USER")
                         .requestMatchers("/logout").authenticated()
                         .anyRequest().authenticated()
                 )
