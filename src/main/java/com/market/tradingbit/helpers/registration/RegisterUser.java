@@ -31,8 +31,10 @@ public class RegisterUser {
         if(userRepository.findByEmail(registerDto.getEmail()) != null)
             bindingResult.addError(new FieldError("registerDto", "email", "Email already exists"));
 
-        if(bindingResult.hasErrors())
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("registerDto", nullRegisterDto(registerDto));
             return "signup";
+        }
         try {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             User user = userMapper.toEntity(registerDto);
@@ -68,5 +70,12 @@ public class RegisterUser {
         }
         model.addAttribute("success", true);
         return "signup";
+    }
+
+    private RegisterDto nullRegisterDto(RegisterDto registerDto) {
+        registerDto.setName(null);
+        registerDto.setPassword(null);
+        registerDto.setConfirmPassword(null);
+        return registerDto;
     }
 }
