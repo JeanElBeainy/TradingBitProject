@@ -101,6 +101,17 @@ section {
     font-size: 2rem;
 }
 
+.text__section {
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+    align-items: normal;
+    width: 1600px;
+    color: var(--color-text-light);
+    font-size: 1.7rem;
+    font-weight: 500;
+}
+
 .top__div {
     display: flex;
     align-items: center;
@@ -244,5 +255,8 @@ th:nth-child(7), td:nth-child(7) { min-width: 110px;} /* Change */
 @media screen and (max-width: 767px) {
     .footer {
         border-radius: 15px 15px 0 0;
+    }
+    .text__section .mobile__text p::before {
+        content: "Swipe left to view the rest of the table";
     }
 }
