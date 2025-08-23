@@ -2,12 +2,9 @@ package com.market.tradingbit.controllers;
 
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.User;
-import com.market.tradingbit.mappers.BalanceMapper;
-import com.market.tradingbit.repositories.BalanceRepository;
+import com.market.tradingbit.helpers.UpdateUserDetail;
 import com.market.tradingbit.repositories.HistoryRepository;
-import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
-import com.market.tradingbit.services.CoinMarketCapService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,20 +18,11 @@ import java.util.List;
 @AllArgsConstructor
 public class ProfileController {
     private final UserRepository userRepository;
-    private final BalanceRepository balanceRepository;
-    private final PortfolioRepository portfolioRepository;
-    private final HistoryRepository historyRepository;
-    private final BalanceMapper balanceMapper;
-    private final CoinMarketCapService service;
+    private final HistoryRepository historyRepository;;
+    private final UpdateUserDetail updateUserDetail;
 
     private void getUserInfo(Model model, User user) {
-        DashboardController.GetUserDashboard(model,
-                user,
-                service,
-                portfolioRepository,
-                balanceRepository,
-                balanceMapper
-        );
+        updateUserDetail.setUpUserDashboard(model, user);
     }
 
     @GetMapping
