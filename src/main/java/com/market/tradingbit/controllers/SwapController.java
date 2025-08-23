@@ -29,13 +29,18 @@ public class SwapController {
 
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
-        if(principal == null) return "redirect:/login";
-        User user = userRepository.findByEmail(principal.getName());
-        swapValidation.populateModelToUser(model, user.getId());
-        model.addAttribute("swap", new SwapDto());
-        model.addAttribute("success", false);
-        List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
-        model.addAttribute("history", history);
+        try {
+            if(principal == null) return "redirect:/login";
+            User user = userRepository.findByEmail(principal.getName());
+            swapValidation.populateModelToUser(model, user.getId());
+            model.addAttribute("swap", new SwapDto());
+            model.addAttribute("success", false);
+            List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
+            model.addAttribute("history", history);
+        } catch (Exception e) {
+            System.out.println("Exception with GET crypto swap: " + e.getMessage());
+            return "error";
+        }
         return "swap";
     }
 
