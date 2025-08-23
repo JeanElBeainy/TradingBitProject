@@ -20,8 +20,28 @@
             <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
         </svg>
         <ul class="collapsible__content nav__list">
-            <li class="nav__item"><a href="#">Account Overview</a></li>
-            <li class="nav__item"><a href="#">Sign Out</a></li>
+            <li sec:authorize="!isAuthenticated()" class="nav__item">
+                <a href="/docs">Docs</a>
+            </li>
+            <li sec:authorize="!isAuthenticated()" class="nav__item">
+                <a href="/signup">Sign Up</a>
+            </li>
+            <li sec:authorize="!isAuthenticated()" class="nav__item">
+                <a href="/login">Sign In</a>
+            </li>
+
+            <!--For authenticated users-->
+            <li sec:authorize="isAuthenticated()" class="nav__item">
+                <a href="/profile">Account Overview</a>
+            </li>
+            <li sec:authorize="isAuthenticated()" class="nav__item">
+                <a href="/profile">Swap</a>
+            </li>
+            <li sec:authorize="isAuthenticated()" class="nav__item">
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="logout-button">Sign Out</button>
+                </form>
+            </li>
         </ul>
     </nav>
 </header>
@@ -56,18 +76,24 @@
     </section>
 
     <section>
-        <p>Last updated at:
-            <span id="last-updated"
-                  hx-get="/dashboard/last-updated"
-                  hx-trigger="every 60s"
-                  hx-swap="innerHTML">
+        <div class="text__section">
+            <div>
+                <p>Last updated at:
+                    <span id="last-updated"
+                          hx-get="/dashboard/last-updated"
+                          hx-trigger="every 60s"
+                          hx-swap="innerHTML">
                 <th:block th:fragment="last-updated">
                     <span th:text="${lastUpdated}"></span>
                 </th:block>
             </span>
-        </p>
-
-
+                </p>
+            </div>
+            <div>
+                <p>Prices are updated automatically every 60 seconds</p>
+            </div>
+            <div class="mobile__text"><p></p></div>
+        </div>
     </section>
 
     <section class="table__section">
