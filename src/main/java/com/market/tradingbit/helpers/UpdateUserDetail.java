@@ -6,12 +6,12 @@ import com.market.tradingbit.entities.User;
 import com.market.tradingbit.mappers.BalanceMapper;
 import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
-import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinMarketCapService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -36,23 +36,29 @@ public class UpdateUserDetail {
         userDashboard.setName(user.getName());
         userDashboard.setRole(user.getRole());
 
-        //TODO: check why it's not being mapped in BalanceMapper
         userDashboard.setTotalVolume(balance.getTotalVolume().toString());
-
-        if(userDashboard.getCryptoBalance().equals("0E-8"))
-            userDashboard.setCryptoBalance("0.0");
-        if(userDashboard.getStockBalance().equals("0E-8"))
-            userDashboard.setStockBalance("0.0");
-        if(userDashboard.getTotalVolume().equals("0E-8"))
-            userDashboard.setTotalVolume("0.0");
+        userDashboard.setCryptoBalance(formatBalance(balance.getCryptoBalance()));
+        userDashboard.setStockBalance(formatBalance(balance.getStockBalance()));
+        userDashboard.setTotalVolume(formatBalance(balance.getTotalVolume()));
         model.addAttribute("userDashboardDto", userDashboard);
+    }
+
+    private String formatBalance(BigDecimal value) {
+        if (Objects.equals(value.toString(), "0E-8"))
+            return "0.0";
+        return value.toPlainString();
     }
 
     public void setUpUserDashboard(Model model, User user) {
         GetUserDashboard(user, model);
     }
 
-    public void updateBalance(Long userId) {
+    public void updateBalance(Model model, Long userId) {
         updateUserBalance(userId);
+        BigDecimal balance = getBalance(userId);
+    }
+
+    public BigDecimal getBalance(Long userId) {
+        return balanceRepository.findById(userId).orElseThrow().getCryptoBalance();
     }
 }
