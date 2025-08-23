@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 public class SaveToHistory {
     private static final int PRECISION = 8;
-    private static final BigDecimal FEE_PERCENTAGE = new BigDecimal("0.0025");
+    private static final BigDecimal FEE_PERCENTAGE = new BigDecimal("0.001");
     private final PortfolioRepository portfolioRepository;
     private final HistoryRepository historyRepository;
     private final BalanceRepository balanceRepository;
