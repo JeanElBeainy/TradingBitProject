@@ -20,9 +20,13 @@
             <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
         </svg>
         <ul class="collapsible__content nav__list">
-            <li class="nav__item"><a href="#">Dashboard</a></li>
-            <li class="nav__item"><a href="#">Account Overview</a></li>
-            <li class="nav__item"><a href="#">Sign Out</a></li>
+            <li class="nav__item"><a href="/dashboard">Dashboard</a></li>
+            <li class="nav__item"><a href="/swap/crypto">Swap</a></li>
+            <li class="nav__item">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-button">Sign Out</button>
+                </form>
+            </li>
         </ul>
     </nav>
 </header>
