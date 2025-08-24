@@ -1,5 +1,7 @@
 let currentMaxQuantity = 0;
-let currentMaxQuantityString = '0'; // ✨ ADDED: Stores the exact string value
+let currentMaxQuantityString = '0';
+let currentPrice = 0;
+let currentSelectedSymbol = '';
 
 function setupDropdown(containerSelector) {
     const container = document.querySelector(containerSelector);
@@ -36,9 +38,51 @@ function setupDropdown(containerSelector) {
             document.getElementById('quantitySection').style.display = 'block';
             currentMaxQuantity = parseFloat(quantity);
             currentMaxQuantityString = quantity;
+            currentSelectedSymbol = symbol;
+
+            const priceSpan = selectedItem.querySelector('.item-details span:nth-child(3)');
+            if (priceSpan) {
+                const priceText = priceSpan.textContent;
+                const priceMatch = priceText.match(/\$([0-9,.]+)/);
+                if (priceMatch)
+                    currentPrice = parseFloat(priceMatch[1].replace(/,/g, ''));
+            }
             document.getElementById('maxFromQuantity').textContent = quantity;
+            updatePriceDisplay(symbol);
         }
     });
+}
+
+function updatePriceDisplay(symbol) {
+    const priceElement = document.getElementById('currentPrice');
+    if (priceElement)
+        priceElement.textContent = `${currentPrice.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 8
+        })} per ${symbol}`;
+}
+
+//Function to refresh price after HTMX updates
+function refreshSelectedItemPrice() {
+    if (!currentSelectedSymbol) return;
+
+    const dropdownList = document.querySelector('.swap__from .dropdown-list');
+    if (!dropdownList) return;
+
+    if (!dropdownList.querySelector(`[data-symbol="${currentSelectedSymbol}"]`)) return;
+
+    const priceSpan = selectedItem.querySelector('.item-details span:nth-child(3)');
+    if (priceSpan) {
+        const priceText = priceSpan.textContent;
+        const priceMatch = priceText.match(/\$([0-9,.]+)/);
+        if (priceMatch)
+            currentPrice = parseFloat(priceMatch[1].replace(/,/g, ''));
+    }
+    const quantity = selectedItem.dataset;
+    currentMaxQuantity = parseFloat(quantity);
+    currentMaxQuantityString = quantity;
+    document.getElementById('maxFromQuantity').textContent = quantity;
+    updatePriceDisplay(currentSelectedSymbol);
 }
 
 setupDropdown('.swap__from');
@@ -60,10 +104,14 @@ document.addEventListener('click', (event) => {
     const fromDropdown = document.querySelector('.swap__from .dropdown-list');
     const toDropdown = document.querySelector('.swap__to .dropdown-list');
 
-    if (!event.target.closest('.swap__from') && fromDropdown) {
+    if (!event.target.closest('.swap__from') && fromDropdown)
         fromDropdown.style.display = 'none';
-    }
-    if (!event.target.closest('.swap__to') && toDropdown) {
+    if (!event.target.closest('.swap__to') && toDropdown)
         toDropdown.style.display = 'none';
-    }
+});
+
+// Listener for HTMX
+document.addEventListener('htmx:afterSwap', function(event) {
+    if (event.detail.target.id === 'dropdownList')
+        refreshSelectedItemPrice();
 });
