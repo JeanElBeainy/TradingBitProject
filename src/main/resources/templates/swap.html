@@ -84,7 +84,11 @@
                             </div>
                             <div class="item-details">
                                 <span class="quantity" th:text="'Qty: ' + ${#numbers.formatDecimal(item.quantity, 0, 'COMMA', 8, 'POINT')}"></span>
-                                <span class="type" th:text="${item.purchaseType}"></span>
+                                <br>
+<!--                                <span th:if="!${item.symbol}.equals('USD')"-->
+<!--                                      th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 8)}">-->
+<!--                                    per <span th:text="${item.symbol}"></span>-->
+<!--                                </span>-->
                             </div>
                         </div>
                     </div>
@@ -136,6 +140,12 @@
                             <div class="item-info">
                                 <span class="item-name" th:text="${swapTo.name}"></span>
                                 <span class="item-symbol" th:text="'(' + ${swapTo.symbol} + ')'"></span>
+                                <br>
+                                <span>Price:
+                                    <span
+                                        th:text="'$' + ${#numbers.formatDecimal(swapTo.price, 1, 8)}">
+                                    </span>
+                                </span>
                             </div>
                         </div>
                     </div>
