@@ -14,6 +14,14 @@ import java.util.Optional;
 public class CoinMarketCapService {
     private final WebClient webClient;
 
+    private CryptoSymbolPrice addUSD() {
+        return new CryptoSymbolPrice(
+                CurrencyConstant.USDSymbol,
+                CurrencyConstant.USDName,
+                1.0
+        );
+    }
+
     public CoinMarketCapService(@Value("${coinmarketcap.api-key}") String apiKey) {
         this.webClient = WebClient.builder()
                 .baseUrl("https://pro-api.coinmarketcap.com/v1")
@@ -114,14 +122,15 @@ public class CoinMarketCapService {
             return Collections.emptyList();
         }
 
-        return allCryptos.stream()
-                .map(crypto -> {
-                    CryptoSymbolPrice cryptoSymbolPrice = new CryptoSymbolPrice();
-                    cryptoSymbolPrice.setName(crypto.getName());
-                    cryptoSymbolPrice.setSymbol(crypto.getSymbol());
-                    cryptoSymbolPrice.setPrice(crypto.getQuote().get("USD").getPrice());
-                    return cryptoSymbolPrice;
-                })
+        List<CryptoSymbolPrice> list = allCryptos.stream()
+                .map(crypto -> new CryptoSymbolPrice(
+                        crypto.getName(),
+                        crypto.getSymbol(),
+                        crypto.getQuote().get("USD").getPrice()
+                ))
                 .toList();
+        List<CryptoSymbolPrice> cryptoSymbolPrice = new ArrayList<>(list);
+        cryptoSymbolPrice.add(addUSD());
+        return cryptoSymbolPrice;
     }
 }
