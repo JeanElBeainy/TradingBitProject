@@ -1,7 +1,10 @@
-let currentMaxQuantity = 0;
-let currentMaxQuantityString = '0';
-let currentPrice = 0;
-let currentSelectedSymbol = '';
+let fromSymbol = '';
+let fromQuantity = 0;
+let fromQuantityString = '0';
+let fromPrice = 0;
+
+let toSymbol = '';
+let toPrice = 0;
 
 function setupDropdown(containerSelector) {
     const container = document.querySelector(containerSelector);
@@ -34,55 +37,74 @@ function setupDropdown(containerSelector) {
         hiddenInput.value = symbol;
         dropdownList.style.display = 'none';
 
-        if (container.classList.contains('swap__from')) {
-            document.getElementById('quantitySection').style.display = 'block';
-            currentMaxQuantity = parseFloat(quantity);
-            currentMaxQuantityString = quantity;
-            currentSelectedSymbol = symbol;
+        const priceSpan = selectedItem.querySelector('.item-price');
+        let currentPrice = 0;
+        if (priceSpan) {
+            const priceMatch = priceSpan.textContent.match(/[\d,.]+/);
+            if (priceMatch) currentPrice = parseFloat(priceMatch[0].replace(/,/g, ''));
+        }
 
-            const priceSpan = selectedItem.querySelector('.item-details span:nth-child(3)');
-            if (priceSpan) {
-                const priceText = priceSpan.textContent;
-                const priceMatch = priceText.match(/\$([0-9,.]+)/);
-                if (priceMatch)
-                    currentPrice = parseFloat(priceMatch[1].replace(/,/g, ''));
-            }
+        if (container.classList.contains('swap__from')) {
+            fromSymbol = symbol;
+            fromQuantity = parseFloat(quantity);
+            fromQuantityString = quantity;
+            fromPrice = currentPrice;
+
+            document.getElementById('quantitySection').style.display = 'block';
             document.getElementById('maxFromQuantity').textContent = quantity;
-            updatePriceDisplay(symbol);
+            updatePriceDisplay('currentPrice', fromPrice, fromSymbol);
+        } else {
+            toSymbol = symbol;
+            toPrice = currentPrice;
+
+            document.querySelector('.to-price__display').style.display = 'block';
+            updatePriceDisplay('currentToPrice', toPrice, toSymbol);
         }
     });
 }
 
-function updatePriceDisplay(symbol) {
-    const priceElement = document.getElementById('currentPrice');
-    if (priceElement)
-        priceElement.textContent = `${currentPrice.toLocaleString('en-US', {
+function updatePriceDisplay(elementId, price, symbol) {
+    const priceElement = document.getElementById(elementId);
+    if (priceElement && price > 0 && symbol)
+        priceElement.textContent = `${price.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 8
         })} per ${symbol}`;
 }
 
-//Function to refresh price after HTMX updates
-function refreshSelectedItemPrice() {
-    if (!currentSelectedSymbol) return;
+function refreshFromPrice() {
+    if (!fromSymbol) return;
 
     const dropdownList = document.querySelector('.swap__from .dropdown-list');
-    if (!dropdownList) return;
+    const selectedItem = dropdownList?.querySelector(`[data-symbol="${fromSymbol}"]`);
+    if (!selectedItem) return;
 
-    if (!dropdownList.querySelector(`[data-symbol="${currentSelectedSymbol}"]`)) return;
-
-    const priceSpan = selectedItem.querySelector('.item-details span:nth-child(3)');
+    const priceSpan = selectedItem.querySelector('.item-price');
     if (priceSpan) {
-        const priceText = priceSpan.textContent;
-        const priceMatch = priceText.match(/\$([0-9,.]+)/);
-        if (priceMatch)
-            currentPrice = parseFloat(priceMatch[1].replace(/,/g, ''));
+        const priceMatch = priceSpan.textContent.match(/[\d,.]+/);
+        if (priceMatch) fromPrice = parseFloat(priceMatch[0].replace(/,/g, ''));
     }
-    const quantity = selectedItem.dataset;
-    currentMaxQuantity = parseFloat(quantity);
-    currentMaxQuantityString = quantity;
+
+    const quantity = selectedItem.dataset.quantity;
+    fromQuantity = parseFloat(quantity);
+    fromQuantityString = quantity;
     document.getElementById('maxFromQuantity').textContent = quantity;
-    updatePriceDisplay(currentSelectedSymbol);
+    updatePriceDisplay('currentPrice', fromPrice, fromSymbol);
+}
+
+function refreshToPrice() {
+    if (!toSymbol) return;
+
+    const dropdownListTo = document.querySelector('.swap__to .dropdown-list');
+    const selectedItem = dropdownListTo?.querySelector(`[data-symbol="${toSymbol}"]`);
+    if (!selectedItem) return;
+
+    const priceSpan = selectedItem.querySelector('.item-price');
+    if (priceSpan) {
+        const priceMatch = priceSpan.textContent.match(/[\d,.]+/);
+        if (priceMatch) toPrice = parseFloat(priceMatch[0].replace(/,/g, ''));
+    }
+    updatePriceDisplay('currentToPrice', toPrice, toSymbol);
 }
 
 setupDropdown('.swap__from');
@@ -93,10 +115,8 @@ document.querySelector('.quantity__buttons').addEventListener('click', (event) =
         const percent = parseFloat(event.target.dataset.percent);
         const quantityInput = document.getElementById('quantityInput');
 
-        if (percent === 1)
-            quantityInput.value = currentMaxQuantityString;
-        else if (currentMaxQuantity > 0)
-            quantityInput.value = (currentMaxQuantity * percent).toFixed(8);
+        if (percent === 1) quantityInput.value = fromQuantityString;
+        else if (fromQuantity > 0) quantityInput.value = (fromQuantity * percent).toFixed(8);
     }
 });
 
@@ -104,14 +124,12 @@ document.addEventListener('click', (event) => {
     const fromDropdown = document.querySelector('.swap__from .dropdown-list');
     const toDropdown = document.querySelector('.swap__to .dropdown-list');
 
-    if (!event.target.closest('.swap__from') && fromDropdown)
-        fromDropdown.style.display = 'none';
-    if (!event.target.closest('.swap__to') && toDropdown)
-        toDropdown.style.display = 'none';
+    if (!event.target.closest('.swap__from')) fromDropdown.style.display = 'none';
+    if (!event.target.closest('.swap__to')) toDropdown.style.display = 'none';
 });
 
-// Listener for HTMX
 document.addEventListener('htmx:afterSwap', function(event) {
-    if (event.detail.target.id === 'dropdownList')
-        refreshSelectedItemPrice();
+    const targetId = event.detail.target.id;
+    if (targetId === 'dropdownList') refreshFromPrice();
+    if (targetId === 'dropdownListTo') refreshToPrice();
 });
