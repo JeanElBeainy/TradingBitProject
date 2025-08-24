@@ -107,6 +107,7 @@
                         Quantity: <span id="maxFromQuantity"></span>
                     </div>
                     <div class="price__display">
+                        <input type="hidden" th:field="*{promisedFromPrice}">
                         Price: <span id="currentPrice"></span>
                     </div>
                     <div class="from__text"><p>Amount</p></div>
@@ -166,6 +167,7 @@
                     </th:block>
                     </div>
                     <div class="to-price__display" style="display: none;">
+                        <input type="hidden" th:field="*{promisedToPrice}">
                         Price: <span id="currentToPrice"></span>
                     </div>
                 </div>
