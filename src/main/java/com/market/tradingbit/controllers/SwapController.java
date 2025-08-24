@@ -39,6 +39,16 @@ public class SwapController {
         return "swap";
     }
 
+    @GetMapping("/update-prices")
+    public String updatePrices(Model model, Principal principal) {
+        if(principal == null) return "redirect:/login";
+        User user = userRepository.findByEmail(principal.getName());
+        System.out.println("update called");
+        swapValidation.populateModelToUser(model, user.getId());
+        System.out.println("update successful");
+        return "crypto :: update-prices";
+    }
+
     @PostMapping("/crypto")
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
