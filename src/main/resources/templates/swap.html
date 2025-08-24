@@ -71,26 +71,37 @@
                         </button>
                     </div>
 
+                    <div
+                            id="update-prices"
+                            hx-get="/swap/crypto/update-prices"
+                            hx-trigger="every 3s"
+                            hx-swap="innerHTML"
+                    >
+                        <th:block th:fragment="update-prices">
+                            <div id="dropdownList" class="dropdown-list">
+                                <div th:each="item : ${userItems}"
+                                     class="dropdown-item"
+                                     th:data-symbol="${item.symbol}"
+                                     th:data-name="${item.name}"
+                                     th:data-quantity="${item.quantity}">
+                                    <div class="item-info">
+                                        <span class="item-name" th:text="${item.name}"></span>
+                                        <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
+                                    </div>
+                                    <div class="item-details">
+                                        <span class="quantity" th:text="'Qty: ' + ${#numbers.formatDecimal(item.quantity, 0, 'COMMA', 8, 'POINT')}"></span>
+                                        <br>
+                                        <span>Price:
+                                            <span
+                                                th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 8)}">
+                                            </span>
+                                            per <span th:text="${item.symbol}"></span>
+                                        </span>
 
-                    <div id="dropdownList" class="dropdown-list">
-                        <div th:each="item : ${userItems}"
-                             class="dropdown-item"
-                             th:data-symbol="${item.symbol}"
-                             th:data-name="${item.name}"
-                             th:data-quantity="${item.quantity}">
-                            <div class="item-info">
-                                <span class="item-name" th:text="${item.name}"></span>
-                                <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="item-details">
-                                <span class="quantity" th:text="'Qty: ' + ${#numbers.formatDecimal(item.quantity, 0, 'COMMA', 8, 'POINT')}"></span>
-                                <br>
-<!--                                <span th:if="!${item.symbol}.equals('USD')"-->
-<!--                                      th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 8)}">-->
-<!--                                    per <span th:text="${item.symbol}"></span>-->
-<!--                                </span>-->
-                            </div>
-                        </div>
+                        </th:block>
                     </div>
                 </div>
 
@@ -132,7 +143,7 @@
                             &times;
                         </button>
                     </div>
-                    <div id="dropdownListTo" class="dropdown-list">
+                    <div id="dropdownListTo" class="dropdown-list"> <!--Update here also-->
                         <div th:each="swapTo : ${swapItems}"
                              class="dropdown-item"
                              th:data-symbol="${swapTo.symbol}"
