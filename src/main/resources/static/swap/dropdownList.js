@@ -53,12 +53,18 @@ function setupDropdown(containerSelector) {
             document.getElementById('quantitySection').style.display = 'block';
             document.getElementById('maxFromQuantity').textContent = quantity;
             updatePriceDisplay('currentPrice', fromPrice, fromSymbol);
+
+            const promisedFromPriceInput = document.querySelector('input[name="promisedFromPrice"]');
+            if (promisedFromPriceInput) promisedFromPriceInput.value = fromPrice;
         } else {
             toSymbol = symbol;
             toPrice = currentPrice;
 
             document.querySelector('.to-price__display').style.display = 'block';
             updatePriceDisplay('currentToPrice', toPrice, toSymbol);
+
+            const promisedToPriceInput = document.querySelector('input[name="promisedToPrice"]');
+            if (promisedToPriceInput) promisedToPriceInput.value = toPrice;
         }
     });
 }
@@ -90,6 +96,9 @@ function refreshFromPrice() {
     fromQuantityString = quantity;
     document.getElementById('maxFromQuantity').textContent = quantity;
     updatePriceDisplay('currentPrice', fromPrice, fromSymbol);
+
+    const promisedFromPriceInput = document.querySelector('input[name="promisedFromPrice"]');
+    if (promisedFromPriceInput) promisedFromPriceInput.value = fromPrice;
 }
 
 function refreshToPrice() {
@@ -105,6 +114,9 @@ function refreshToPrice() {
         if (priceMatch) toPrice = parseFloat(priceMatch[0].replace(/,/g, ''));
     }
     updatePriceDisplay('currentToPrice', toPrice, toSymbol);
+
+    const promisedToPriceInput = document.querySelector('input[name="promisedToPrice"]');
+    if (promisedToPriceInput) promisedToPriceInput.value = toPrice;
 }
 
 setupDropdown('.swap__from');
