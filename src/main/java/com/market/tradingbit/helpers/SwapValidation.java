@@ -101,6 +101,7 @@ public class SwapValidation {
                         );
             }
         });
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         model.addAttribute("userItems", portfolioDto);
     }
 
