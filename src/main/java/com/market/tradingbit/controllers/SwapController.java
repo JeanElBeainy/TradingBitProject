@@ -14,6 +14,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -36,6 +38,7 @@ public class SwapController {
         model.addAttribute("success", false);
         List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
         model.addAttribute("history", history);
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "swap";
     }
 
@@ -46,7 +49,13 @@ public class SwapController {
         System.out.println("update called");
         swapValidation.populateModelToUser(model, user.getId());
         System.out.println("update successful");
-        return "crypto :: update-prices";
+        return "swap :: update-prices";
+    }
+
+    @GetMapping("/last-updated")
+    public String getLastUpdatedTime(Model model) {
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
+        return "swap :: last-updated";
     }
 
     @PostMapping("/crypto")
