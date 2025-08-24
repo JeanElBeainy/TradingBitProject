@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class SwapDto {
     private String from;
-    private double promisedFromPrice;
+    private String promisedFromPrice;
     private String to;
-    private double promisedToPrice;
+    private String promisedToPrice;
     private String quantity;
 }
