@@ -324,7 +324,13 @@ ul {
     width: 100%;
 }
 
-
+.time__div {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 90%;
+    font-size: 1.6rem;
+}
 
 /*SWAP BUTTON*/
 
