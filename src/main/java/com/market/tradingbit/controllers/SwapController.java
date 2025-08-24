@@ -23,7 +23,6 @@ import java.util.List;
 @RequestMapping("/swap")
 public class SwapController {
 
-    private final PortfolioRepository portfolioRepository;
     private final UserRepository userRepository;
     private final HistoryRepository historyRepository;
     private final SwapValidation swapValidation;
@@ -42,13 +41,11 @@ public class SwapController {
         return "swap";
     }
 
-    @GetMapping("/update-prices")
+    @GetMapping("/update-all")
     public String updatePrices(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
-        System.out.println("update called");
         swapValidation.populateModelToUser(model, user.getId());
-        System.out.println("update successful");
         return "swap :: update-prices";
     }
 
@@ -64,13 +61,5 @@ public class SwapController {
         System.out.println("Post Mapping:");
         User user = userRepository.findByEmail(principal.getName());
         return userSwap.userSwap(model, swap, user.getId(), bindingResult);
-    }
-
-    @GetMapping("/stock")
-    public String stockSwap(Model model, Principal principal) {
-        if(principal == null) return "redirect:/login";
-        List<Portfolio> portfolioList = portfolioRepository.getStockPortfolioByUserId(userRepository.findByEmail(principal.getName()).getId());
-        model.addAttribute("userItems", portfolioList);
-        return "swap";
     }
 }
