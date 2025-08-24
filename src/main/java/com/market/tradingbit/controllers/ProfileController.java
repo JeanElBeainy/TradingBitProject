@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -21,19 +23,29 @@ public class ProfileController {
     private final HistoryRepository historyRepository;;
     private final UpdateUserDetail updateUserDetail;
 
-    private void getUserInfo(Model model, User user) {
-        updateUserDetail.setUpUserDashboard(model, user);
-    }
-
     @GetMapping
     public String profile(Principal principal, Model model) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
-        getUserInfo(model, user);
+        updateUserDetail.setUpUserDashboard(model, user);
 
         List<History> history = historyRepository.findAllByIdDesc(user.getId());
         model.addAttribute("history", history);
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
 
         return "profile";
+    }
+
+    @GetMapping("/update-balance")
+    public String updateUserInfo(Model model, Principal principal) {
+        if(principal != null)
+            updateUserDetail.setUpUserDashboard(model, userRepository.findByEmail(principal.getName()));
+        return "profile :: update-balance";
+    }
+
+    @GetMapping("/last-updated")
+    public String getLastUpdatedTime(Model model) {
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
+        return "profile :: last-updated";
     }
 }
