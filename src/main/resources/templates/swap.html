@@ -37,7 +37,7 @@
         <form id="swappingForm" class="swap__form" method="post" th:object="${swap}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-            <div class="swap__box">
+            <div class="swap__box" id="update-prices">
                 <div class="from__text">
                     <p>From</p>
                 </div>
@@ -71,39 +71,35 @@
                             &times;
                         </button>
                     </div>
-
-                    <div
-                            id="update-prices"
-                            hx-get="crypto/update-prices"
-                            hx-trigger="every 5s"
-                            hx-swap="innerHTML"
-                    >
-                        <th:block th:fragment="update-prices">
-                            <div id="dropdownList" class="dropdown-list">
-                                <div th:each="item : ${userItems}"
-                                     class="dropdown-item"
-                                     th:data-symbol="${item.symbol}"
-                                     th:data-name="${item.name}"
-                                     th:data-quantity="${item.quantity}">
-                                    <div class="item-info">
-                                        <span class="item-name" th:text="${item.name}"></span>
-                                        <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
-                                    </div>
-                                    <div class="item-details">
-                                        <span class="quantity" th:text="'Qty: ' + ${#numbers.formatDecimal(item.quantity, 0, 'COMMA', 8, 'POINT')}"></span>
-                                        <br>
-                                        <span>Price:
+                            <div id="dropdownList" class="dropdown-list"
+                                 hx-get="/swap/update-prices"
+                                 hx-trigger="every 60s"
+                                 hx-swap="innerHTML"
+                            >
+                                <th:block th:fragment="update-prices">
+                                    <div th:each="item : ${userItems}"
+                                         class="dropdown-item"
+                                         th:data-symbol="${item.symbol}"
+                                         th:data-name="${item.name}"
+                                         th:data-quantity="${item.quantity}">
+                                        <div class="item-info">
+                                            <span class="item-name" th:text="${item.name}"></span>
+                                            <span class="item-symbol" th:text="'(' + ${item.symbol} + ')'"></span>
+                                        </div>
+                                        <div class="item-details">
+                                            <span class="quantity" th:text="'Qty: ' + ${#numbers.formatDecimal(item.quantity, 0, 'COMMA', 8, 'POINT')}"></span>
+                                            <br>
+                                            <span>Price:
                                             <span
-                                                th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 8)}">
+                                                    th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 8)}">
                                             </span>
                                             per <span th:text="${item.symbol}"></span>
                                         </span>
 
+                                        </div>
                                     </div>
-                                </div>
+                                </th:block>
                             </div>
-                        </th:block>
-                    </div>
                 </div>
 
                 <div id="quantitySection" style="display: none;">
@@ -144,23 +140,29 @@
                             &times;
                         </button>
                     </div>
-                    <div id="dropdownListTo" class="dropdown-list"> <!--Update here also-->
-                        <div th:each="swapTo : ${swapItems}"
-                             class="dropdown-item"
-                             th:data-symbol="${swapTo.symbol}"
-                             th:data-name="${swapTo.name}">
-                            <div class="item-info">
-                                <span class="item-name" th:text="${swapTo.name}"></span>
-                                <span class="item-symbol" th:text="'(' + ${swapTo.symbol} + ')'"></span>
-                                <br>
-                                <span>Price:
+                            <div id="dropdownListTo" class="dropdown-list"
+                                 hx-get="/swap/update-prices"
+                                 hx-trigger="every 60s"
+                                 hx-swap="innerHTML"
+                            > <!--Update here also-->
+                                <th:block th:fragment="update-prices">
+                                    <div th:each="swapTo : ${swapItems}"
+                                         class="dropdown-item"
+                                         th:data-symbol="${swapTo.symbol}"
+                                         th:data-name="${swapTo.name}">
+                                        <div class="item-info">
+                                            <span class="item-name" th:text="${swapTo.name}"></span>
+                                            <span class="item-symbol" th:text="'(' + ${swapTo.symbol} + ')'"></span>
+                                            <br>
+                                            <span>Price:
                                     <span
-                                        th:text="'$' + ${#numbers.formatDecimal(swapTo.price, 1, 8)}">
+                                            th:text="'$' + ${#numbers.formatDecimal(swapTo.price, 1, 8)}">
                                     </span>
                                 </span>
+                                        </div>
+                                    </div>
+                                </th:block>
                             </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="info__container">
@@ -192,7 +194,7 @@
                     <p>Last updated at:
                         <span id="last-updated"
                               hx-get="/swap/last-updated"
-                              hx-trigger="every 3s"
+                              hx-trigger="every 60s"
                               hx-swap="innerHTML">
                             <th:block th:fragment="last-updated">
                                 <span th:text="${lastUpdated}"></span>
