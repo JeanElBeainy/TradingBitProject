@@ -4,7 +4,6 @@ import com.market.tradingbit.models.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,4 +107,21 @@ public class CoinMarketCapService {
         return totalValue;
     }
 
+    public List<CryptoSymbolPrice> getAllCryptoSymbolPrices() {
+        List<CryptoInfo> allCryptos = getLatestListings();
+
+        if (allCryptos == null || allCryptos.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return allCryptos.stream()
+                .map(crypto -> {
+                    CryptoSymbolPrice cryptoSymbolPrice = new CryptoSymbolPrice();
+                    cryptoSymbolPrice.setName(crypto.getName());
+                    cryptoSymbolPrice.setSymbol(crypto.getSymbol());
+                    cryptoSymbolPrice.setPrice(crypto.getQuote().get("USD").getPrice());
+                    return cryptoSymbolPrice;
+                })
+                .toList();
+    }
 }
