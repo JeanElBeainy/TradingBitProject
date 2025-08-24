@@ -52,13 +52,4 @@ public class UpdateUserDetail {
     public void setUpUserDashboard(Model model, User user) {
         GetUserDashboard(user, model);
     }
-
-    public void updateBalance(Model model, Long userId) {
-        updateUserBalance(userId);
-        BigDecimal balance = getBalance(userId);
-    }
-
-    public BigDecimal getBalance(Long userId) {
-        return balanceRepository.findById(userId).orElseThrow().getCryptoBalance();
-    }
 }
