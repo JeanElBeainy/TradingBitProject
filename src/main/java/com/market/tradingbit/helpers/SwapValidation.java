@@ -1,12 +1,13 @@
 package com.market.tradingbit.helpers;
 
+import com.market.tradingbit.dtos.PortfolioDto;
 import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.SwapErrorType;
-import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.mappers.HistoryMapper;
+import com.market.tradingbit.mappers.PortfolioMapper;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
 import com.market.tradingbit.repositories.HistoryRepository;
@@ -30,6 +31,7 @@ public class SwapValidation {
     private final HistoryMapper historyMapper;
     private final MapToHistory mapToHistory;
     private final ApiService apiService;
+    private final PortfolioMapper portfolioMapper;
 
     private static final int PRECISION = 8;
     private static final int CRYPTO_PRECISION = 8;
@@ -75,11 +77,28 @@ public class SwapValidation {
     }
 
     private void populateModel(Model model, Long userId) {
-        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(userId);
-        model.addAttribute("userItems", portfolioList);
-
         List<CryptoSymbolPrice> latestListings = service.getAllCryptoSymbolPrices();
         model.addAttribute("swapItems", latestListings);
+
+        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(userId);
+        List<PortfolioDto> portfolioDto = portfolioMapper.toPortfolioDto(portfolioList);
+        portfolioDto.forEach(portfolio -> {
+            if ("USD".equalsIgnoreCase(portfolio.getSymbol())) {
+                portfolio.setPrice("1.0");
+            } else {
+                latestListings.stream()
+                        .filter(crypto -> crypto.getSymbol().equalsIgnoreCase(portfolio.getSymbol()))
+                        .findFirst()
+                        .ifPresentOrElse(
+                                crypto -> portfolio.setPrice(crypto.getPrice().toString()),
+                                () -> {
+                                    portfolio.setPrice("0.00");
+                                    System.out.println("Price not found for symbol: " + portfolio.getSymbol());
+                                }
+                        );
+            }
+        });
+        model.addAttribute("userItems", portfolioDto);
     }
 
     public void populateModelToUser(Model model, Long userId) {
