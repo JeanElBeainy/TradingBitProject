@@ -5,6 +5,7 @@ import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.SwapErrorType;
+import com.market.tradingbit.entities.Type;
 import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
@@ -77,7 +78,7 @@ public class SwapValidation {
         List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(userId);
         model.addAttribute("userItems", portfolioList);
 
-        List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
+        List<CryptoSymbolPrice> latestListings = service.getAllCryptoSymbolPrices();
         model.addAttribute("swapItems", latestListings);
     }
 
