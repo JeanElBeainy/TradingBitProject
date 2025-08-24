@@ -5,7 +5,6 @@ import com.market.tradingbit.entities.*;
 import com.market.tradingbit.helpers.*;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.repositories.HistoryRepository;
-import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -41,7 +40,7 @@ public class SwapController {
         return "swap";
     }
 
-    @GetMapping("/update-all")
+    @GetMapping("/update-prices")
     public String updatePrices(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
         User user = userRepository.findByEmail(principal.getName());
