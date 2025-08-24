@@ -7,6 +7,7 @@ import com.market.tradingbit.models.*;
 import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
+import com.market.tradingbit.services.CoinMarketCapService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -26,13 +27,23 @@ public class SwapController {
     private final HistoryRepository historyRepository;
     private final SwapValidation swapValidation;
     private final UserSwap userSwap;
+    private final CoinMarketCapService service;
+
+    private void populateModel(Model model, Long userId) {
+        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(userId);
+        model.addAttribute("userItems", portfolioList);
+
+        //List<CryptoNameSymbol> latestListings = service.getLatestNameAndSymbol();
+        List<CryptoSymbolPrice> latestListings = service.getAllCryptoSymbolPrices();
+        model.addAttribute("swapItems", latestListings);
+    }
 
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
         try {
             if(principal == null) return "redirect:/login";
             User user = userRepository.findByEmail(principal.getName());
-            swapValidation.populateModelToUser(model, user.getId());
+            populateModel(model, user.getId());
             model.addAttribute("swap", new SwapDto());
             model.addAttribute("success", false);
             List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
