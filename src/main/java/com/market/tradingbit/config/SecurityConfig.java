@@ -43,7 +43,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         //Access to users
-                        .requestMatchers("/crypto/**",
+                        .requestMatchers(
                                 "/profile/**",
                                 "/swap/**"
 
