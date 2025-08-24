@@ -33,7 +33,7 @@
 
 <main>
     <section class="swap__section">
-        <form id="swappingForm" method="post" th:object="${swap}">
+        <form id="swappingForm" class="swap__form" method="post" th:object="${swap}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
             <div class="swap__box">
