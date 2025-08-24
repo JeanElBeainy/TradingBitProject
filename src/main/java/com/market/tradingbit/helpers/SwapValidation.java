@@ -37,6 +37,7 @@ public class SwapValidation {
 
     private static final int PRECISION = 8;
     private static final int CRYPTO_PRECISION = 8;
+    private final double SLIPPAGE = 0.01;
 
     private final BigDecimal MINIMUM_SWAP_USD = new BigDecimal("1.00");
 
@@ -121,6 +122,13 @@ public class SwapValidation {
         return "swap";
     }
 
+    private String swapFromError(Error fromError) {
+        fromError.getBindingResult().addError(new FieldError(
+                "swap", "from", fromError.getMessage()
+        ));
+        return returnBindingResult(fromError.getModel(), fromError.getUserId(), fromError.getSwap());
+    }
+
     private String swapToError(Error toError) {
         toError.getBindingResult().addError(new FieldError(
                 "swap", "to", toError.getMessage()
@@ -137,6 +145,9 @@ public class SwapValidation {
 
     private String swapError(Error error, SwapErrorType field) {
         switch (field) {
+            case SwapErrorType.FROM -> {
+                return swapFromError(error);
+            }
             case SwapErrorType.TO -> {
                 return swapToError(error);
             }
@@ -159,6 +170,11 @@ public class SwapValidation {
         return null;
     }
 
+    private void slippageError(Error error) {
+        error.setMessage("Slippage exceeded. Please refresh for newer prices and try again");
+        swapError(error, SwapErrorType.FROM);
+    }
+
     private String swapVolumeError(Error error, BigDecimal volume) {
         if(volume.compareTo(MINIMUM_SWAP_USD) < 0) {
             error.setMessage("Minimum swap price must be at least 1 USD");
@@ -177,6 +193,10 @@ public class SwapValidation {
     public HistoryVolume swapFrom(SwapDto swap, Error error, BigDecimal swapQuantity , BigDecimal exactSwapAmount) {
         if(validateQuantity(swapQuantity, error, 1.0) != null) return null;
         CryptoNamePrice price = apiService.getCryptoPrice(swap.getTo());
+        if(price.getPrice() * (1 + SLIPPAGE) < Double.parseDouble(swap.getPromisedToPrice())) {
+            slippageError(error);
+            return null;
+        }
         History history = mapToHistory.fromUSDtoHistory(swap, price, exactSwapAmount);
         return new HistoryVolume(history, exactSwapAmount);
     }
