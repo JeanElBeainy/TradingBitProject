@@ -122,9 +122,7 @@
                         hx-swap="innerHTML"
                 >
                 <th:block th:fragment="crypto-table-body">
-                    <tr th:each="crypto : ${cryptos}"
-                        th:onclick="'window.location.href=\'' + @{/swap/{name}(name=${crypto.symbol})} + '\';'"
-                    >
+                    <tr th:each="crypto : ${cryptos}">
                         <td><img th:src="'https://s2.coinmarketcap.com/static/img/coins/32x32/' + ${crypto.id} + '.png'"
                                  th:alt="${crypto.name + ' logo'}"
                                  width="24" height="24"
