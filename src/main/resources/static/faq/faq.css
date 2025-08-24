@@ -26,6 +26,9 @@ body {
     line-height: 1.6;
     color: var(--color-text);
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 img {
@@ -43,6 +46,7 @@ ul {
 }
 
 main {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
