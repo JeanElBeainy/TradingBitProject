@@ -455,6 +455,8 @@ ul {
     cursor: help;
     position: relative;
     margin-right: 1.2rem;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
 .info-icon:hover::after {
@@ -476,6 +478,37 @@ ul {
 }
 
 .info-icon:hover::before {
+    content: "";
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    z-index: 1001;
+}
+
+.info-icon:active::after,
+.info-icon:focus::after {
+    content: "Slippage is the difference between the expected price of a trade and the actual price at which the trade is executed.";
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-border);
+    color: var(--color-text-light);
+    padding: .5rem 1rem;
+    border-radius: 6px;
+    font-size: 1.4rem;
+    white-space: normal;
+    width: 250px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    line-height: 1.4;
+}
+
+.info-icon:active::before,
+.info-icon:focus::before {
     content: "";
     position: absolute;
     bottom: 20px;
@@ -537,7 +570,7 @@ ul {
     }
 }
 
-@media screen and (max-width: 336px) {
+@media screen and (max-width: 345px) {
     .info__container {
         font-size: 1.3rem;
     }
