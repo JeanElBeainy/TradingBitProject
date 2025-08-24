@@ -20,6 +20,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -212,6 +214,7 @@ public class SwapValidation {
         successfulSwap.setFromSymbol(history.getFromSymbol());
         successfulSwap.setToSymbol(history.getToSymbol());
         model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "swap";
     }
 }
