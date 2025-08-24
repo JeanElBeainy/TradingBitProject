@@ -408,6 +408,41 @@ ul {
     flex: 1;
 }
 
+/*Slippage and Fee*/
+
+.info__container {
+    display: flex;
+    justify-content: left;
+    flex-direction: row;
+    width: 90%;
+    margin-bottom: 1rem;
+}
+
+.slippage__container, .fee__container {
+    display: flex;
+    width: 150px;
+    margin-top: 1rem;
+}
+
+.slippage__box, .fee__box {
+    display: flex;
+    width: 30px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    margin-left: 0.5rem;
+    background-color: #1a1a1a;
+}
+
+.fee__box:last-child {
+    width: 40px;
+}
+
+.slippage__box {
+    margin-right: 2rem;
+}
+
+
 /*SWAP HISTORY*/
 
 .history__section {
@@ -455,6 +490,12 @@ ul {
 
     .swap__section {
         margin: 7rem 0 7rem 0;
+    }
+}
+
+@media screen and (max-width: 336px) {
+    .info__container {
+        font-size: 1.3rem;
     }
 }
 
