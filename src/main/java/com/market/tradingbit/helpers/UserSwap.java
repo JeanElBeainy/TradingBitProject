@@ -60,7 +60,6 @@ public class UserSwap {
             saveToHistory.saveHistory(new SaveHistory(historyVolume.getHistory(), swap, userId, historyVolume.getVolume(), exactSwapAmount, Type.CRYPTO));
             return swapValidation.swapSuccessful(model, userId, swap, historyVolume.getHistory());
         } catch (Exception e) {
-            System.out.println("Exception in userSwap: " + e.getMessage());
             return "error";
         }
     }
