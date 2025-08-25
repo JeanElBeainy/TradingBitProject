@@ -60,10 +60,13 @@ public class SwapValidation {
         if (swap.getTo() == null || swap.getTo().isEmpty()) return "to_empty";
 
         BigDecimal quantity = parseQuantity(swap.getQuantity());
+        BigDecimal promisedFromPrice = parseQuantity(swap.getPromisedFromPrice());
+        BigDecimal promisedToPrice = parseQuantity(swap.getPromisedToPrice());
         if (quantity == null) return "quantity_invalid";
         if (quantity.compareTo(BigDecimal.ZERO) <= 0) return "quantity_zero_or_negative";
         if (swap.getFrom().equals(swap.getTo())) return "same_currency";
         if(notSufficientBalance(availableBalance, swapQuantity)) return "insufficient_balance";
+        if(promisedFromPrice == null || promisedToPrice == null) return "invalid_promised_price";
         return "valid";
     }
 
@@ -76,6 +79,7 @@ public class SwapValidation {
             case "quantity_zero_or_negative" -> bindingResult.addError(new FieldError("swap", "quantity", "Quantity cannot be less than or equal to zero"));
             case "same_currency" -> bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from"));
             case "insufficient_balance" -> bindingResult.addError(new FieldError("swap", "quantity", "You do not have enough "+ swap.getFrom() + " to perform this swap"));
+            case "invalid_promised_price" -> bindingResult.addError(new FieldError("swap", "quantity", "Could not parse crypto price(s)"));
         }
     }
 
