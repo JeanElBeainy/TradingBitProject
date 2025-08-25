@@ -42,12 +42,12 @@ public class MapToHistory {
 
     public History toHistory(SwapDto swap, List<CryptoNamePrice> prices, BigDecimal exactQuantity) {
         HistoryDto historyDto = new HistoryDto(swap.getFrom(),
-                prices.getFirst().getName(),
+                prices.get(0).getName(),
                 exactQuantity,
-                prices.getFirst().getPrice(),
+                prices.get(0).getPrice(),
                 swap.getTo(),
-                prices.getLast().getName(),
-                prices.getLast().getPrice()
+                prices.get(prices.size()-1).getName(),
+                prices.get(prices.size()-1).getPrice()
         );
         return historyMapper.toHistory(historyDto);
     }

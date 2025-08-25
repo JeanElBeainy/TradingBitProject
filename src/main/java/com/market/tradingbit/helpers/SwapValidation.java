@@ -150,13 +150,13 @@ public class SwapValidation {
 
     private String swapError(Error error, SwapErrorType field) {
         switch (field) {
-            case SwapErrorType.FROM -> {
+            case FROM -> {
                 return swapFromError(error);
             }
-            case SwapErrorType.TO -> {
+            case TO -> {
                 return swapToError(error);
             }
-            case SwapErrorType.QUANTITY -> {
+            case QUANTITY -> {
                 return swapQuantityError(error);
             }
         }
@@ -223,7 +223,7 @@ public class SwapValidation {
         if(swapCurrencyError(error, prices.size()) != null)
             return null;
 
-        BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.getFirst().getPrice()))
+        BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.get(0).getPrice()))
                 .setScale(PRECISION, RoundingMode.HALF_EVEN);
         BigDecimal volume = fromPrice.multiply(exactSwapAmount).setScale(2, RoundingMode.HALF_EVEN);
 
@@ -231,7 +231,7 @@ public class SwapValidation {
             return null;
 
         double promisedRatio = Double.parseDouble(swap.getPromisedFromPrice()) / Double.parseDouble(swap.getPromisedToPrice());
-        double actualRatio = prices.getFirst().getPrice() / prices.getLast().getPrice();
+        double actualRatio = prices.get(0).getPrice() / prices.get(prices.size()-1).getPrice();
 
         if(Math.abs(promisedRatio - actualRatio) > SLIPPAGE) {
             slippageError(error);
