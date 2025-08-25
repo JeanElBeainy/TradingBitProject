@@ -4,7 +4,6 @@ import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.*;
 import com.market.tradingbit.helpers.*;
 import com.market.tradingbit.models.*;
-import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 @Controller
 @AllArgsConstructor
@@ -23,20 +21,13 @@ import java.util.List;
 public class SwapController {
 
     private final UserRepository userRepository;
-    private final HistoryRepository historyRepository;
     private final SwapValidation swapValidation;
     private final UserSwap userSwap;
 
     @GetMapping("/crypto")
     public String cryptoSwap(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
-        User user = userRepository.findByEmail(principal.getName());
-        swapValidation.populateModelToUser(model, user.getId());
-        model.addAttribute("swap", new SwapDto());
-        model.addAttribute("success", false);
-        List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
-        model.addAttribute("history", history);
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
+        userSwap.getCryptoSwap(model, principal);
         return "swap";
     }
 

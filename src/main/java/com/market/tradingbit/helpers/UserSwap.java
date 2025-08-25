@@ -1,16 +1,24 @@
 package com.market.tradingbit.helpers;
 
 import com.market.tradingbit.dtos.SwapDto;
+import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Type;
+import com.market.tradingbit.entities.User;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
 import com.market.tradingbit.repositories.BalanceRepository;
+import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
+import com.market.tradingbit.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import java.math.BigDecimal;
+import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import static com.market.tradingbit.helpers.SwapValidation.parseQuantity;
 
@@ -21,6 +29,8 @@ public class UserSwap {
     private final SwapValidation swapValidation;
     private final BalanceRepository balanceRepository;
     private final SaveToHistory saveToHistory;
+    private final UserRepository userRepository;
+    private final HistoryRepository historyRepository;
     private final BigDecimal TOLERANCE = new BigDecimal("0.00000001");
 
     private BigDecimal getExactSwapAmount(BigDecimal availableBalance, BigDecimal requestedAmount) {
@@ -62,5 +72,15 @@ public class UserSwap {
         } catch (Exception e) {
             return "error";
         }
+    }
+
+    public String getCryptoSwap(Model model, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName());
+        swapValidation.populateModelToUser(model, user.getId());
+        model.addAttribute("swap", new SwapDto());
+        model.addAttribute("success", false);
+        List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
+        model.addAttribute("history", history);
+        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
     }
 }
