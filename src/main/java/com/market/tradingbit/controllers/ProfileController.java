@@ -30,7 +30,7 @@ public class ProfileController {
 
     @GetMapping("/last-updated")
     public String getLastUpdatedTime(Model model) {
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
+        model.addAttribute("lastUpdated", System.currentTimeMillis());
         return "profile :: last-updated";
     }
 }
