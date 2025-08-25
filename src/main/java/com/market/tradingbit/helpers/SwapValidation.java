@@ -204,7 +204,7 @@ public class SwapValidation {
 
     public HistoryVolume swapTo(SwapDto swap, Error error, BigDecimal swapQuantity , BigDecimal exactSwapAmount) {
         CryptoNamePrice price = apiService.getCryptoPrice(swap.getFrom());
-        validateQuantity(swapQuantity, error, price.getPrice());
+        if(validateQuantity(swapQuantity, error, price.getPrice()) != null) return null;
         History history = mapToHistory.toUSDtoHistory(swap, price, exactSwapAmount);
         return new HistoryVolume(history, exactSwapAmount.multiply(BigDecimal.valueOf(price.getPrice())));
     }
