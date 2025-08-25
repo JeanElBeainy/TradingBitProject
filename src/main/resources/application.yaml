@@ -1,11 +1,7 @@
 spring:
   application:
     name: TradingBit
-  datasource:
-    url: jdbc:mysql://localhost:3306/tradingbit_db?createDatabaseIfNotExist=true
-    username: root
-    password: MyNewPass123!
-  jpa:
-    show-sql: true
+  profiles:
+    active: dev
 coinmarketcap:
   api-key: ${CMC_API_KEY}
