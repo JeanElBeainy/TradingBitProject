@@ -72,7 +72,7 @@
                     <p>Last updated at:
                         <span id="last-updated"
                               hx-get="/profile/last-updated"
-                              hx-trigger="every 5s"
+                              hx-trigger="every 60s"
                               hx-swap="innerHTML">
                 <th:block th:fragment="last-updated">
                     <span th:text="${lastUpdated}"></span>
@@ -159,7 +159,7 @@
 <footer class="footer">
     <div class="container">
         <div class="footer__top">
-            <a class="footer__brand footer__item"><img src="/Main/Images/TradingBitLogo.webp" alt="TradingBit Logo"></a>
+            <a class="footer__brand footer__item"><img src="/images/TradingBitLogo.webp" alt="TradingBit Logo"></a>
             <div class="footer__links footer__item">
                 <a href="/faq">FAQ</a>
                 <a href="/docs">Docs</a>
@@ -177,5 +177,6 @@
 </footer>
 
 <script src="/commonFiles/collapsible.js"></script>
+<script src="/commonFiles/displayTime.js"></script>
 </body>
 </html>
