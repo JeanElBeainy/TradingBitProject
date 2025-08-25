@@ -74,7 +74,7 @@ public class UserSwap {
         }
     }
 
-    public String getCryptoSwap(Model model, Principal principal) {
+    public void getCryptoSwap(Model model, Principal principal) {
         User user = userRepository.findByEmail(principal.getName());
         swapValidation.populateModelToUser(model, user.getId());
         model.addAttribute("swap", new SwapDto());
