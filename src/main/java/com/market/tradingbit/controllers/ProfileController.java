@@ -1,10 +1,6 @@
 package com.market.tradingbit.controllers;
 
-import com.market.tradingbit.entities.History;
-import com.market.tradingbit.entities.User;
-import com.market.tradingbit.helpers.UpdateUserDetail;
-import com.market.tradingbit.repositories.HistoryRepository;
-import com.market.tradingbit.repositories.UserRepository;
+import com.market.tradingbit.helpers.UserProfile;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,33 +9,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 @Controller
 @RequestMapping("/profile")
 @AllArgsConstructor
 public class ProfileController {
-    private final UserRepository userRepository;
-    private final HistoryRepository historyRepository;;
-    private final UpdateUserDetail updateUserDetail;
+
+    private UserProfile userProfile;
 
     @GetMapping
     public String profile(Principal principal, Model model) {
-        if(principal == null) return "redirect:/login";
-        User user = userRepository.findByEmail(principal.getName());
-        updateUserDetail.setUpUserDashboard(model, user);
-
-        List<History> history = historyRepository.findAllByIdDesc(user.getId());
-        model.addAttribute("history", history);
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
-
-        return "profile";
+        return userProfile.setupProfile(model, principal);
     }
 
     @GetMapping("/update-balance")
     public String updateUserInfo(Model model, Principal principal) {
-        if(principal != null)
-            updateUserDetail.setUpUserDashboard(model, userRepository.findByEmail(principal.getName()));
+        userProfile.updateUserInfo(model, principal);
         return "profile :: update-balance";
     }
 
