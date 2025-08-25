@@ -226,6 +226,14 @@ public class SwapValidation {
         if(swapVolumeError(error, volume) != null)
             return null;
 
+        double promisedRatio = Double.parseDouble(swap.getPromisedFromPrice()) / Double.parseDouble(swap.getPromisedToPrice());
+        double actualRatio = prices.getFirst().getPrice() / prices.getLast().getPrice();
+
+        if(Math.abs(promisedRatio - actualRatio) > SLIPPAGE) {
+            slippageError(error);
+            return null;
+        }
+
         History history = mapToHistory.toHistory(swap, prices, exactSwapAmount);
         return new HistoryVolume(history, volume);
     }
