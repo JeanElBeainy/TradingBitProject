@@ -130,7 +130,6 @@ section {
 .top__container {
     display: flex;
     flex-direction: column;
-    align-items: left;
     justify-content: left;
     padding: 1rem 1rem 1rem 2rem;
 }
@@ -220,6 +219,10 @@ section {
     transition: all 0.3s ease;
 }
 
+h1 {
+    margin: 0;
+}
+
 /* Input hover/focus effect */
 .search__container input:focus {
     box-shadow: 0 0 15px rgb(100, 100, 100);
@@ -254,5 +257,24 @@ th:nth-child(7), td:nth-child(7) { min-width: 110px;} /* Change */
     }
     .text__section .mobile__text p::before {
         content: "Swipe left to view the rest of the table";
+    }
+}
+
+@media screen and (max-width: 540px) {
+    .text__section {
+        font-size: 1.3rem;
+    }
+
+    .top__container > div > p {
+        font-size: 1.5rem;
+    }
+
+    .info__section {
+        padding: 1rem 1rem 0 1rem;
+    }
+
+    .table__section tr td:first-child img {
+        min-width: 24px;
+        min-height: 24px;
     }
 }
