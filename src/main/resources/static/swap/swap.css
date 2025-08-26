@@ -543,7 +543,7 @@ ul {
 }
 
 .swap__history {
-    width: 80%;
+    width: 90%;
     display: flex;
     flex-direction: column;
     border-radius: 20px;
@@ -582,11 +582,24 @@ ul {
     }
 
     .swap__section {
-        margin: 2rem 0 2rem 0;
+        margin: 7rem 0 4rem 0;
+    }
+
+    .time__div p {
+        font-size: 1.3rem;
     }
 
     .from__text, .to__text {
         padding: .4rem 0;
+    }
+
+    .swap__from input, .swap__to input {
+        padding: 1rem;
+        height: 40px;
+    }
+
+    .nav__brand {
+        width: 165px;
     }
 
     .success__content button {
@@ -595,7 +608,15 @@ ul {
 
     .swap__button {
         height: 40px;
-        margin: 1rem 0 2rem 0;
+        margin: .5rem 0 1rem 0;
+    }
+
+    .error__field p {
+        font-size: 1.4rem;
+    }
+
+    .dropdown-item {
+        font-size: 1.4rem;
     }
 
 }

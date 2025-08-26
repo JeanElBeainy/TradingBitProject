@@ -233,7 +233,7 @@ public class SwapValidation {
         double promisedRatio = Double.parseDouble(swap.getPromisedFromPrice()) / Double.parseDouble(swap.getPromisedToPrice());
         double actualRatio = prices.get(0).getPrice() / prices.get(prices.size()-1).getPrice();
 
-        if(Math.abs(promisedRatio - actualRatio) > SLIPPAGE) {
+        if(promisedRatio*(1 + SLIPPAGE) < actualRatio) {
             slippageError(error);
             return null;
         }
