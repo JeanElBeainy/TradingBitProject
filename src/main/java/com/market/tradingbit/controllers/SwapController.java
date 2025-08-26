@@ -48,7 +48,6 @@ public class SwapController {
     @PostMapping("/crypto")
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
-        System.out.println("Post Mapping:");
         User user = userRepository.findByEmail(principal.getName());
         return userSwap.userSwap(model, swap, user.getId(), bindingResult);
     }
