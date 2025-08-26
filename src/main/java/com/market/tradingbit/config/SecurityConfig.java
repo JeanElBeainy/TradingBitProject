@@ -27,7 +27,7 @@ public class SecurityConfig {
                                 "/profile/**",
                                 "/signin/**",
                                 "/signup/**",
-                                "swap/**"
+                                "/swap/**"
                         ).permitAll()
 
                         //Access to guests
@@ -38,7 +38,7 @@ public class SecurityConfig {
                                 "/dashboard",
                                 "/faq",
                                 "/disclaimer",
-                                "error"
+                                "/error"
 
                         ).permitAll()
 
