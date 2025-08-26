@@ -250,12 +250,6 @@ ul {
     line-height: 1;
 }
 
-.history-card__value--quantity {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
 .history-card__value--price {
     display: flex;
     flex-direction: column;
