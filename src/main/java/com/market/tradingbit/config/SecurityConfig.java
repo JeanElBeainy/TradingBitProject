@@ -22,7 +22,7 @@ public class SecurityConfig {
                                 "/disclaimer/**",
                                 "/document/**",
                                 "/error/**",
-                                "images/**",
+                                "/images/**",
                                 "/main/**",
                                 "/profile/**",
                                 "/signin/**",
