@@ -38,7 +38,7 @@ public class SecurityConfig {
                                 "/dashboard",
                                 "/faq",
                                 "/disclaimer",
-                                "error"
+                                "/error"
 
                         ).permitAll()
 
