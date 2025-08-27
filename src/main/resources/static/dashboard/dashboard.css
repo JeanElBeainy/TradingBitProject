@@ -94,7 +94,6 @@ section {
     align-items: center;
     justify-content: center;
     padding: 4rem 1rem 0 1rem;
-    padding-top: 4rem;
 }
 
 .user__info p {
@@ -153,6 +152,10 @@ section {
     padding: 14px 12px;
     vertical-align: middle;
     align-items: center;
+}
+
+tbody tr td {
+    cursor: pointer;
 }
 
 .table__section th:first-child,
@@ -262,7 +265,7 @@ th:nth-child(7), td:nth-child(7) { min-width: 110px;} /* Change */
 
 @media screen and (max-width: 540px) {
     .text__section {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
     }
 
     .top__container > div > p {
@@ -273,8 +276,22 @@ th:nth-child(7), td:nth-child(7) { min-width: 110px;} /* Change */
         padding: 1rem 1rem 0 1rem;
     }
 
+    .table__section {
+        padding-top: 1.5rem;
+        margin: 0;
+    }
+
     .table__section tr td:first-child img {
         min-width: 24px;
         min-height: 24px;
+    }
+
+    .table__section th:nth-child(2), .table__section td:nth-child(2) {
+        left: 40px;
+    }
+
+    .search__container input {
+        height: 40px;
+        font-size: 1.6rem;
     }
 }

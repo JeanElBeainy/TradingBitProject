@@ -23,6 +23,7 @@ public class RegisterUser {
     private final BalanceRepository balanceRepository;
     private final UserMapper userMapper;
     private final PortfolioRepository portfolioRepository;
+    private final BigDecimal StartingBalance = BigDecimal.valueOf(1_000_000);
 
     public String registerUser(Model model, RegisterDto registerDto, BindingResult bindingResult) {
         if(!registerDto.getPassword().equals(registerDto.getConfirmPassword()))
@@ -49,8 +50,8 @@ public class RegisterUser {
                     .id(savedUser.getId())
                     .cryptoBalance(BigDecimal.valueOf(0))
                     .stockBalance(BigDecimal.valueOf(0))
-                    .usdBalance(BigDecimal.valueOf(100_000))
-                    .totalBalance(BigDecimal.valueOf(100_000))
+                    .usdBalance(StartingBalance)
+                    .totalBalance(StartingBalance)
                     .totalVolume(BigDecimal.valueOf(0))
                     .build();
             balanceRepository.save(balance);
@@ -58,7 +59,7 @@ public class RegisterUser {
             portfolioRepository.save(Portfolio.builder()
                     .purchaseType(Type.USD)
                     .symbol("US Dollar")
-                    .quantity(BigDecimal.valueOf(100_000))
+                    .quantity(StartingBalance)
                     .userId(savedUser.getId())
                     .name("US Dollar Balance")
                     .build());
