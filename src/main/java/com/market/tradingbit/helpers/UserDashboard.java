@@ -7,10 +7,7 @@ import com.market.tradingbit.services.CoinMarketCapService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
-
 import java.security.Principal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 @Component
