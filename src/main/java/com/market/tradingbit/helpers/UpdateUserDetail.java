@@ -36,7 +36,7 @@ public class UpdateUserDetail {
         userDashboard.setName(user.getName());
         userDashboard.setRole(user.getRole());
 
-        userDashboard.setTotalVolume(balance.getTotalVolume().toString());
+        userDashboard.setUsdBalance(formatBalance(balance.getUsdBalance()));
         userDashboard.setCryptoBalance(formatBalance(balance.getCryptoBalance()));
         userDashboard.setStockBalance(formatBalance(balance.getStockBalance()));
         userDashboard.setTotalVolume(formatBalance(balance.getTotalVolume()));
