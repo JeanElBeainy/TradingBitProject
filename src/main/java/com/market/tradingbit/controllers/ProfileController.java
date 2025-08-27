@@ -25,10 +25,4 @@ public class ProfileController {
         userProfile.updateUserInfo(model, principal);
         return "profile :: update-balance";
     }
-
-    @GetMapping("/last-updated")
-    public String getLastUpdatedTime(Model model) {
-        model.addAttribute("lastUpdated", System.currentTimeMillis());
-        return "profile :: last-updated";
-    }
 }

@@ -69,17 +69,8 @@
                     </div>
                 </div>
                 <div class="last__update">
-                    <p>Last updated at:
-                        <span id="last-updated"
-                              hx-get="/profile/last-updated"
-                              hx-trigger="every 60s"
-                              hx-swap="innerHTML">
-                <th:block th:fragment="last-updated">
-                    <span th:text="${lastUpdated}"></span>
-                </th:block>
-                        </span>
-                        <br>
-                        <span>Balance auto-updates every 60 seconds</span>
+                    <p>Last updated at: <span id="last-updated"></span></p>
+                    <span>Balance auto-updates every 60 seconds</span>
                 </div>
             </th:block>
         </div>

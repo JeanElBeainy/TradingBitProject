@@ -8,8 +8,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import java.security.Principal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -27,7 +25,6 @@ public class UserProfile {
 
         List<History> history = historyRepository.findAllByIdDesc(user.getId());
         model.addAttribute("history", history);
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "profile";
     }
 
