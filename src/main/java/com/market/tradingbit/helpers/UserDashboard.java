@@ -29,7 +29,6 @@ public class UserDashboard {
             updateUserDetail.setUpUserDashboard(model, user);
 
         model.addAttribute("cryptos", service.getLatestListings());
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
     }
 
     public void getCryptoTable(Model model) {
