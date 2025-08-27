@@ -39,12 +39,6 @@ public class SwapController {
         return "swap :: update-prices";
     }
 
-    @GetMapping("/last-updated")
-    public String getLastUpdatedTime(Model model) {
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
-        return "swap :: last-updated";
-    }
-
     @PostMapping("/crypto")
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";

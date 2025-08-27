@@ -16,8 +16,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import static com.market.tradingbit.helpers.SwapValidation.parseQuantity;
@@ -81,6 +79,5 @@ public class UserSwap {
         model.addAttribute("success", false);
         List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
         model.addAttribute("history", history);
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
     }
 }
