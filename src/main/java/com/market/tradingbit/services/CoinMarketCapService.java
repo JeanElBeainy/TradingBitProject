@@ -43,16 +43,6 @@ public class CoinMarketCapService {
         return response.getData();
     }
 
-    public List<CryptoNameSymbol> getLatestNameAndSymbol() {
-        List<CryptoNameSymbol> list = getLatestListings().stream()
-                .map(c -> new CryptoNameSymbol(c.getName(), c.getSymbol()))
-                .toList();
-
-        List<CryptoNameSymbol> result = new ArrayList<>(list);
-        result.add(new CryptoNameSymbol("US Dollar Balance", "US Dollar"));
-        return result;
-    }
-
     public CryptoNamePrice getCryptoNameBySymbol(String symbol) {
         List<CryptoInfo> allCryptos = getLatestListings();
         return allCryptos.stream()

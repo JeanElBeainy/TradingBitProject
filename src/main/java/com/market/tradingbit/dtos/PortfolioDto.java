@@ -1,6 +1,5 @@
 package com.market.tradingbit.dtos;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data

@@ -7,7 +7,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface HistoryMapper {
-    History toHistory(SuccessfulSwapDto successfulSwapDto);
     History toHistory(HistoryDto historyDto);
     SuccessfulSwapDto toSuccessfulSwapDto(History history);
 }

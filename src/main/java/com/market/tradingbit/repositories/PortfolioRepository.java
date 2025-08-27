@@ -7,25 +7,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
-
-    List<Portfolio> getPortfolioByUserId(Long userId);
-
-    @Query("SELECT p.symbol FROM Portfolio p WHERE p.userId = :userId")
-    List<String> getPortfolioSymbolsByUserId(Long userId);
 
     @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND (p.purchaseType = 'CRYPTO' OR p.purchaseType = 'USD')")
     List<Portfolio> getCryptoPortfolioByUserId(Long userId);
 
     @Query("SELECT p FROM Portfolio p WHERE p.symbol = :symbol AND p.userId = :userId")
     Portfolio getItemBySymbolAndUserId(String symbol, Long userId);
-
-    @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND (p.purchaseType = 'STOCK' OR p.purchaseType = 'USD')")
-    List<Portfolio> getStockPortfolioByUserId(Long userId);
 
     @Query("SELECT p.quantity FROM Portfolio p WHERE p.symbol = :symbol AND p.userId = :userId")
     BigDecimal getQuantityBySymbolAndUserId(String symbol, Long userId);
