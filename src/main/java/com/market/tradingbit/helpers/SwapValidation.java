@@ -105,7 +105,6 @@ public class SwapValidation {
                         );
             }
         });
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         model.addAttribute("userItems", portfolioDto);
     }
 
@@ -251,7 +250,6 @@ public class SwapValidation {
         successfulSwap.setFromSymbol(history.getFromSymbol());
         successfulSwap.setToSymbol(history.getToSymbol());
         model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "swap";
     }
 }

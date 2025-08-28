@@ -211,16 +211,7 @@
                     </div>
                 </div>
                 <div class="time__div">
-                    <p>Last updated at:
-                        <span id="last-updated"
-                              hx-get="/swap/last-updated"
-                              hx-trigger="every 60s"
-                              hx-swap="innerHTML">
-                <th:block th:fragment="last-updated">
-                    <span th:text="${lastUpdated}"></span>
-                </th:block>
-            </span>
-                    </p>
+                    <p>Last updated at: <span id="last-updated"></span></p>
                 </div>
             </div>
         </form>
@@ -277,6 +268,7 @@
 <script src="/swap/dropdownList.js"></script>
 <script src="/commonFiles/collapsible.js"></script>
 <script src="/swap/swapSpin.js"></script>
+<script src="/commonFiles/displayTime.js"></script>
 
 </body>
 </html>
