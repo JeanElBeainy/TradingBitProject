@@ -9,4 +9,5 @@ public class SwapDto {
     private String to;
     private String promisedToPrice;
     private String quantity;
+    private String date;
 }
