@@ -20,8 +20,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -55,6 +56,18 @@ public class SwapValidation {
         return difference.compareTo(BigDecimal.ZERO) < 0;
     }
 
+    private static boolean dateNotValid(String date) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a");
+            LocalDateTime providedDate = LocalDateTime.parse(date, formatter);
+            if(Duration.between(providedDate, LocalDateTime.now()).abs().toHours() >= 24)
+                return true;
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
+    }
+
     private static String getValidationError(SwapDto swap, BigDecimal availableBalance, BigDecimal swapQuantity) {
         if (swap.getFrom() == null || swap.getFrom().isEmpty()) return "from_empty";
         if (swap.getTo() == null || swap.getTo().isEmpty()) return "to_empty";
@@ -67,6 +80,7 @@ public class SwapValidation {
         if (swap.getFrom().equals(swap.getTo())) return "same_currency";
         if(notSufficientBalance(availableBalance, swapQuantity)) return "insufficient_balance";
         if(promisedFromPrice == null || promisedToPrice == null) return "invalid_promised_price";
+        if(swap.getDate() == null || dateNotValid(swap.getDate())) return "invalid_date";
         return "valid";
     }
 
@@ -80,6 +94,7 @@ public class SwapValidation {
             case "same_currency" -> bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from"));
             case "insufficient_balance" -> bindingResult.addError(new FieldError("swap", "quantity", "You do not have enough "+ swap.getFrom() + " to perform this swap"));
             case "invalid_promised_price" -> bindingResult.addError(new FieldError("swap", "quantity", "Could not parse crypto price(s)"));
+            case "invalid_date" -> bindingResult.addError(new FieldError("swap", "to", "Error with parsing date. If you did not manually modify it, please try again."));
         }
     }
 
