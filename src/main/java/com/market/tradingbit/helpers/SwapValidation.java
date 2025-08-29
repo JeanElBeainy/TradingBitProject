@@ -36,7 +36,6 @@ public class SwapValidation {
     private final ApiService apiService;
     private final PortfolioMapper portfolioMapper;
 
-    private static final int PRECISION = 8;
     private static final int CRYPTO_PRECISION = 8;
     private final double SLIPPAGE = 0.01;
 
@@ -52,8 +51,7 @@ public class SwapValidation {
 
     private static boolean notSufficientBalance(BigDecimal availableBalance, BigDecimal requiredAmount) {
         if (availableBalance == null) return true;
-        BigDecimal difference = availableBalance.subtract(requiredAmount);
-        return difference.compareTo(BigDecimal.ZERO) < 0;
+        return availableBalance.subtract(requiredAmount).compareTo(BigDecimal.ZERO) < 0;
     }
 
     private static boolean dateNotValid(String date) {
@@ -73,13 +71,13 @@ public class SwapValidation {
         if (swap.getTo() == null || swap.getTo().isEmpty()) return "to_empty";
 
         BigDecimal quantity = parseQuantity(swap.getQuantity());
-        BigDecimal promisedFromPrice = parseQuantity(swap.getPromisedFromPrice());
-        BigDecimal promisedToPrice = parseQuantity(swap.getPromisedToPrice());
         if (quantity == null) return "quantity_invalid";
         if (quantity.compareTo(BigDecimal.ZERO) <= 0) return "quantity_zero_or_negative";
         if (swap.getFrom().equals(swap.getTo())) return "same_currency";
         if(notSufficientBalance(availableBalance, swapQuantity)) return "insufficient_balance";
-        if(promisedFromPrice == null || promisedToPrice == null) return "invalid_promised_price";
+        if(parseQuantity(swap.getPromisedFromPrice()) == null
+                || parseQuantity(swap.getPromisedToPrice()) == null)
+            return "invalid_promised_price";
         if(swap.getDate() == null || dateNotValid(swap.getDate())) return "invalid_date";
         return "valid";
     }
@@ -101,9 +99,7 @@ public class SwapValidation {
     private void populateModel(Model model, Long userId) {
         List<CryptoSymbolPrice> latestListings = service.getAllCryptoSymbolPrices();
         model.addAttribute("swapItems", latestListings);
-
-        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(userId);
-        List<PortfolioDto> portfolioDto = portfolioMapper.toPortfolioDto(portfolioList);
+        List<PortfolioDto> portfolioDto = portfolioMapper.toPortfolioDto(portfolioRepository.getCryptoPortfolioByUserId(userId));
         portfolioDto.forEach(portfolio -> {
             if ("USD".equalsIgnoreCase(portfolio.getSymbol())) {
                 portfolio.setPrice("1.0");
@@ -238,7 +234,7 @@ public class SwapValidation {
             return null;
 
         BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.get(0).getPrice()))
-                .setScale(PRECISION, RoundingMode.HALF_EVEN);
+                .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
         BigDecimal volume = fromPrice.multiply(exactSwapAmount).setScale(2, RoundingMode.HALF_EVEN);
 
         if(swapVolumeError(error, volume) != null)

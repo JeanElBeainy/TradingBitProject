@@ -1,9 +1,7 @@
 package com.market.tradingbit.helpers;
 
 import com.market.tradingbit.dtos.SwapDto;
-import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Type;
-import com.market.tradingbit.entities.User;
 import com.market.tradingbit.models.*;
 import com.market.tradingbit.models.Error;
 import com.market.tradingbit.repositories.BalanceRepository;
@@ -16,7 +14,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.List;
 
 import static com.market.tradingbit.helpers.SwapValidation.parseQuantity;
 
@@ -73,11 +70,10 @@ public class UserSwap {
     }
 
     public void getCryptoSwap(Model model, Principal principal) {
-        User user = userRepository.findByEmail(principal.getName());
-        swapValidation.populateModelToUser(model, user.getId());
+        Long userId = userRepository.findUserIdByEmail(principal.getName());
+        swapValidation.populateModelToUser(model, userId);
         model.addAttribute("swap", new SwapDto());
         model.addAttribute("success", false);
-        List<History> history = historyRepository.findTop3ByUserIdOrderByIdDesc(user.getId());
-        model.addAttribute("history", history);
+        model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
     }
 }
