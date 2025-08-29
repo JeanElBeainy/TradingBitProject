@@ -4,7 +4,6 @@ import com.market.tradingbit.dtos.PortfolioDto;
 import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
-import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.SwapErrorType;
 import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.mappers.PortfolioMapper;
