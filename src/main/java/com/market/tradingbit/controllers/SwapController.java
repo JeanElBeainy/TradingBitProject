@@ -32,15 +32,15 @@ public class SwapController {
     @GetMapping("/update-prices")
     public String updatePrices(Model model, Principal principal) {
         if(principal == null) return "redirect:/login";
-        User user = userRepository.findByEmail(principal.getName());
-        swapValidation.populateModelToUser(model, user.getId());
+        Long userId = userRepository.findUserIdByEmail(principal.getName());
+        swapValidation.populateModelToUser(model, userId);
         return "swap :: update-prices";
     }
 
     @PostMapping("/crypto")
     public String cryptoSwap(Model model, @Valid @ModelAttribute("swap") SwapDto swap, Principal principal, BindingResult bindingResult) {
         if(principal == null) return "redirect:/login";
-        User user = userRepository.findByEmail(principal.getName());
-        return userSwap.userSwap(model, swap, user.getId(), bindingResult);
+        Long userId = userRepository.findUserIdByEmail(principal.getName());
+        return userSwap.userSwap(model, swap, userId, bindingResult);
     }
 }
