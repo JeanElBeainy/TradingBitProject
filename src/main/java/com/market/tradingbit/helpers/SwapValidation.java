@@ -4,7 +4,6 @@ import com.market.tradingbit.dtos.PortfolioDto;
 import com.market.tradingbit.dtos.SuccessfulSwapDto;
 import com.market.tradingbit.dtos.SwapDto;
 import com.market.tradingbit.entities.History;
-import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.SwapErrorType;
 import com.market.tradingbit.mappers.HistoryMapper;
 import com.market.tradingbit.mappers.PortfolioMapper;
@@ -20,8 +19,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -35,7 +35,6 @@ public class SwapValidation {
     private final ApiService apiService;
     private final PortfolioMapper portfolioMapper;
 
-    private static final int PRECISION = 8;
     private static final int CRYPTO_PRECISION = 8;
     private final double SLIPPAGE = 0.01;
 
@@ -51,8 +50,19 @@ public class SwapValidation {
 
     private static boolean notSufficientBalance(BigDecimal availableBalance, BigDecimal requiredAmount) {
         if (availableBalance == null) return true;
-        BigDecimal difference = availableBalance.subtract(requiredAmount);
-        return difference.compareTo(BigDecimal.ZERO) < 0;
+        return availableBalance.subtract(requiredAmount).compareTo(BigDecimal.ZERO) < 0;
+    }
+
+    private static boolean dateNotValid(String date) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a");
+            LocalDateTime providedDate = LocalDateTime.parse(date, formatter);
+            if(Duration.between(providedDate, LocalDateTime.now()).abs().toHours() >= 24)
+                return true;
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
     }
 
     private static String getValidationError(SwapDto swap, BigDecimal availableBalance, BigDecimal swapQuantity) {
@@ -60,13 +70,14 @@ public class SwapValidation {
         if (swap.getTo() == null || swap.getTo().isEmpty()) return "to_empty";
 
         BigDecimal quantity = parseQuantity(swap.getQuantity());
-        BigDecimal promisedFromPrice = parseQuantity(swap.getPromisedFromPrice());
-        BigDecimal promisedToPrice = parseQuantity(swap.getPromisedToPrice());
         if (quantity == null) return "quantity_invalid";
         if (quantity.compareTo(BigDecimal.ZERO) <= 0) return "quantity_zero_or_negative";
         if (swap.getFrom().equals(swap.getTo())) return "same_currency";
         if(notSufficientBalance(availableBalance, swapQuantity)) return "insufficient_balance";
-        if(promisedFromPrice == null || promisedToPrice == null) return "invalid_promised_price";
+        if(parseQuantity(swap.getPromisedFromPrice()) == null
+                || parseQuantity(swap.getPromisedToPrice()) == null)
+            return "invalid_promised_price";
+        if(swap.getDate() == null || dateNotValid(swap.getDate())) return "invalid_date";
         return "valid";
     }
 
@@ -80,15 +91,14 @@ public class SwapValidation {
             case "same_currency" -> bindingResult.addError(new FieldError("swap", "to", "You cannot swap to the same currency you are swapping from"));
             case "insufficient_balance" -> bindingResult.addError(new FieldError("swap", "quantity", "You do not have enough "+ swap.getFrom() + " to perform this swap"));
             case "invalid_promised_price" -> bindingResult.addError(new FieldError("swap", "quantity", "Could not parse crypto price(s)"));
+            case "invalid_date" -> bindingResult.addError(new FieldError("swap", "to", "Error with parsing date. If you did not manually modify it, please try again."));
         }
     }
 
     private void populateModel(Model model, Long userId) {
         List<CryptoSymbolPrice> latestListings = service.getAllCryptoSymbolPrices();
         model.addAttribute("swapItems", latestListings);
-
-        List<Portfolio> portfolioList = portfolioRepository.getCryptoPortfolioByUserId(userId);
-        List<PortfolioDto> portfolioDto = portfolioMapper.toPortfolioDto(portfolioList);
+        List<PortfolioDto> portfolioDto = portfolioMapper.toPortfolioDto(portfolioRepository.getCryptoPortfolioByUserId(userId));
         portfolioDto.forEach(portfolio -> {
             if ("USD".equalsIgnoreCase(portfolio.getSymbol())) {
                 portfolio.setPrice("1.0");
@@ -105,7 +115,6 @@ public class SwapValidation {
                         );
             }
         });
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         model.addAttribute("userItems", portfolioDto);
     }
 
@@ -224,7 +233,7 @@ public class SwapValidation {
             return null;
 
         BigDecimal fromPrice = new BigDecimal(String.valueOf(prices.get(0).getPrice()))
-                .setScale(PRECISION, RoundingMode.HALF_EVEN);
+                .setScale(CRYPTO_PRECISION, RoundingMode.HALF_EVEN);
         BigDecimal volume = fromPrice.multiply(exactSwapAmount).setScale(2, RoundingMode.HALF_EVEN);
 
         if(swapVolumeError(error, volume) != null)
@@ -251,7 +260,6 @@ public class SwapValidation {
         successfulSwap.setFromSymbol(history.getFromSymbol());
         successfulSwap.setToSymbol(history.getToSymbol());
         model.addAttribute("history", historyRepository.findTop3ByUserIdOrderByIdDesc(userId));
-        model.addAttribute("lastUpdated", new SimpleDateFormat("MMM dd, HH:mm:ss").format(new Date()));
         return "swap";
     }
 }

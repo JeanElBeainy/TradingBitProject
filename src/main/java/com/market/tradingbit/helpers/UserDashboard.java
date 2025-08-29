@@ -1,14 +1,12 @@
 package com.market.tradingbit.helpers;
 
 import com.market.tradingbit.entities.User;
-import com.market.tradingbit.models.CryptoInfo;
 import com.market.tradingbit.repositories.UserRepository;
 import com.market.tradingbit.services.CoinMarketCapService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import java.security.Principal;
-import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -29,8 +27,7 @@ public class UserDashboard {
     }
 
     public void getCryptoTable(Model model) {
-        List<CryptoInfo> cryptos = service.getLatestListings();
-        model.addAttribute("cryptos", cryptos);
+        model.addAttribute("cryptos", service.getLatestListings());
     }
 
     public void updateUserInfo(Model model, Principal principal) {

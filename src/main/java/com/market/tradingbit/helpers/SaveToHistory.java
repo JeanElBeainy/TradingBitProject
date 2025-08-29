@@ -13,8 +13,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 @AllArgsConstructor
@@ -96,8 +94,7 @@ public class SaveToHistory {
         saveHistory.getHistory().setUserId(saveHistory.getUserId());
         saveHistory.getHistory().setVolume(saveHistory.getVolume().floatValue());
         saveHistory.getHistory().setType(Type.CRYPTO);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a");
-        saveHistory.getHistory().setTime(LocalDateTime.now().format(formatter));
+        saveHistory.getHistory().setTime(saveHistory.getSwap().getDate());
         historyRepository.save(saveHistory.getHistory());
     }
 }
