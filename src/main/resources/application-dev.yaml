@@ -6,3 +6,7 @@ spring:
   jpa:
     show-sql: true
 websiteUrl: http://localhost:8080
+server:
+  servlet:
+    session:
+      timeout: 10m
