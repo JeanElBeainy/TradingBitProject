@@ -53,7 +53,6 @@ public class RegisterUser {
                     .cryptoBalance(BigDecimal.valueOf(0))
                     .stockBalance(BigDecimal.valueOf(0))
                     .usdBalance(StartingBalance)
-                    .totalBalance(StartingBalance)
                     .totalVolume(BigDecimal.valueOf(0))
                     .build();
             balanceRepository.save(balance);
