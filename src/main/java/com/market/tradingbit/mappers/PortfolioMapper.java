@@ -10,6 +10,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PortfolioMapper {
     @Mapping(source = "asset.name", target = "name")
+    @Mapping(target = "price", ignore = true)
     PortfolioDto toPortfolioDto(Portfolio portfolio);
 
     List<PortfolioDto> toPortfolioDto(List<Portfolio> portfolio);
