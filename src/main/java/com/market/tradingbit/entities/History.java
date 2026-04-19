@@ -3,6 +3,7 @@ package com.market.tradingbit.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -50,8 +51,8 @@ public class History {
     @Column(name = "fee", precision = 30, scale = 8)
     private BigDecimal fee;
 
-    @Column(name = "time")
-    private String time;
+    @Column(name = "time", nullable = false)
+    private LocalDateTime time;
 
     @Column(name = "purchase_type")
     @Enumerated(EnumType.STRING)

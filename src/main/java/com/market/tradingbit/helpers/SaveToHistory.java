@@ -13,12 +13,17 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Component
 @AllArgsConstructor
 public class SaveToHistory {
     private static final int PRECISION = 8;
     private static final BigDecimal FEE_PERCENTAGE = new BigDecimal("0.001");
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a", Locale.ENGLISH);
     private final PortfolioRepository portfolioRepository;
     private final HistoryRepository historyRepository;
     private final BalanceRepository balanceRepository;
@@ -86,9 +91,15 @@ public class SaveToHistory {
 
         saveHistory.getHistory().setFee(fee);
         saveHistory.getHistory().setUserId(saveHistory.getUserId());
-        saveHistory.getHistory().setVolume(saveHistory.getVolume());
         saveHistory.getHistory().setType(Type.CRYPTO);
-        saveHistory.getHistory().setTime(saveHistory.getSwap().getDate());
+        saveHistory.getHistory().setVolume(saveHistory.getVolume());
+        LocalDateTime tradeTime;
+        try {
+            tradeTime = LocalDateTime.parse(saveHistory.getSwap().getDate(), DATE_FORMATTER);
+        } catch (Exception e) {
+            tradeTime = LocalDateTime.now();
+        }
+        saveHistory.getHistory().setTime(tradeTime);
         historyRepository.save(saveHistory.getHistory());
     }
 }

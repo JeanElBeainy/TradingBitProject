@@ -139,7 +139,7 @@
                 <div class="history-card__item">
                     <span class="history-card__label">Time</span>
                     <div class="history-card__value">
-                        <span th:text="${historyItem.time}"></span>
+                        <span th:text="${#temporals.format(historyItem.time, 'MMM dd, yyyy, hh:mm a')}"></span>
                     </div>
                 </div>
             </div>
