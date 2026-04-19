@@ -19,9 +19,6 @@ public class Portfolio {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
-
     @Column(name = "user_id")
     private Long userId;
 
@@ -31,6 +28,10 @@ public class Portfolio {
 
     @Column(name = "symbol")
     private String symbol;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "symbol", insertable = false, updatable = false)
+    private Asset asset;
 
     @Column(name = "quantity", precision = 30, scale = 8)
     private BigDecimal quantity;

@@ -3,6 +3,7 @@ package com.market.tradingbit.helpers.registration;
 import com.market.tradingbit.dtos.RegisterDto;
 import com.market.tradingbit.entities.*;
 import com.market.tradingbit.mappers.UserMapper;
+import com.market.tradingbit.repositories.AssetRepository;
 import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
@@ -23,6 +24,7 @@ public class RegisterUser {
     private final BalanceRepository balanceRepository;
     private final UserMapper userMapper;
     private final PortfolioRepository portfolioRepository;
+    private final AssetRepository assetRepository;
     private final BigDecimal StartingBalance = BigDecimal.valueOf(1_000_000);
 
     public String registerUser(Model model, RegisterDto registerDto, BindingResult bindingResult) {
@@ -56,12 +58,16 @@ public class RegisterUser {
                     .build();
             balanceRepository.save(balance);
 
+            assetRepository.save(Asset.builder()
+                    .symbol("US Dollar")
+                    .name("US Dollar Balance")
+                    .build());
+
             portfolioRepository.save(Portfolio.builder()
                     .purchaseType(Type.USD)
                     .symbol("US Dollar")
                     .quantity(StartingBalance)
                     .userId(savedUser.getId())
-                    .name("US Dollar Balance")
                     .build());
 
 

@@ -3,9 +3,11 @@ package com.market.tradingbit.helpers;
 import com.market.tradingbit.entities.History;
 import com.market.tradingbit.entities.Portfolio;
 import com.market.tradingbit.entities.Type;
+import com.market.tradingbit.entities.Asset;
 import com.market.tradingbit.models.AppendRepository;
 import com.market.tradingbit.models.CurrencyConstant;
 import com.market.tradingbit.models.SaveHistory;
+import com.market.tradingbit.repositories.AssetRepository;
 import com.market.tradingbit.repositories.BalanceRepository;
 import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
@@ -27,6 +29,7 @@ public class SaveToHistory {
     private final PortfolioRepository portfolioRepository;
     private final HistoryRepository historyRepository;
     private final BalanceRepository balanceRepository;
+    private final AssetRepository assetRepository;
 
     private BigDecimal getBigDecimalQuantity(History history, BigDecimal exactSwapAmount) {
         return history.getFromPrice()
@@ -37,22 +40,17 @@ public class SaveToHistory {
     private void appendToRepository(AppendRepository appendRepository) { //4 queries
         Portfolio portfolio = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getTo(), appendRepository.getUserId());
         if(portfolio == null) {
-            if (appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName))
-                portfolioRepository.save(Portfolio.builder()
-                        .symbol(appendRepository.getSwap().getTo())
-                        .purchaseType(Type.USD)
-                        .userId(appendRepository.getUserId())
-                        .name(appendRepository.getToName())
-                        .quantity(appendRepository.getQuantityPriceTo())
-                        .build());
-            else
-                portfolioRepository.save(Portfolio.builder()
-                        .symbol(appendRepository.getSwap().getTo())
-                        .purchaseType(Type.CRYPTO)
-                        .userId(appendRepository.getUserId())
-                        .name(appendRepository.getToName())
-                        .quantity(appendRepository.getQuantityPriceTo())
-                        .build());
+            assetRepository.save(Asset.builder()
+                    .symbol(appendRepository.getSwap().getTo())
+                    .name(appendRepository.getToName())
+                    .build());
+            Type type = appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName) ? Type.USD : Type.CRYPTO;
+            portfolioRepository.save(Portfolio.builder()
+                    .symbol(appendRepository.getSwap().getTo())
+                    .purchaseType(type)
+                    .userId(appendRepository.getUserId())
+                    .quantity(appendRepository.getQuantityPriceTo())
+                    .build());
         }
         else
             portfolioRepository.updatePortfolioQuantity(appendRepository.getQuantityPriceTo(),
