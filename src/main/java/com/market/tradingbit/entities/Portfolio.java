@@ -29,7 +29,7 @@ public class Portfolio {
     @Column(name = "symbol")
     private String symbol;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "symbol", insertable = false, updatable = false)
     private Asset asset;
 

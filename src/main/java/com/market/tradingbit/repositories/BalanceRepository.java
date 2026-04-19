@@ -14,8 +14,11 @@ public interface BalanceRepository extends JpaRepository<Balance, Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Balance b SET b.usdBalance = :amount WHERE b.id = :userId")
-    void updateUSDBalanceByAmountAndUserId(@Param("amount") BigDecimal amount, @Param("userId") Long userId);
+    @Query(value = "UPDATE balance b " +
+            "JOIN portfolio p ON p.user_id = :userId AND p.symbol = :usdSymbol " +
+            "SET b.usd_balance = p.quantity " +
+            "WHERE b.id = :userId", nativeQuery = true)
+    void syncUSDBalanceFromPortfolio(@Param("userId") Long userId, @Param("usdSymbol") String usdSymbol);
 
     @Modifying
     @Transactional

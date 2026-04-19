@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
-    @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND (p.purchaseType = 'CRYPTO' OR p.purchaseType = 'USD')")
+    @Query("SELECT p FROM Portfolio p JOIN FETCH p.asset WHERE p.userId = :userId AND (p.purchaseType = 'CRYPTO' OR p.purchaseType = 'USD')")
     List<Portfolio> getCryptoPortfolioByUserId(@Param("userId") Long userId);
 
     @Query("SELECT p FROM Portfolio p WHERE p.symbol = :symbol AND p.userId = :userId")

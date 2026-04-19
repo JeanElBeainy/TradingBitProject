@@ -63,9 +63,7 @@ public class SaveToHistory {
 
         if(appendRepository.getSwap().getFrom().equals(CurrencyConstant.USDName)
                 || appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName))
-            balanceRepository.updateUSDBalanceByAmountAndUserId(
-                    portfolioRepository.getQuantityBySymbolAndUserId(CurrencyConstant.USDName, appendRepository.getUserId()),
-                    appendRepository.getUserId());
+            balanceRepository.syncUSDBalanceFromPortfolio(appendRepository.getUserId(), CurrencyConstant.USDName);
 
         portfolioRepository.deletePortfolioByQuantityIsLessThanEqualAndUserIdAndSymbol(BigDecimal.ZERO,
                 appendRepository.getUserId(),
