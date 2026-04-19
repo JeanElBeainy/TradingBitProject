@@ -22,80 +22,83 @@ import java.util.Locale;
 @Component
 @AllArgsConstructor
 public class SaveToHistory {
-    private static final int PRECISION = 8;
-    private static final BigDecimal FEE_PERCENTAGE = new BigDecimal("0.001");
-    private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a", Locale.ENGLISH);
-    private final PortfolioRepository portfolioRepository;
-    private final HistoryRepository historyRepository;
-    private final BalanceRepository balanceRepository;
-    private final AssetRepository assetRepository;
+        private static final int PRECISION = 8;
+        private static final BigDecimal FEE_PERCENTAGE = new BigDecimal("0.001");
+        private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a",
+                        Locale.ENGLISH);
+        private final PortfolioRepository portfolioRepository;
+        private final HistoryRepository historyRepository;
+        private final BalanceRepository balanceRepository;
+        private final AssetRepository assetRepository;
 
-    private BigDecimal getBigDecimalQuantity(History history, BigDecimal exactSwapAmount) {
-        return history.getFromPrice()
-                .multiply(exactSwapAmount)
-                .divide(history.getToPrice(), PRECISION, RoundingMode.HALF_EVEN);
-    }
-
-    private void appendToRepository(AppendRepository appendRepository) { //4 queries
-        Portfolio portfolio = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getTo(), appendRepository.getUserId());
-        if(portfolio == null) {
-            assetRepository.save(Asset.builder()
-                    .symbol(appendRepository.getSwap().getTo())
-                    .name(appendRepository.getToName())
-                    .build());
-            Type type = appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName) ? Type.USD : Type.CRYPTO;
-            portfolioRepository.save(Portfolio.builder()
-                    .symbol(appendRepository.getSwap().getTo())
-                    .purchaseType(type)
-                    .userId(appendRepository.getUserId())
-                    .quantity(appendRepository.getQuantityPriceTo())
-                    .build());
+        private BigDecimal getBigDecimalQuantity(History history, BigDecimal exactSwapAmount) {
+                return history.getFromPrice()
+                                .multiply(exactSwapAmount)
+                                .divide(history.getToPrice(), PRECISION, RoundingMode.HALF_EVEN);
         }
-        else
-            portfolioRepository.updatePortfolioQuantity(appendRepository.getQuantityPriceTo(),
-                    appendRepository.getSwap().getTo(),
-                    appendRepository.getUserId());
 
-        portfolioRepository.updatePortfolioQuantity(appendRepository.getExactSwapAmount().negate(),
-                appendRepository.getSwap().getFrom(),
-                appendRepository.getUserId());
+        private void appendToRepository(AppendRepository appendRepository) { // 4 queries
+                Portfolio portfolio = portfolioRepository.getItemBySymbolAndUserId(appendRepository.getSwap().getTo(),
+                                appendRepository.getUserId());
+                if (portfolio == null) {
+                        assetRepository.save(Asset.builder()
+                                        .symbol(appendRepository.getSwap().getTo())
+                                        .name(appendRepository.getToName())
+                                        .build());
+                        Type type = appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName) ? Type.USD
+                                        : Type.CRYPTO;
+                        portfolioRepository.save(Portfolio.builder()
+                                        .symbol(appendRepository.getSwap().getTo())
+                                        .purchaseType(type)
+                                        .userId(appendRepository.getUserId())
+                                        .quantity(appendRepository.getQuantityPriceTo())
+                                        .build());
+                } else
+                        portfolioRepository.updatePortfolioQuantity(appendRepository.getQuantityPriceTo(),
+                                        appendRepository.getSwap().getTo(),
+                                        appendRepository.getUserId());
 
-        if(appendRepository.getSwap().getFrom().equals(CurrencyConstant.USDName)
-                || appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName))
-            balanceRepository.syncUSDBalanceFromPortfolio(appendRepository.getUserId(), CurrencyConstant.USDName);
+                portfolioRepository.updatePortfolioQuantity(appendRepository.getExactSwapAmount().negate(),
+                                appendRepository.getSwap().getFrom(),
+                                appendRepository.getUserId());
 
-        portfolioRepository.deletePortfolioByQuantityIsLessThanEqualAndUserIdAndSymbol(BigDecimal.ZERO,
-                appendRepository.getUserId(),
-                appendRepository.getSwap().getFrom());
-    }
+                if (appendRepository.getSwap().getFrom().equals(CurrencyConstant.USDName)
+                                || appendRepository.getSwap().getTo().equals(CurrencyConstant.USDName))
+                        balanceRepository.syncUSDBalanceFromPortfolio(appendRepository.getUserId(),
+                                        CurrencyConstant.USDName);
 
-    public void saveHistory(SaveHistory saveHistory) { //1 query
-        BigDecimal toQuantity = getBigDecimalQuantity(saveHistory.getHistory(), saveHistory.getExactSwapAmount());
-        BigDecimal fee = toQuantity
-                .multiply(FEE_PERCENTAGE)
-                .setScale(PRECISION, RoundingMode.HALF_EVEN);
-
-        BigDecimal finalToQuantity = toQuantity.subtract(fee);
-        saveHistory.getHistory().setToQuantity(finalToQuantity);
-
-        appendToRepository(new AppendRepository(saveHistory.getSwap(),
-                saveHistory.getUserId(),
-                saveHistory.getHistory().getToName(),
-                finalToQuantity,
-                saveHistory.getExactSwapAmount()));
-
-        saveHistory.getHistory().setFee(fee);
-        saveHistory.getHistory().setUserId(saveHistory.getUserId());
-        saveHistory.getHistory().setType(Type.CRYPTO);
-        saveHistory.getHistory().setVolume(saveHistory.getVolume());
-        LocalDateTime tradeTime;
-        try {
-            tradeTime = LocalDateTime.parse(saveHistory.getSwap().getDate(), DATE_FORMATTER);
-        } catch (Exception e) {
-            tradeTime = LocalDateTime.now();
+                portfolioRepository.deletePortfolioByQuantityIsLessThanEqualAndUserIdAndSymbol(BigDecimal.ZERO,
+                                appendRepository.getUserId(),
+                                appendRepository.getSwap().getFrom());
         }
-        saveHistory.getHistory().setTime(tradeTime);
-        historyRepository.save(saveHistory.getHistory());
-    }
+
+        public void saveHistory(SaveHistory saveHistory) { // 1 query
+                BigDecimal toQuantity = getBigDecimalQuantity(saveHistory.getHistory(),
+                                saveHistory.getExactSwapAmount());
+                BigDecimal fee = toQuantity
+                                .multiply(FEE_PERCENTAGE)
+                                .setScale(PRECISION, RoundingMode.HALF_EVEN);
+
+                BigDecimal finalToQuantity = toQuantity.subtract(fee);
+                saveHistory.getHistory().setToQuantity(finalToQuantity);
+
+                appendToRepository(new AppendRepository(saveHistory.getSwap(),
+                                saveHistory.getUserId(),
+                                saveHistory.getHistory().getToName(),
+                                finalToQuantity,
+                                saveHistory.getExactSwapAmount()));
+
+                saveHistory.getHistory().setFee(fee);
+                saveHistory.getHistory().setUserId(saveHistory.getUserId());
+                saveHistory.getHistory().setType(Type.CRYPTO);
+                saveHistory.getHistory().setVolume(saveHistory.getVolume());
+                LocalDateTime tradeTime;
+                try {
+                        tradeTime = LocalDateTime.parse(saveHistory.getSwap().getDate(), DATE_FORMATTER);
+                } catch (Exception e) {
+                        tradeTime = LocalDateTime.now();
+                }
+                saveHistory.getHistory().setTime(tradeTime);
+                historyRepository.save(saveHistory.getHistory());
+        }
 }

@@ -23,8 +23,7 @@ public class MapToHistory {
                 BigDecimal.ONE,
                 swap.getTo(),
                 price.getName(),
-                BigDecimal.valueOf(price.getPrice())
-        );
+                BigDecimal.valueOf(price.getPrice()));
         return historyMapper.toHistory(historyDto);
     }
 
@@ -35,8 +34,7 @@ public class MapToHistory {
                 BigDecimal.valueOf(price.getPrice()),
                 "US Dollar",
                 "US Dollar Balance",
-                BigDecimal.ONE
-        );
+                BigDecimal.ONE);
         return historyMapper.toHistory(historyDto);
     }
 
@@ -46,9 +44,8 @@ public class MapToHistory {
                 exactQuantity,
                 BigDecimal.valueOf(prices.get(0).getPrice()),
                 swap.getTo(),
-                prices.get(prices.size()-1).getName(),
-                BigDecimal.valueOf(prices.get(prices.size()-1).getPrice())
-        );
+                prices.get(prices.size() - 1).getName(),
+                BigDecimal.valueOf(prices.get(prices.size() - 1).getPrice()));
         return historyMapper.toHistory(historyDto);
     }
 }

@@ -28,13 +28,13 @@ public class RegisterUser {
     private final BigDecimal StartingBalance = BigDecimal.valueOf(1_000_000);
 
     public String registerUser(Model model, RegisterDto registerDto, BindingResult bindingResult) {
-        if(!registerDto.getPassword().equals(registerDto.getConfirmPassword()))
+        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword()))
             bindingResult.addError(new FieldError("registerDto", "confirmPassword", "Passwords do not match"));
 
-        if(userRepository.findByEmail(registerDto.getEmail()) != null)
+        if (userRepository.findByEmail(registerDto.getEmail()) != null)
             bindingResult.addError(new FieldError("registerDto", "email", "Email already exists"));
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             model.addAttribute("registerDto", nullRegisterDto(registerDto));
             return "signup";
         }
@@ -68,7 +68,6 @@ public class RegisterUser {
                     .quantity(StartingBalance)
                     .userId(savedUser.getId())
                     .build());
-
 
         } catch (Exception e) {
             System.out.println("Exception with POST register: " + e.getMessage());
