@@ -24,13 +24,13 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     @Query("SELECT p.symbol as symbol, p.quantity as quantity FROM Portfolio p WHERE p.userId = :userId AND p.purchaseType = 'CRYPTO'")
     List<CryptoHolding> getCryptoSymbolAndQuantityByUserId(@Param("userId") Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE Portfolio p SET p.quantity = (p.quantity + :quantity) WHERE p.symbol = :symbol AND p.userId = :userId")
     void updatePortfolioQuantity(@Param("quantity") BigDecimal quantity, @Param("symbol") String symbol,
             @Param("userId") Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     void deletePortfolioByQuantityIsLessThanEqualAndUserIdAndSymbol(BigDecimal quantity, Long userId, String symbol);
 }
