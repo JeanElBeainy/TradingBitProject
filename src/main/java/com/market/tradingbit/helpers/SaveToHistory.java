@@ -13,6 +13,7 @@ import com.market.tradingbit.repositories.HistoryRepository;
 import com.market.tradingbit.repositories.PortfolioRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -72,6 +73,7 @@ public class SaveToHistory {
                                 appendRepository.getSwap().getFrom());
         }
 
+        @Transactional
         public void saveHistory(SaveHistory saveHistory) { // 1 query
                 BigDecimal toQuantity = getBigDecimalQuantity(saveHistory.getHistory(),
                                 saveHistory.getExactSwapAmount());

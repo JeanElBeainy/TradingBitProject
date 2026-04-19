@@ -10,6 +10,7 @@ import com.market.tradingbit.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -27,6 +28,7 @@ public class RegisterUser {
     private final AssetRepository assetRepository;
     private final BigDecimal StartingBalance = BigDecimal.valueOf(1_000_000);
 
+    @Transactional
     public String registerUser(Model model, RegisterDto registerDto, BindingResult bindingResult) {
         if (!registerDto.getPassword().equals(registerDto.getConfirmPassword()))
             bindingResult.addError(new FieldError("registerDto", "confirmPassword", "Passwords do not match"));
@@ -38,41 +40,37 @@ public class RegisterUser {
             model.addAttribute("registerDto", nullRegisterDto(registerDto));
             return "signup";
         }
-        try {
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            User user = userMapper.toEntity(registerDto);
-            user.setPassword(encoder.encode(user.getPassword()));
-            user.setRole(Role.USER);
-            user.setCreatedAt(new Date());
 
-            User savedUser = userRepository.save(user);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        User user = userMapper.toEntity(registerDto);
+        user.setPassword(encoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
+        user.setCreatedAt(new Date());
 
-            Balance balance = Balance
-                    .builder()
-                    .id(savedUser.getId())
-                    .cryptoBalance(BigDecimal.valueOf(0))
-                    .stockBalance(BigDecimal.valueOf(0))
-                    .usdBalance(StartingBalance)
-                    .totalVolume(BigDecimal.valueOf(0))
-                    .build();
-            balanceRepository.save(balance);
+        User savedUser = userRepository.save(user);
 
-            assetRepository.save(Asset.builder()
-                    .symbol("US Dollar")
-                    .name("US Dollar Balance")
-                    .build());
+        Balance balance = Balance
+                .builder()
+                .id(savedUser.getId())
+                .cryptoBalance(BigDecimal.valueOf(0))
+                .stockBalance(BigDecimal.valueOf(0))
+                .usdBalance(StartingBalance)
+                .totalVolume(BigDecimal.valueOf(0))
+                .build();
+        balanceRepository.save(balance);
 
-            portfolioRepository.save(Portfolio.builder()
-                    .purchaseType(Type.USD)
-                    .symbol("US Dollar")
-                    .quantity(StartingBalance)
-                    .userId(savedUser.getId())
-                    .build());
+        assetRepository.save(Asset.builder()
+                .symbol("US Dollar")
+                .name("US Dollar Balance")
+                .build());
 
-        } catch (Exception e) {
-            System.out.println("Exception with POST register: " + e.getMessage());
-            return "signup";
-        }
+        portfolioRepository.save(Portfolio.builder()
+                .purchaseType(Type.USD)
+                .symbol("US Dollar")
+                .quantity(StartingBalance)
+                .userId(savedUser.getId())
+                .build());
+
         model.addAttribute("success", true);
         return "signup";
     }

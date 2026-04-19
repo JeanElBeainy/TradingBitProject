@@ -10,6 +10,7 @@ import com.market.tradingbit.repositories.PortfolioRepository;
 import com.market.tradingbit.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import java.math.BigDecimal;
@@ -50,23 +51,20 @@ public class UserSwap {
         }
     }
 
+    @Transactional
     public String userSwap(Model model, SwapDto swap, Long userId, BindingResult bindingResult) {
-        try {
-            BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
-            BasicUserError basicUserError = new BasicUserError(model, swapQuantity, swap, userId, bindingResult);
-            BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), userId);
-            //swapQuantity already checked in checkForBasicErrors, so no need to assert swapQuantity
-            Error error = new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult);
+        BigDecimal swapQuantity = parseQuantity(swap.getQuantity());
+        BasicUserError basicUserError = new BasicUserError(model, swapQuantity, swap, userId, bindingResult);
+        BigDecimal availableBalance = portfolioRepository.getQuantityBySymbolAndUserId(swap.getFrom(), userId);
+        //swapQuantity already checked in checkForBasicErrors, so no need to assert swapQuantity
+        Error error = new Error(model, userId, swap, "Minimum swap price must be at least 1 USD", bindingResult);
 
-            HistoryVolume historyVolume = getHistoryVolume(swap, error, basicUserError, availableBalance);
-            if(historyVolume == null) return "swap";
-            BigDecimal exactSwapAmount = getExactSwapAmount(availableBalance, swapQuantity);
-            balanceRepository.updateTotalVolumeByAmountAndUserId(historyVolume.getVolume(), userId);
-            saveToHistory.saveHistory(new SaveHistory(historyVolume.getHistory(), swap, userId, historyVolume.getVolume(), exactSwapAmount, Type.CRYPTO));
-            return swapValidation.swapSuccessful(model, userId, swap, historyVolume.getHistory());
-        } catch (Exception e) {
-            return "error";
-        }
+        HistoryVolume historyVolume = getHistoryVolume(swap, error, basicUserError, availableBalance);
+        if(historyVolume == null) return "swap";
+        BigDecimal exactSwapAmount = getExactSwapAmount(availableBalance, swapQuantity);
+        balanceRepository.updateTotalVolumeByAmountAndUserId(historyVolume.getVolume(), userId);
+        saveToHistory.saveHistory(new SaveHistory(historyVolume.getHistory(), swap, userId, historyVolume.getVolume(), exactSwapAmount, Type.CRYPTO));
+        return swapValidation.swapSuccessful(model, userId, swap, historyVolume.getHistory());
     }
 
     public void getCryptoSwap(Model model, Principal principal) {
