@@ -30,7 +30,7 @@ public class Balance {
     @Column(name = "usd_balance")
     private BigDecimal usdBalance;
 
-    @Column(name = "total_balance")
+    @Column(name = "total_balance", insertable = false, updatable = false)
     private BigDecimal totalBalance;
 
     @Column(name = "total_volume")

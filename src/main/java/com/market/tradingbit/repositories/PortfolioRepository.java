@@ -12,24 +12,25 @@ import java.util.List;
 
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
-    @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND (p.purchaseType = 'CRYPTO' OR p.purchaseType = 'USD')")
-    List<Portfolio> getCryptoPortfolioByUserId(Long userId);
+    @Query("SELECT p FROM Portfolio p JOIN FETCH p.asset WHERE p.userId = :userId AND (p.purchaseType = 'CRYPTO' OR p.purchaseType = 'USD')")
+    List<Portfolio> getCryptoPortfolioByUserId(@Param("userId") Long userId);
 
     @Query("SELECT p FROM Portfolio p WHERE p.symbol = :symbol AND p.userId = :userId")
-    Portfolio getItemBySymbolAndUserId(String symbol, Long userId);
+    Portfolio getItemBySymbolAndUserId(@Param("symbol") String symbol, @Param("userId") Long userId);
 
     @Query("SELECT p.quantity FROM Portfolio p WHERE p.symbol = :symbol AND p.userId = :userId")
-    BigDecimal getQuantityBySymbolAndUserId(String symbol, Long userId);
+    BigDecimal getQuantityBySymbolAndUserId(@Param("symbol") String symbol, @Param("userId") Long userId);
 
     @Query("SELECT p.symbol as symbol, p.quantity as quantity FROM Portfolio p WHERE p.userId = :userId AND p.purchaseType = 'CRYPTO'")
-    List<CryptoHolding> getCryptoSymbolAndQuantityByUserId(Long userId);
+    List<CryptoHolding> getCryptoSymbolAndQuantityByUserId(@Param("userId") Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE Portfolio p SET p.quantity = (p.quantity + :quantity) WHERE p.symbol = :symbol AND p.userId = :userId")
-    void updatePortfolioQuantity(@Param("quantity") BigDecimal quantity, @Param("symbol") String symbol, @Param("userId") Long userId);
+    void updatePortfolioQuantity(@Param("quantity") BigDecimal quantity, @Param("symbol") String symbol,
+            @Param("userId") Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     void deletePortfolioByQuantityIsLessThanEqualAndUserIdAndSymbol(BigDecimal quantity, Long userId, String symbol);
 }

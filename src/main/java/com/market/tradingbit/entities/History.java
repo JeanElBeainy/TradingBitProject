@@ -3,6 +3,7 @@ package com.market.tradingbit.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "history")
 public class History {
 
     @Id
@@ -25,8 +27,8 @@ public class History {
     @Column(name = "from_quantity", precision = 30, scale = 8)
     private BigDecimal fromQuantity;
 
-    @Column(name = "from_price")
-    private double fromPrice;
+    @Column(name = "from_price", precision = 30, scale = 8)
+    private BigDecimal fromPrice;
 
     @Column(name = "to_symbol")
     private String toSymbol;
@@ -37,20 +39,20 @@ public class History {
     @Column(name = "to_quantity", precision = 30, scale = 8)
     private BigDecimal toQuantity;
 
-    @Column(name = "to_price")
-    private double toPrice;
+    @Column(name = "to_price", precision = 30, scale = 8)
+    private BigDecimal toPrice;
 
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "volume")
-    private float volume;
+    @Column(name = "volume", precision = 30, scale = 8)
+    private BigDecimal volume;
 
     @Column(name = "fee", precision = 30, scale = 8)
     private BigDecimal fee;
 
-    @Column(name = "time")
-    private String time;
+    @Column(name = "time", nullable = false)
+    private LocalDateTime time;
 
     @Column(name = "purchase_type")
     @Enumerated(EnumType.STRING)
