@@ -14,9 +14,9 @@ public class HistoryDto {
     private final String fromSymbol;
     private final String fromName;
     private BigDecimal fromQuantity;
-    private final double fromPrice;
+    private final BigDecimal fromPrice;
 
     private String toSymbol;
     private String toName;
-    private double toPrice;
+    private BigDecimal toPrice;
 }

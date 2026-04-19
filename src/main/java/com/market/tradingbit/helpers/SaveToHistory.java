@@ -24,15 +24,9 @@ public class SaveToHistory {
     private final BalanceRepository balanceRepository;
 
     private BigDecimal getBigDecimalQuantity(History history, BigDecimal exactSwapAmount) {
-        BigDecimal fromPrice = new BigDecimal(String.valueOf(history.getFromPrice()))
-                .setScale(PRECISION, RoundingMode.HALF_EVEN);
-        BigDecimal toPrice = new BigDecimal(String.valueOf(history.getToPrice()))
-                .setScale(PRECISION, RoundingMode.HALF_EVEN);
-
-        return fromPrice
+        return history.getFromPrice()
                 .multiply(exactSwapAmount)
-                .divide(toPrice, PRECISION, RoundingMode.HALF_EVEN)
-                .setScale(PRECISION, RoundingMode.HALF_EVEN);
+                .divide(history.getToPrice(), PRECISION, RoundingMode.HALF_EVEN);
     }
 
     private void appendToRepository(AppendRepository appendRepository) { //4 queries
@@ -92,7 +86,7 @@ public class SaveToHistory {
 
         saveHistory.getHistory().setFee(fee);
         saveHistory.getHistory().setUserId(saveHistory.getUserId());
-        saveHistory.getHistory().setVolume(saveHistory.getVolume().floatValue());
+        saveHistory.getHistory().setVolume(saveHistory.getVolume());
         saveHistory.getHistory().setType(Type.CRYPTO);
         saveHistory.getHistory().setTime(saveHistory.getSwap().getDate());
         historyRepository.save(saveHistory.getHistory());

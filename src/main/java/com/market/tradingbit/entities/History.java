@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "history")
 public class History {
 
     @Id
@@ -25,8 +26,8 @@ public class History {
     @Column(name = "from_quantity", precision = 30, scale = 8)
     private BigDecimal fromQuantity;
 
-    @Column(name = "from_price")
-    private double fromPrice;
+    @Column(name = "from_price", precision = 30, scale = 8)
+    private BigDecimal fromPrice;
 
     @Column(name = "to_symbol")
     private String toSymbol;
@@ -37,14 +38,14 @@ public class History {
     @Column(name = "to_quantity", precision = 30, scale = 8)
     private BigDecimal toQuantity;
 
-    @Column(name = "to_price")
-    private double toPrice;
+    @Column(name = "to_price", precision = 30, scale = 8)
+    private BigDecimal toPrice;
 
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "volume")
-    private float volume;
+    @Column(name = "volume", precision = 30, scale = 8)
+    private BigDecimal volume;
 
     @Column(name = "fee", precision = 30, scale = 8)
     private BigDecimal fee;
