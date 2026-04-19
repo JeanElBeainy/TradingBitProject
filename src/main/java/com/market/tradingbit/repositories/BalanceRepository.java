@@ -29,5 +29,5 @@ public interface BalanceRepository extends JpaRepository<Balance, Long> {
     @Modifying
     @Transactional
     @Query("UPDATE Balance b SET b.totalVolume = (b.totalVolume + :volume) WHERE b.id = :userId")
-    void updateTotalVolumeByAmountAndUserId(@Param("volume") BigDecimal volume, Long userId);
+    void updateTotalVolumeByAmountAndUserId(@Param("volume") BigDecimal volume, @Param("userId") Long userId);
 }
